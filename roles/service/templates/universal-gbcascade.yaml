@@ -1,0 +1,50 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: universal-gbcascade
+  namespace: universal
+  labels:
+    app: universal-gbcascade
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: universal-gbcascade
+  template:
+    metadata:
+      labels:
+        app: universal-gbcascade
+    spec:
+      containers:
+      - name: universal-gbcascade
+        image: {{universal_gbcascade}}
+        ports:
+        - containerPort: 7010
+        resources:
+          requests:
+            memory: "2000Mi"
+          limits:
+            memory: "3000Mi"
+        volumeMounts:
+          - mountPath: /root/logs
+            name: universal-gbcascade-log
+      imagePullSecrets:
+      - name: regcred
+      volumes:
+        - name: universal-gbcascade-log
+          emptyDir:
+            sizeLimit: 1Gi
+---
+# service
+apiVersion: v1
+kind: Service
+metadata:
+  name: universal-gbcascade-svc
+  namespace: universal
+spec:
+  selector:
+    app: universal-gbcascade
+  ports:
+    - protocol: TCP
+      port: 7010
+      targetPort: 7010

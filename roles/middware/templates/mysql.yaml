@@ -1,0 +1,190 @@
+# apiVersion: v1
+# kind: PersistentVolume
+# metadata:
+#   name: mysql8-local-pv
+# spec:
+#   capacity:
+#     storage: 10Gi
+#   volumeMode: Filesystem
+#   accessModes:
+#     - ReadWriteOnce
+#   persistentVolumeReclaimPolicy: Delete
+#   local:
+#     path: /mnt/data/mysql
+#   nodeAffinity:
+#     required:
+#       nodeSelectorTerms:
+#         - matchExpressions:
+#             - key: kubernetes.io/hostname
+#               operator: In
+#               values:
+#                 - "{{ groups['schedulernode'] | random  }}"
+
+---
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: mysql8-config
+  namespace: "{{ middware_namespace }}"
+data:
+  my.cnf: |
+    [mysqld]
+    character-set-server=utf8mb4
+    collation-server=utf8mb4_unicode_ci
+    max_connections=2000
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: mysql8-init-sql
+  namespace: "{{ middware_namespace }}"
+data:
+  createdb.sql: |
+    CREATE DATABASE IF NOT EXISTS `gsdt_videocloud` DEFAULT CHARSET utf8mb4;
+    CREATE DATABASE IF NOT EXISTS `gsdt_sensmart_device` DEFAULT CHARSET utf8mb4;
+    CREATE DATABASE IF NOT EXISTS `gsdt_video_cascader` DEFAULT CHARSET utf8mb4;
+    CREATE DATABASE IF NOT EXISTS `iot_biz` DEFAULT CHARSET utf8mb4;
+    CREATE DATABASE IF NOT EXISTS `iot_hub` DEFAULT CHARSET utf8mb4;
+    CREATE DATABASE IF NOT EXISTS `smart_ops` DEFAULT CHARSET utf8mb4;
+    CREATE DATABASE IF NOT EXISTS `universal_govern` DEFAULT CHARSET utf8mb4;
+    CREATE DATABASE IF NOT EXISTS `universal_addressbook` DEFAULT CHARSET utf8mb4;
+    CREATE DATABASE IF NOT EXISTS `universal_advice` DEFAULT CHARSET utf8mb4;
+    CREATE DATABASE IF NOT EXISTS `universal-cascade` DEFAULT CHARSET utf8mb4;
+    CREATE DATABASE IF NOT EXISTS `universal-gbcascade` DEFAULT CHARSET utf8mb4;
+    CREATE DATABASE IF NOT EXISTS `universal_device` DEFAULT CHARSET utf8mb4;
+    CREATE DATABASE IF NOT EXISTS `universal-operatelog` DEFAULT CHARSET utf8mb4;
+    CREATE DATABASE IF NOT EXISTS `universal_event` DEFAULT CHARSET utf8mb4;
+    CREATE DATABASE IF NOT EXISTS `universal_oauth` DEFAULT CHARSET utf8mb4;
+    CREATE DATABASE IF NOT EXISTS `universal_video` DEFAULT CHARSET utf8mb4;
+    CREATE DATABASE IF NOT EXISTS `powerjob-public` DEFAULT CHARSET utf8mb4;
+    CREATE DATABASE IF NOT EXISTS `sensmart_cbb` DEFAULT CHARSET utf8mb4;
+    CREATE DATABASE IF NOT EXISTS `sensmart_uc` DEFAULT CHARSET utf8mb4;
+    CREATE DATABASE IF NOT EXISTS `AI_PLATFORM` DEFAULT CHARSET utf8mb4;
+    CREATE DATABASE IF NOT EXISTS `UNIVERSAL_ALGORITHM` DEFAULT CHARSET utf8mb4;
+    CREATE DATABASE IF NOT EXISTS `universal_algorithm` DEFAULT CHARSET utf8mb4;
+
+
+  create_user.sql: |
+    create user videocloud@'%' identified by 'gsdt@videocloud!';
+    grant all on *.* to videocloud@'%';
+    create user 'sensmart'@'%' identified by 'GSDT@sensmart!';
+    grant all on *.* to 'sensmart'@'%';
+    create user 'universal'@'%' identified by 'GSDT@universal!';
+    grant all on *.* to 'universal'@'%';
+ 
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: mysql8
+  namespace: "{{ middware_namespace }}"
+spec:
+  selector:
+    matchLabels:
+      app: mysql8
+  serviceName: mysql8
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: mysql8
+    spec:
+      containers:
+      - name: mysql8
+        image: reg.guideirai.online/base/mysql:{{mysql_version}}
+        ports:
+        - containerPort: 3306
+          name: mysql8
+        env:
+        - name: MYSQL_ROOT_PASSWORD
+          value: "GSDT@gsdt002414"
+        volumeMounts:
+        - name: mysql8-pvc
+          mountPath: /var/lib/mysql
+        - name: config-volume
+          mountPath: /etc/mysql/conf.d/my.cnf
+          subPath: my.cnf
+        - name: initdb
+          mountPath: /docker-entrypoint-initdb.d
+        livenessProbe:
+          exec:
+            command:
+              - /bin/bash
+              - '-ec'
+              - |
+                password_aux="${MYSQL_ROOT_PASSWORD:-}"
+                mysqladmin status -uroot -p"${password_aux}"
+          initialDelaySeconds: 10
+          timeoutSeconds: 5
+          periodSeconds: 10
+        startupProbe:
+          exec:
+            command:
+              - /bin/bash
+              - '-ec'
+              - |
+                password_aux="${MYSQL_ROOT_PASSWORD:-}"
+                mysqladmin ping -uroot -p"${password_aux}"
+          initialDelaySeconds: 15
+          timeoutSeconds: 5
+          periodSeconds: 10
+      volumes:
+      - name: config-volume
+        configMap:
+          name: mysql8-config
+      - name: initdb
+        configMap:
+          name: mysql8-init-sql
+      imagePullSecrets:
+        - name: regcred
+  volumeClaimTemplates:
+  - metadata:
+      name: mysql8-pvc
+      namespace: "{{ middware_namespace }}"
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      resources:
+        requests:
+          storage: 10Gi
+      volumeMode: Filesystem
+ 
+---
+ 
+apiVersion: v1
+kind: Service
+metadata:
+  name: mysql8
+  namespace: "{{ middware_namespace }}"
+  labels:
+    app: mysql8
+spec:
+  ports:
+    - name: mysql8
+      protocol: TCP
+      port: 3306
+      targetPort: 3306
+  selector:
+    app: mysql8
+  type: ClusterIP
+ 
+---
+ 
+apiVersion: v1
+kind: Service
+metadata:
+  name: mysql8-nodeport
+  namespace: "{{ middware_namespace }}"
+  labels:
+    app: mysql8
+spec:
+  ports:
+    - name: mysql8
+      protocol: TCP
+      port: 3306
+      targetPort: 3306
+      nodePort: 33306
+  selector:
+    app: mysql8
+  type: NodePort

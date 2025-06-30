@@ -1,0 +1,63 @@
+---
+
+- name: Create Soft Directory
+  file:
+    path: /root/soft
+    state: directory
+    mode: 0755
+    recurse: yes
+
+
+
+
+- name: Create Kubernetes Dirctory
+  file:
+    path: "{{ kubernetes_home }}/{{item}}"
+    state: directory
+    mode: 0755
+    recurse: yes
+    owner: root
+    group: root
+  with_items:
+  - 'bin'
+  - 'etc'
+  - 'ssl'
+  - 'logs'
+  # tags:
+  #   - master
+  #   - node
+
+
+- name: Create Kubectl Dirctory
+  file:
+    path: "/root/.kube"
+    state: directory
+    mode: 0755
+    recurse: yes
+    owner: root
+    group: root
+  # tags:
+  #   - master
+  #   - node
+
+- name: Disable SWAP
+  shell: swapoff -a
+  # tags:
+  #   - master
+  #   - node
+
+#### Kube-Master 安装 ####
+
+- name: Install Kubernetes Master
+  import_tasks: kube-master.yml
+  tags: master
+
+
+#### Kube-Node 安装 ####
+
+- name: Install Kubernetes Node
+  import_tasks: kube-node.yml
+  tags: node
+
+
+

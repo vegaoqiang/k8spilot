@@ -1,0 +1,53 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: universal-addressbook
+  namespace: universal
+  labels:
+    app: universal-addressbook
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: universal-addressbook
+  template:
+    metadata:
+      labels:
+        app: universal-addressbook
+    spec:
+      containers:
+      - name: universal-addressbook
+        image: {{ universal_addressbook }}
+        ports:
+        - containerPort: 7002
+        - name: debug
+          protocol: TCP
+          containerPort: 5005
+        resources:
+          requests:
+            memory: "2000Mi"
+          limits:
+            memory: "3000Mi"
+        volumeMounts:
+          - mountPath: /root/logs
+            name: universal-addressbook-log
+      imagePullSecrets:
+      - name: regcred
+      volumes:
+        - name: universal-addressbook-log
+          emptyDir:
+            sizeLimit: 1Gi
+---
+# service
+apiVersion: v1
+kind: Service
+metadata:
+  name: universal-addressbook-svc
+  namespace: universal
+spec:
+  selector:
+    app: universal-addressbook
+  ports:
+    - protocol: TCP
+      port: 7002
+      targetPort: 7002

@@ -1,0 +1,41 @@
+centos_disable_service: [ 'firewalld', 'atd', 'irqbalance', 'smartd' ]
+openeuler_disable_service: [ 'firewalld', 'irqbalance' ]
+
+remove_package: [ 'java-1.7.0-openjdk' ]
+update_package: [ 'pcre-devel', 'openssl-devel', 'libxslt-devel', 'libxml2-devel', 'gd-devel', 'glibc-common', 'gcc', 'make', 'glibc-common', 'unzip', 'perl-ExtUtils-Embed', 'perl-Time-HiRes', 'ca-certificates', 'curl', 'wget', 'lrzsz', 'ncurses-devel', 'perl-DBI', 'glibc', 'libstdc++', 'vim', 'gcc-c++', 'bind-utils', 'psmisc', 'bzip2', 'libaio', 'openssh',  'zip', 'lvm2', 'chrony', 'tar', 'nfs-utils' ]
+
+kernel_params:
+  - { name: net.core.somaxconn, value: 2048 }
+  - { name: net.core.netdev_max_backlog, value: 5000 }
+  - { name: net.core.rmem_max, value: 16777216 }
+  - { name: net.core.wmem_max, value: 16777216  }
+  - { name: net.ipv4.udp_rmem_min, value: 16384 }
+  - { name: net.ipv4.udp_wmem_min, value: 16384 }
+  - { name: net.ipv4.tcp_mem, value: "786432 2097152 3145728" }
+  - { name: net.ipv4.tcp_wmem, value: "4096 12582912 16777216" }
+  - { name: net.ipv4.tcp_rmem, value: "4096 12582912 16777216" }
+  - { name: net.ipv4.tcp_max_syn_backlog, value: 8096  }
+  - { name: net.ipv4.tcp_syn_retries, value: 2 }
+  - { name: net.ipv4.tcp_slow_start_after_idle, value: 0 }
+  - { name: net.ipv4.tcp_tw_reuse, value: 1 }
+  - { name: net.ipv4.ip_local_port_range, value: "10000 50000" }
+  - { name: net.ipv4.tcp_abort_on_overflow, value: 1 }
+  - { name: net.ipv4.tcp_max_orphans, value: 200000 }
+  - { name: vm.swappiness, value: 0 }
+  - { name: vm.zone_reclaim_mode, value: 0 }
+  - { name: vm.max_map_count, value: 262144 }
+  - { name: vm.dirty_background_ratio, value: 5 }
+  - { name: vm.dirty_expire_centisecs, value: 1000 }
+  - { name: net.ipv4.tcp_fin_timeout, value: 30 }
+  - { name: net.ipv4.tcp_base_mss, value: 1024 }
+  - { name: net.ipv4.tcp_mtu_probing, value: 1 }
+  - { name: net.ipv4.tcp_fastopen, value: 3 }
+  - { name: net.ipv4.udp_rmem_min, value: 16384 }
+  - { name: net.ipv4.udp_wmem_min, value: 16384 }
+  - { name: net.ipv4.tcp_sack, value: 0 }
+  - { name: net.core.default_qdisc, value: fq }
+  - { name: net.ipv4.tcp_congestion_control, value: bbr }
+
+
+
+

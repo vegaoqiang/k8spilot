@@ -1,0 +1,116 @@
+---
+  
+- name: Install Kubernetes Master
+  ansible.builtin.unarchive: 
+    src: "{{role_path}}/files/k8s_{{ kube_version }}_linux_{{ansible_architecture}}.tar.gz"
+    dest: "{{ kubernetes_home }}/bin/"
+    owner: root
+    group: root
+    remote_src: no
+
+- name: Install Helm
+  ansible.builtin.unarchive: 
+    src: "{{role_path}}/files/helm-{{ helm_version }}-linux-{{ansible_architecture}}.tar.gz"
+    dest: "/usr/local/bin"
+    extra_opts: [--strip-components=1]
+    owner: root
+    group: root
+    remote_src: no
+
+- name: Install Cilium Cli
+  ansible.builtin.unarchive: 
+    src: "{{role_path}}/files/cilium-linux-{{ansible_architecture}}.tar.gz"
+    dest: "/usr/local/bin"
+    owner: root
+    group: root
+    remote_src: no
+
+- name: Install Cfssl Tools
+  ansible.builtin.unarchive:
+    src: "{{role_path}}/files/cfssl_1.6.5_linux_{{ansible_architecture}}.tar.gz"
+    dest: "/tmp/"
+    owner: root
+    group: root
+    remote_src: no
+
+- name: Clean Cfssl Temp Files
+  shell: |
+    mv -f /tmp/cfssl/* /usr/local/bin/
+    rm -fr /tmp/cfssl
+
+
+- name: Install SSL Certificate
+  copy:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+    owner: root 
+    group: root 
+    mode: 0640
+  with_items:
+  - { src: "vica-config.json", dest: "{{ kubernetes_home }}/ssl/vica-config.json" }
+  - { src: "{{ pem_file_ca }}", dest: "{{ kubernetes_home }}/ssl/ca.pem" }
+  - { src: "{{ pem_file_key }}", dest: "{{ kubernetes_home }}/ssl/key.pem" }
+  - { src: "bootstrap.yaml", dest: "{{ kubernetes_home }}/etc/bootstrap.yaml" }
+
+- name: Install Kube-Master Systemd Config
+  template:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+    owner: root
+    group: root
+    mode: 0640
+  with_items:
+  - { src: "token", dest: "{{ kubernetes_home }}/ssl/token" }
+  - { src: "kube-admin-csr.json", dest: "{{ kubernetes_home }}/ssl/kube-admin-csr.json" }
+  - { src: "kube-apiserver-csr.json", dest: "{{ kubernetes_home }}/ssl/kube-apiserver-csr.json" }
+  - { src: "kube-controller-manager-csr.json", dest: "{{ kubernetes_home }}/ssl/kube-controller-manager-csr.json" }
+  - { src: "kube-scheduler-csr.json", dest: "{{ kubernetes_home }}/ssl/kube-scheduler-csr.json" }
+  - { src: "kube-apiserver.conf", dest: "{{ kubernetes_home }}/etc/kube-apiserver.conf" }
+  - { src: "kube-controller-manager.conf", dest: "{{ kubernetes_home }}/etc/kube-controller-manager.conf" }
+  - { src: "kube-scheduler.conf", dest: "{{ kubernetes_home }}/etc/kube-scheduler.conf" }
+  - { src: "kube-apiserver.service.j2", dest: "/usr/lib/systemd/system/kube-apiserver.service" }
+  - { src: "kube-controller-manager.service.j2", dest: "/usr/lib/systemd/system/kube-controller-manager.service" }
+  - { src: "kube-scheduler.service.j2", dest: "/usr/lib/systemd/system/kube-scheduler.service" }
+  - { src: "cilium-helm-release.yml", dest: "{{ kubernetes_home }}/etc/cilium-helm-release.yml" }
+  - { src: "coredns.yml", dest: "{{ kubernetes_home }}/etc/coredns.yml" }
+  - { src: "ip-masq-agent.yml", dest: "{{ kubernetes_home }}/etc/ip-masq-agent.yml" }
+  tags:
+    - masterconfig
+
+- name: Generate SSL Certificates
+  shell: |
+    cfssl gencert -ca=ca.pem -ca-key=key.pem -config=vica-config.json kube-admin-csr.json  | cfssljson -bare kube-admin
+    cfssl gencert -ca=ca.pem -ca-key=key.pem -config=vica-config.json kube-apiserver-csr.json  | cfssljson -bare kube-apiserver  
+    cfssl gencert -ca=ca.pem -ca-key=key.pem -config=vica-config.json kube-controller-manager-csr.json  | cfssljson -bare kube-controller-manager
+    cfssl gencert -ca=ca.pem -ca-key=key.pem -config=vica-config.json kube-scheduler-csr.json  | cfssljson -bare kube-scheduler
+    ln -sfT {{ kubernetes_home }}/bin/kubectl /usr/local/bin/kubectl
+  args:
+    chdir: "{{ kubernetes_home }}/ssl"
+
+- name: Install Master Kubeconfig
+  template:
+    src: "master.kubeconfig"
+    dest: "{{ item.dest }}"
+    owner: root
+    group: root
+    mode: 0600
+  with_items:
+  - { dest: "/root/.kube/config", context_user: "kube-admin" }
+  - { dest: "{{ kubernetes_home }}/etc/kube-admin.kubeconfig", context_user: "kube-admin" }
+  - { dest: "{{ kubernetes_home }}/etc/kube-controller-manager.kubeconfig", context_user: "kube-controller-manager" }
+  - { dest: "{{ kubernetes_home }}/etc/kube-scheduler.kubeconfig", context_user: "kube-scheduler" }
+  changed_when: True
+
+- name: Enable Kubernetes Master Service
+  ansible.builtin.service:
+    name: "{{ item }}"
+    enabled: yes
+    state: started
+  with_items:
+  - 'kube-apiserver'
+  - 'kube-controller-manager'
+  - 'kube-scheduler'
+
+- name: Install Client Certificate Auto Approve
+  shell: |
+    kubectl apply -f {{ kubernetes_home }}/etc/bootstrap.yaml

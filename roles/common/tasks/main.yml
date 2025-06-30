@@ -1,0 +1,158 @@
+---
+
+# - name: Print all facts
+#   ansible.builtin.debug:
+#     var: ansible_facts
+
+- name: Create Soft Directory
+  file:
+    path: /root/soft
+    state: directory
+    mode: 0755
+    recurse: yes
+
+# - name: Update Motd
+#   template:
+#     src: motd
+#     dest: /etc/motd
+#   tags: sethost
+
+- name: deledt repo
+  shell: rm -rf /etc/yum.repos.d/*
+  args:
+      chdir: /etc/yum.repos.d/
+  when: ansible_distribution == 'CentOS'
+ 
+- name: Change CN mirror Centos/RHEL 9
+  template:
+    src: centos.repo
+    dest: /etc/yum.repos.d/centos.repo
+  when: ansible_distribution == 'CentOS'
+
+- name: Install EPEL Repo - Centos/RHEL 9
+  template:
+    src: epel-9.repo
+    dest: /etc/yum.repos.d/epel.repo
+  when: ansible_distribution == 'CentOS'
+    
+    
+- name: Change selinux config
+  ansible.builtin.shell: |
+    if [ -f /etc/selinux/config ]; then 
+      sed -i 's/SELINUX=enforcing/SELINUX=disabled/g' /etc/selinux/config
+      # setenforce 0
+    fi
+  # lineinfile:
+  #   dest: /etc/selinux/config
+  #   regexp: '^SELINUX='
+  #   line: SELINUX=disabled
+  #   validate: 'test -f %s'
+
+
+- name: update timezone
+  shell: timedatectl set-timezone Asia/Shanghai
+
+- name: update hostname
+  hostname: name={{ inventory_hostname }}
+
+
+- name: Change limit config
+  #  shell:  sed -i 's/65535/800000/g'  /etc/security/limits.conf
+  blockinfile:
+    dest: /etc/security/limits.conf
+    insertafter: "# End of file"
+    content: |
+      *     soft    nofile  800000
+      *     hard    nofile  800000
+
+
+- name: disable service
+  service: name={{ item }} enabled=no state=stopped
+  with_items: "{{ centos_disable_service }}"
+  ignore_errors: yes
+  when: " ansible_distribution == 'CentOS' "
+
+- name: disable service
+  service: name={{ item }} enabled=no state=stopped
+  with_items: "{{ openeuler_disable_service }}"
+  ignore_errors: yes
+  when: " ansible_distribution == 'openEuler' "
+
+- name: kernel tuning
+  sysctl: name={{ item.name }} value={{ item.value }} sysctl_set=yes state=present
+  with_items: '{{ kernel_params }}'
+  ignore_errors: yes
+
+
+# - name: yum remove packages
+#   yum: name={{ remove_package }} state=absent
+
+# - name: copy lib offline rpm  package to remote
+#   ansible.builtin.unarchive:
+#     src: "{{role_path}}/files/openeuler-{{ansible_distribution_version}}-lib-package-{{ansible_architecture}}.tar.gz"
+#     dest: "/root/soft/"
+#   when: " ansible_distribution == 'openEuler' "
+
+
+# - name: copy lib offline rpm  package to remote
+#   ansible.builtin.unarchive:
+#     src: "{{role_path}}/files/centos-lib-package-{{ansible_architecture}}.tar.gz"
+#     dest: "/root/soft/"
+#   when: " ansible_distribution == 'CentOS' "
+
+# - name: copy kylin-{{ansible_distribution_release}}-lib-package to remote
+#   ansible.builtin.unarchive:
+#     src: "{{role_path}}/files/kylin-{{ansible_distribution_release}}-lib-package-{{ansible_architecture}}.tar.gz"
+#     dest: "/root/soft/"
+#   when: " ansible_distribution == 'Kylin Linux Advanced Server' "
+
+
+# - name: install lib packages
+#   ansible.builtin.shell:
+#     yum localinstall -y /root/soft/*.rpm
+
+
+# - name: remove offline package
+#   ansible.builtin.shell:
+#     rm -f /root/soft/*.rpm
+
+# - name: update motd2
+#   shell:   figlet -w 200 {{ inventory_hostname }} >> /etc/motd
+#   tags: sethost
+
+- name: copy chrony.conf
+  template:
+    src: chrony.conf 
+    dest: /etc/chrony.conf
+
+- name: restart chronyd
+  shell: systemctl restart chronyd
+
+- name: stop swap
+  shell: |
+    swapoff -a
+    sed -i "s/.*swap.*/#&/" /etc/fstab
+    sysctl --system
+
+#- name: repair polkit pkexec
+#  shell: chmod 0755 /usr/bin/pkexec
+# 
+# 
+# - name: update network
+#   shell: nmcli  con mod 'System eth0'  ipv4.dns "{{ coredns_ip }}"; nmcli con mod 'System eth0' ipv4.ignore-auto-dns yes
+#   tags:  dns
+# 
+# - name: update network DNS
+#   shell: echo 'supersede domain-name-servers {{ coredns_ip }};' > /etc/dhcp/dhclient.conf
+#   tags:  dns
+# 
+# - name: restart network
+#   shell: systemctl restart NetworkManager
+#   tags:  dns
+
+- name: disable node_exporter
+  ansible.builtin.systemd_service:
+    name: node_exporter.service
+    state: stopped
+    enabled: false
+  ignore_errors: yes

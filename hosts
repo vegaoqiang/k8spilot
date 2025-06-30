@@ -1,0 +1,14 @@
+[k8smaster]
+k8s-master01  ansible_ssh_host=10.10.81.212 ansible_port=22 ansible_password='zgsk@#^!1'
+[k8snode]
+k8s-master01  ansible_ssh_host=10.10.81.212 ansible_port=22 ansible_password='zgsk@#^!1'
+k8s-node01  ansible_ssh_host=10.10.81.213 ansible_port=22 ansible_password='zgsk@#^!1'
+k8s-node02  ansible_ssh_host=10.10.81.214 ansible_port=22 ansible_password='zgsk@#^!1'
+[schedulernode]
+k8s-master01  ansible_ssh_host=10.10.81.212 ansible_port=22 ansible_password='zgsk@#^!1'
+k8s-node01  ansible_ssh_host=10.10.81.213 ansible_port=22 ansible_password='zgsk@#^!1'
+k8s-node02  ansible_ssh_host=10.10.81.214 ansible_port=22 ansible_password='zgsk@#^!1'
+[etcd]
+k8s-node02  ansible_ssh_host=10.10.81.214 ansible_port=22 ansible_password='zgsk@#^!1'
+k8s-node01  ansible_ssh_host=10.10.81.213 ansible_port=22 ansible_password='zgsk@#^!1'
+k8s-master01  ansible_ssh_host=10.10.81.212 ansible_port=22 ansible_password='zgsk@#^!1'

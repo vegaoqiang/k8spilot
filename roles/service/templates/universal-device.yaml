@@ -1,0 +1,54 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: universal-device
+  namespace: universal
+  labels:
+    app: universal-device
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: universal-device
+  template:
+    metadata:
+      labels:
+        app: universal-device
+    spec:
+      containers:
+      - name: universal-device
+        image: {{universal_device}}
+        ports:
+        - containerPort: 7003
+        - name: debug
+          protocol: TCP
+          containerPort: 5005
+        resources:
+          requests:
+            memory: "2000Mi"
+          limits:
+            memory: "3000Mi"
+        volumeMounts:
+          - mountPath: /root/logs
+            name: universal-device-log
+      imagePullSecrets:
+      - name: regcred
+      volumes:
+        - name: universal-device-log
+          emptyDir:
+            sizeLimit: 1Gi
+      
+---
+# service
+apiVersion: v1
+kind: Service
+metadata:
+  name: universal-device-svc
+  namespace: universal
+spec:
+  selector:
+    app: universal-device
+  ports:
+    - protocol: TCP
+      port: 7003
+      targetPort: 7003

@@ -1,0 +1,70 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ai-platform-core
+  namespace: ai
+  labels:
+    app: ai-platform-core
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ai-platform-core
+  template:
+    metadata:
+      labels:
+        app: ai-platform-core
+    spec:
+      containers:
+      - name: ai-platform-core
+        image: {{ai_platform_core}}
+        ports:
+        - containerPort: 10626
+        - name: debug
+          protocol: TCP
+          containerPort: 5005
+        resources:
+          requests:
+            memory: "3000Mi"
+          limits:
+            memory: "5000Mi"
+        volumeMounts:
+          - mountPath: /app/logs
+            name: ai-platform-core-log
+      imagePullSecrets:
+      - name: regcred
+      volumes:
+        - name: ai-platform-core-log
+          emptyDir:
+            sizeLimit: 1Gi
+
+---
+# service
+apiVersion: v1
+kind: Service
+metadata:
+  name: ai-platform-core-svc
+  namespace: ai
+spec:
+  selector:
+    app: ai-platform-core
+  ports:
+    - protocol: TCP
+      port: 10626
+      targetPort: 10626
+      
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ai-platform-core-nodeport
+  namespace: ai
+spec:
+  selector:
+    app: ai-platform-core
+  ports:
+    - protocol: TCP
+      port: 10626
+      targetPort: 10626
+      nodePort: 20626
+  type: NodePort

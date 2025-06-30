@@ -1,0 +1,112 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: video-adapter
+  namespace: devops
+  labels:
+    app: video-adapter
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: video-adapter
+  template:
+    metadata:
+      labels:
+        app: video-adapter
+    spec:
+      volumes:
+        - name: video-adapter-log
+          emptyDir:
+            sizeLimit: 1Gi
+      containers:
+        - name: video-adapter
+          image: {{video_adapter}}
+          ports:
+            - name: debug
+              containerPort: 10529
+              protocol: TCP
+            - name: dubbo
+              containerPort: 10527
+              protocol: TCP
+            - name: web
+              containerPort: 10526
+              protocol: TCP
+          env:
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  apiVersion: v1
+                  fieldPath: metadata.name
+            - name: JVM
+              value: '1024'
+            - name: JVM_CUSTOM
+              value: ' -Denv=TEST -Dfile.encoding=utf-8 -Dspring.cloud.nacos.config.file-extension=properties -Dspring.cloud.nacos.config.server-addr=nacos.public.svc.cluster.local:8848 -Dspring.cloud.nacos.config.username=nacos -Dspring.cloud.nacos.config.password=nacos -Dspring.cloud.nacos.discovery.server-addr=nacos.public.svc.cluster.local:8848 -Dspring.cloud.nacos.discovery.username=nacos -Dspring.cloud.nacos.discovery.password=nacos --add-opens=java.management/sun.management=ALL-UNNAMED --add-opens=java.base/sun.net=ALL-UNNAMED --add-opens=java.base/java.lang=ALL-UNNAMED --add-opens=java.base/java.math=ALL-UNNAMED --add-opens=java.base/jdk.internal.misc=ALL-UNNAMED -XX:+UnlockExperimentalVMOptions -XX:MaxRAM=1G -XX:InitialRAMPercentage=10 -XX:MinRAMPercentage=50 -XX:MaxRAMPercentage=70 -Xms512m -Xmx1024m -server -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:10529'
+            - name: TZ
+              value: Asia/Shanghai
+            - name: APP_NAME
+              value: video-adapter
+            - name: LANG
+              value: en_US.UTF-8
+            - name: PROJECT_NAME
+              value: video-adapter
+            - name: WEBPORT
+              value: '10526'
+            - name: isolate
+              value: video-sheng
+            - name: LOG_KAFKA_REGION
+              value: e30=
+            - name: SENTINEL_URL
+              value: '-'
+            - name: CODE_VERSION
+              value: '17'
+            - name: DUBBO_ENV_KEYS
+              value: zone,isolate
+            - name: JVMMN
+              value: '512'
+            - name: ISKUBERAPP
+              value: 'true'
+            - name: CONFIG_ENV
+              value: TEST
+          resources:
+            limits:
+              cpu: '1'
+              memory: 2Gi
+            requests:
+              cpu: 250m
+              memory: 512Mi
+          volumeMounts:
+            - name: video-adapter-log
+              mountPath: /home/docker/logs
+          readinessProbe:
+            httpGet:
+              path: /hc.do?a=healthCheck
+              port: 10526
+              scheme: HTTP
+            timeoutSeconds: 1
+            periodSeconds: 5
+            successThreshold: 1
+            failureThreshold: 2
+          imagePullPolicy: IfNotPresent
+      restartPolicy: Always
+      imagePullSecrets:
+        - name: regcred
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: video-adapter-svc-nodeport
+  namespace: devops
+spec:
+  ports:
+    - protocol: TCP
+      port: 10526
+      targetPort: 10526
+      nodePort: 20526
+  selector:
+    app: video-adapter
+  type: NodePort
+
+

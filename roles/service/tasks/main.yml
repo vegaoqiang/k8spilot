@@ -1,0 +1,59 @@
+
+- name: Copy service yaml to remote
+  template:
+    src: "{{ item }}"
+    dest: ~/services/yamls/
+  loop:
+    - "universal-addressbook.yaml"
+    - "universal-advice.yaml"
+    - "universal-algorithm.yaml"
+    - "universal-cascade.yaml"
+    - "universal-event.yaml"
+    # - "universal-gateway.yaml"
+    - "universal-govern.yaml"
+    - "universal-video.yaml" 
+    - "intellgent-sensing-cloud-web.yaml"
+    - "universal-device.yaml"
+    - "universal-gbcascade.yaml"
+    - "universal-oauth.yaml"
+    - "universal-operatelog.yaml"
+    - "sensmart-auth.yaml" 
+    # - "smart-ops.yaml"
+    - "sensmart-ops.yaml"
+    - "video-adapter.yaml" 
+    - "cbb-flow-engin.yaml"
+    - "cbb-msg-dispatcher.yaml"
+    - "commander.yaml"
+    - "video-cascader.yaml"
+    - "ai-platform-core.yaml"
+    - "ai-platform-dh.yaml"
+    - "ai-platform-distance.yaml"
+  tags: service
+
+- name: Apply yamls
+  ansible.builtin.shell: |
+    kubectl apply -f ~/services/yamls/
+  tags: service
+
+
+########### 更新操作
+
+- name: backup old server yaml
+  ansible.builtin.shell: |
+    if [ -d ~/service_update/yamls ];then
+      mv ~/service_update/yamls ~/service_update/yamls-$(date +%F%H%M)
+    fi
+  tags: service_update
+
+- name: Copy service update yamls {{var_service_yaml}} to remote
+  template:
+    src: "{{ item }}"
+    dest: ~/service_update/yamls/
+  loop: "{{var_service_yaml.split(',')}}"
+  tags: service_update
+
+
+- name: Apply yamls
+  ansible.builtin.shell: |
+    kubectl apply -f ~/service_update/yamls/
+  tags: service_update

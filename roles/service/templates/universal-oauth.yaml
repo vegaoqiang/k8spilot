@@ -1,0 +1,51 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: universal-oauth
+  namespace: universal
+  labels:
+    app: universal-oauth
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: universal-oauth
+  template:
+    metadata:
+      labels:
+        app: universal-oauth
+    spec:
+      containers:
+      - name: universal-oauth
+        image: {{universal_oauth}}
+        ports:
+        - containerPort: 7001
+        resources:
+          requests:
+            memory: "2000Mi"
+          limits:
+            memory: "3000Mi"
+        volumeMounts:
+          - mountPath: /root/logs
+            name: universal-oauth-log
+      imagePullSecrets:
+      - name: regcred
+      volumes:
+        - name: universal-oauth-log
+          emptyDir:
+            sizeLimit: 1Gi
+
+---
+# service
+apiVersion: v1
+kind: Service
+metadata:
+  name: universal-oauth-svc
+  namespace: universal
+spec:
+  selector:
+    app: universal-oauth
+  ports:
+    - protocol: TCP
+      port: 7001
+      targetPort: 7001

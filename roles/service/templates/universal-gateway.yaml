@@ -1,0 +1,53 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: universal-gateway
+  namespace: universal
+  labels:
+    app: universal-gateway
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: universal-gateway
+  template:
+    metadata:
+      labels:
+        app: universal-gateway
+    spec:
+      containers:
+      - name: universal-gateway
+        image: {{universal_gateway}}
+        ports:
+        - containerPort: 7000
+        resources:
+          requests:
+            memory: "800Mi"
+            cpu: "1"
+          limits:
+            memory: "1000Mi"
+            cpu: "1"
+        volumeMounts:
+          - mountPath: /root/logs
+            name: universal-gateway-log
+      imagePullSecrets:
+      - name: regcred
+      volumes:
+        - name: universal-gateway-log
+          emptyDir:
+            sizeLimit: 1Gi
+            
+---
+# service
+apiVersion: v1
+kind: Service
+metadata:
+  name: universal-gateway-svc
+  namespace: universal
+spec:
+  selector:
+    app: universal-gateway
+  ports:
+    - protocol: TCP
+      port: 7000
+      targetPort: 700

@@ -1,0 +1,85 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ai-platform-distance
+  namespace: ai
+  labels:
+    app: ai-platform-distance
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ai-platform-distance
+  template:
+    metadata:
+      labels:
+        app: ai-platform-distance
+    spec:
+      containers:
+      - name: ai-platform-distance
+        image: {{ai_platform_distance}}
+        ports:
+        - containerPort: 10629
+        - name: debug
+          protocol: TCP
+          containerPort: 5005
+        resources:
+          requests:
+            memory: "6000Mi"
+          limits:
+            memory: "6000Mi"
+        volumeMounts:
+          - mountPath: /data
+            name: native-data
+          - mountPath: /app/logs
+            name:  ai-platform-distance-log
+      imagePullSecrets:
+        - name: regcred
+      volumes:
+        - name: native-data
+          persistentVolumeClaim:
+            claimName: ai-platform-distance-pvc
+        - name: ai-platform-distance-log
+          emptyDir: {}
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: ai-platform-distance-pvc
+  namespace: ai
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+---
+# service
+apiVersion: v1
+kind: Service
+metadata:
+  name: ai-platform-distance-svc
+  namespace: ai
+spec:
+  selector:
+    app: ai-platform-distance
+  ports:
+    - protocol: TCP
+      port: 10629
+      targetPort: 10629
+      
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ai-platform-distance-nodeport
+  namespace: ai
+spec:
+  selector:
+    app: ai-platform-distance
+  ports:
+    - protocol: TCP
+      port: 10629
+      targetPort: 10629
+      nodePort: 20629
+  type: NodePort

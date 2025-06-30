@@ -1,0 +1,92 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: dm8
+  namespace: {{ middware_namespace }}
+  labels:
+    app: dm8
+spec:
+  serviceName: "dm8"
+  replicas: 1
+  selector:
+    matchLabels:
+      app: dm8
+  template:
+    metadata:
+      labels:
+        app: dm8
+    spec:
+      containers:
+        - name: dm8
+          image: dm8_single:dm8_20240715_rev232765_x86_rh6_64
+          ports:
+            - containerPort: 5236
+              name: dm8-port
+          env:
+            - name: LD_LIBRARY_PATH
+              value: /opt/dmdbms/bin
+            - name: PAGE_SIZE
+              value: "16"
+            - name: EXTENT_SIZE
+              value: "32"
+            - name: LOG_SIZE
+              value: "1024"
+            - name: UNICODE_FLAG
+              value: "1"
+            - name: INSTANCE_NAME
+              value: dm8
+            - name: COMPATIBLE_MODE
+              value: "4"
+          securityContext:
+            privileged: true
+          volumeMounts:
+            - name: dm8-data
+              mountPath: /opt/dmdbms/data
+      restartPolicy: Always
+  volumeClaimTemplates:
+    - metadata:
+        name: dm8-data
+      spec:
+        accessModes: ["ReadWriteOnce"]
+        resources:
+          requests:
+            storage: 10Gi # Adjust the size as needed
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: dm8
+  namespace: "{{ middware_namespace }}"
+  labels:
+    app: dm8
+spec:
+  ports:
+    - name: dm8
+      protocol: TCP
+      port: 5236
+      targetPort: 5236
+  selector:
+    app: dm8
+  type: ClusterIP
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: dm8-nodeport
+  namespace: "{{ middware_namespace }}"
+  labels:
+    app: dm8
+spec:
+  ports:
+    - name: dm8
+      protocol: TCP
+      port: 5236
+      targetPort: 5236
+      nodePort: 35236
+  selector:
+    app: dm8
+  type: NodePort

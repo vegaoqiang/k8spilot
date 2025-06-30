@@ -1,0 +1,54 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: universal-algorithm
+  namespace: universal
+  labels:
+    app: universal-algorithm
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: universal-algorithm
+  template:
+    metadata:
+      labels:
+        app: universal-algorithm
+    spec:
+      containers:
+      - name: universal-algorithm
+        image: {{ universal_algorithm }}
+        ports:
+        - containerPort: 7011
+        - name: debug
+          protocol: TCP
+          containerPort: 5005
+        resources:
+          requests:
+            memory: "3000Mi"
+          limits:
+            memory: "3000Mi"
+        volumeMounts:
+          - mountPath: /app/logs
+            name: universal-algorithm-log
+      imagePullSecrets:
+      - name: regcred
+      volumes:
+        - name: universal-algorithm-log
+          emptyDir:
+            sizeLimit: 1Gi
+      
+---
+# service
+apiVersion: v1
+kind: Service
+metadata:
+  name: universal-algorithm-svc
+  namespace: universal
+spec:
+  selector:
+    app: universal-algorithm
+  ports:
+    - protocol: TCP
+      port: 7011
+      targetPort: 7011

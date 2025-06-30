@@ -1,0 +1,183 @@
+# 中间件安装配置，需要在所有节点（包含主节点）安装的中间件（Daemon Sets类型）
+- name: prepare install in all nodes
+  hosts: k8snode
+  remote_user: root
+  tasks:
+    # - name: create middwares directory
+    #   ansible.builtin.shell: |
+    #    [[ -d ~/middwares ]] || mkdir ~/middwares
+    
+    # - name: Find node-exporter .tar files
+    #   ansible.builtin.find:
+    #     paths: "roles/middware/files/prometheus/{{ansible_architecture}}/"
+    #     patterns: "node-exporter*.tar,kube-rbac-proxy*.tar"
+    #   register: tar_files
+
+    # - name: Copy node-exporter image to remote
+    #   ansible.builtin.copy:
+    #     src: "{{ item.path }}"
+    #     dest: "/tmp/"
+    #   loop: "{{ tar_files.files }}"
+
+    # - name: Load node-exporter image to containerd
+    #   ansible.builtin.shell: |
+    #     ctr -n k8s.io i import ~/middwares/node-exporter*.tar
+    #     ctr -n k8s.io i import ~/middwares/kube-rbac-proxy*.tar
+    #   # rm -f /tmp/*.tar
+
+    - name: Create cilium dirctory
+      ansible.builtin.shell: |
+        [[ -d ~/cilium ]] || mkdir ~/cilium
+      #when: ansible_distribution != 'Kylin Linux Advanced Server'
+
+    - name: Copy cilium offline image to remote
+      ansible.builtin.unarchive:
+        src: "roles/cilium/files/cilium-images-{{ cilium_version }}-{{ansible_architecture}}.tar.gz"
+        dest: "~/cilium/"
+      #when: ansible_distribution != 'Kylin Linux Advanced Server'
+
+    - name: Load cilium offline image to containerd
+      shell: |
+        ls ~/cilium/*.tar|xargs -n 1 ctr -n k8s.io i import 
+      #when: ansible_distribution != 'Kylin Linux Advanced Server'
+
+    # - name: Create calico dirctory
+    #   ansible.builtin.shell: |
+    #     [[ -d ~/calico ]] || mkdir ~/calico
+    #   when: ansible_distribution == 'Kylin Linux Advanced Server'
+
+    # - name: copy calico images to remote
+    #   ansible.builtin.copy:
+    #     src: "roles/middware/files/calico/{{ ansible_architecture }}/"
+    #     dest: "~/calico/"
+    #   when: ansible_distribution == 'Kylin Linux Advanced Server'
+
+    # - name: Load calico offline image to containerd
+    #   shell: |
+    #     ls ~/calico/*.tar|xargs -n 1 ctr -n k8s.io i import 
+    #   when: ansible_distribution == 'Kylin Linux Advanced Server'
+    
+    # - name: Create flannel dirctory
+    #   ansible.builtin.shell: |
+    #     [[ -d ~/flannel ]] || mkdir ~/flannel
+    #   when: ansible_distribution == 'Kylin Linux Advanced Server'
+
+    # - name: copy flannel images to remote
+    #   ansible.builtin.copy:
+    #     src: "roles/middware/files/flannel/{{ ansible_architecture }}/"
+    #     dest: "~/flannel/"
+    #   when: ansible_distribution == 'Kylin Linux Advanced Server'
+
+    # - name: Load flannel offline image to containerd
+    #   shell: |
+    #     ls ~/flannel/*.tar|xargs -n 1 ctr -n k8s.io i import 
+    #   when: ansible_distribution == 'Kylin Linux Advanced Server'
+  tags: cni
+
+      
+
+
+- name: prepare install middwares
+  hosts: schedulernode
+  remote_user: root
+  tasks:
+    - name: create middwares directory
+      ansible.builtin.shell: |
+       [[ -d ~/middwares ]] || mkdir ~/middwares
+
+    - name: copy offline images to node
+      ansible.builtin.copy:
+        src: "roles/middware/files/middwares/{{ansible_architecture}}/"
+        dest: "~/middwares/"
+
+    - name: Copy kube-prometheus offline images to remote
+      ansible.builtin.copy:
+        src: "roles/middware/files/prometheus/{{ansible_architecture}}/"
+        dest: "~/middwares/"
+
+    - name: Copy openebs-previsioner offile images to remote
+      ansible.builtin.copy:
+        src: "roles/middware/files/openebs/{{ansible_architecture}}/"
+        dest: "~/middwares/"
+    
+    - name: Copy apisix offline images to remote
+      ansible.builtin.copy:
+        src: "roles/middware/files/apisix/{{ansible_architecture}}/"
+        dest: "~/middwares/"
+    
+    - name: load offline images to containerd
+      ansible.builtin.shell: |
+        ls ~/middwares/*.tar |xargs -n 1 ctr -n k8s.io i import
+      async: 6000
+      poll: 10
+    
+    # - name: Clean offline image tar
+    #   ansible.builtin.shell:
+    #     rm -fr ~/middwares/*.tar
+
+- name: Deploy Middwares
+  hosts: k8smaster
+  remote_user: root
+  roles:
+    - role: middware
+
+
+- name: prepare install video-collect services
+  hosts: schedulernode
+  remote_user: root
+  tasks:
+    - name: create services directory
+      ansible.builtin.shell: |
+       [[ -d ~/services ]] && rm -fr ~/services || mkdir ~/services
+
+    - name: copy service offline images to node
+      ansible.builtin.copy:
+        src: "roles/service/files/{{ansible_architecture}}/"
+        dest: "~/services/"
+
+    - name: load service offline images to containerd
+      ansible.builtin.shell: |
+        ls ~/services/*.tar |xargs -n 1 ctr -n k8s.io i import
+      async: 6000
+      poll: 10
+
+    # - name: Clean offline image tar
+    #   ansible.builtin.shell:
+    #     rm -fr ~/services/*.tar
+  tags: service
+
+- name: Deploy services
+  hosts: k8smaster
+  remote_user: root
+  roles:
+    - role: service
+  tags: service
+
+
+- name: Prepare update video-collect services
+  hosts: schedulernode
+  remote_user: root
+  tasks:
+    - name: create service_update directory
+      ansible.builtin.shell: |
+       [[ -d ~/service_update ]] && rm -fr ~/service_update || mkdir ~/service_update
+    
+    # 从shell脚本中调用ansible-playbook时，传入了var_image参数，将指定的镜像拷贝到远程
+    - name: copy {{var_image}} images to node
+      ansible.builtin.copy:
+        src: "{{var_image}}"
+        dest: "~/service_update/"
+
+    - name: load service update offline images to containerd
+      ansible.builtin.shell: |
+        ls ~/service_update/*.tar |xargs -n 1 ctr -n k8s.io i import
+      async: 6000
+      poll: 10
+  tags: service_update
+
+- name: Update services
+  hosts: k8smaster
+  remote_user: root
+  roles:
+    - role: service
+  tags: service_update

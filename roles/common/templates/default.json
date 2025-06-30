@@ -1,0 +1,7 @@
+{
+"oss_access_key_id": "{{ oss_key }}",
+"oss_secret_access_key": "{{ oss_secret }}",
+"envdir": "prod",
+"run_list": ["recipe[closeli::default]"]
+}
+

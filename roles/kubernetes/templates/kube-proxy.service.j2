@@ -1,0 +1,19 @@
+[Unit]
+Description=Kubernetes Kube-Proxy Service
+After=network.target
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+User=root
+Group=root
+WorkingDirectory={{ kubernetes_home }}
+EnvironmentFile={{ kubernetes_home }}/etc/kube-proxy.conf
+ExecStart={{ kubernetes_home }}/bin/kube-proxy $KUBE_PROXY_ARGS
+Restart=on-failure
+LimitNOFILE=200000
+
+
+[Install]
+WantedBy=multi-user.target
+

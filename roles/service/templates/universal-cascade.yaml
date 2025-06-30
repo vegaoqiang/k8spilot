@@ -1,0 +1,54 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: universal-cascade
+  namespace: universal
+  labels:
+    app: universal-cascade
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: universal-cascade
+  template:
+    metadata:
+      labels:
+        app: universal-cascade
+    spec:
+      containers:
+      - name: universal-cascade
+        image: {{universal_cascade}}
+        ports:
+        - containerPort: 7009
+        - name: debug
+          protocol: TCP
+          containerPort: 5005
+        resources:
+          requests:
+            memory: "2000Mi"
+          limits:
+            memory: "3000Mi"
+        volumeMounts:
+          - mountPath: /root/logs
+            name: universal-cascade-log
+      imagePullSecrets:
+      - name: regcred
+      volumes:
+        - name: universal-cascade-log
+          emptyDir:
+            sizeLimit: 1Gi
+
+---
+# service
+apiVersion: v1
+kind: Service
+metadata:
+  name: universal-cascade-svc
+  namespace: universal
+spec:
+  selector:
+    app: universal-cascade
+  ports:
+    - protocol: TCP
+      port: 7009
+      targetPort: 7009

@@ -1,0 +1,2 @@
+etcd_user: etcd
+etcd_home: /usr/local/etcd

@@ -1,0 +1,53 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ai-platform-dh
+  namespace: ai
+  labels:
+    app: ai-platform-dh
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ai-platform-dh
+  template:
+    metadata:
+      labels:
+        app: ai-platform-dh
+    spec:
+      containers:
+      - name: ai-platform-dh
+        image: {{ai_platform_dh}}
+        ports:
+        - containerPort: 10626
+        - name: debug
+          protocol: TCP
+          containerPort: 5005
+        resources:
+          requests:
+            memory: "2000Mi"
+          limits:
+            memory: "2000Mi"
+        volumeMounts:
+          - mountPath: /app/logs
+            name: ai-platform-dh-log
+      imagePullSecrets:
+      - name: regcred
+      volumes:
+        - name: ai-platform-dh-log
+          emptyDir: {}
+
+---
+# service
+apiVersion: v1
+kind: Service
+metadata:
+  name: ai-platform-dh-svc
+  namespace: ai
+spec:
+  selector:
+    app: ai-platform-dh
+  ports:
+    - protocol: TCP
+      port: 10626
+      targetPort: 10626
