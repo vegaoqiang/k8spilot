@@ -1,4 +1,4 @@
-centos_disable_service: [ 'firewalld', 'atd', 'irqbalance', 'smartd' ]
+centos_disable_service: [ 'firewalld', 'atd', 'irqbalance', 'smartd', 'dnsmasq' ]
 openeuler_disable_service: [ 'firewalld', 'irqbalance' ]
 
 remove_package: [ 'java-1.7.0-openjdk' ]

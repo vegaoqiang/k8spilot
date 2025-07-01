@@ -1,11 +1,30 @@
 ---
 
-- name: Create Containerd Directory
-  file:
-    path: /etc/containerd
-    state: directory
-    mode: 0755
-    recurse: yes
+- name: Download Kubernetes {{ kube_version }} Node Components
+  ansible.builtin.get_url:
+    url: https://dl.k8s.io/{{ kube_version }}/bin/linux/{{ arch_alias }}/{{ item }}
+    dest: "{{ kubernetes_home }}/bin/"
+    mode: '0755'
+  loop:
+    - kubelet
+
+- name: Download Containerd {{ containerd_version }}
+  ansible.builtin.get_url:
+    url: https://github.com/containerd/containerd/releases/download/v{{ containerd_version }}/containerd-{{ containerd_version }}-linux-{{ arch_alias }}.tar.gz
+    dest: /tmp/
+    mode: '0755'
+
+- name: Download runc 
+  ansible.builtin.get_url:
+    url: https://github.com/opencontainers/runc/releases/download/v1.3.0/runc.{{ arch_alias }}
+    dest: /tmp/
+    mode: '0755'
+
+- name: Download CNI plugins
+  ansible.builtin.get_url:
+    url: https://github.com/containernetworking/plugins/releases/download/{{ cni_version }}/cni-plugins-linux-{{ arch_alias }}-{{ cni_version }}.tgz
+    dest: /tmp/
+    mode: '0755'
 
 - name: Install Kernel Module Conf 
   copy:
@@ -32,86 +51,17 @@
   with_items: "{{ cri_kernel_params }}"
 
 
-# - name: Download CRI-Containerd x86_64
-#   oss_file:
-#     oss_bucket: "{{ oss_bucket_name }}"
-#     object: "/centos9/cri-containerd-cni-{{ cri_containerd_version }}-linux-amd64.tar.gz"
-#     dest: "/root/soft/cri-containerd-cni-linux.tar.gz"
-#     mode: get
-#   when: " ansible_architecture == 'x86_64' "
-
-# - name: Download CRI-Containerd ARM
-#   oss_file:
-#     oss_bucket: "{{ oss_bucket_name }}"
-#     object: "/centos9/cri-containerd-cni-{{ cri_containerd_ARM_version }}-linux-arm64.tar.gz"
-#     dest: "/root/soft/cri-containerd-cni-linux.tar.gz"
-#     mode: get
-#   when: " ansible_architecture == 'aarch64' "
-
-
-- name: Install CRI-Containerd
-  ansible.builtin.unarchive:
-    src: "{{role_path}}/files/cri-containerd-cni-{{ cri_containerd_version }}-linux-{{ansible_architecture}}.tar.gz"
-    dest: "/"
-    owner: root
-    group: root
-    remote_src: no
-#   when: " ansible_architecture == 'x86_64' "
-
-# - name: Install CRI-Containerd ARM64
-#   ansible.builtin.unarchive:
-#     src: "{{role_path}}/files/cri-containerd-cni-{{ cri_containerd_version }}-linux-arm64.tar.gz"
-#     dest: "/"
-#     owner: root
-#     group: root
-#     remote_src: no
-#   when: " ansible_architecture == 'aarch64' "
-
-
-# - name: Download Kubernetes Node x86_64
-#   oss_file:
-#     oss_bucket: "{{ oss_bucket_name }}"
-#     object: "/centos9/kube-node.tar.gz"
-#     dest: "/root/soft/kube-node.tar.gz"
-#     mode: get
-#   when: " ansible_architecture == 'x86_64' "
-
-# - name: Download Kubernetes Node ARM
-#   oss_file:
-#     oss_bucket: "{{ oss_bucket_name }}"
-#     object: "/centos9/kube-node.{{ kube_version }}.arm64.tar.gz"
-#     dest: "/root/soft/kube-node.tar.gz"
-#     mode: get
-#   when: " ansible_architecture == 'aarch64' "
-
-- name: Install Kubernetes Node
-  ansible.builtin.unarchive:
-    src: "{{role_path}}/files/k8s_{{ kube_version }}_linux_{{ansible_architecture}}.tar.gz"
-    dest: "{{ kubernetes_home }}/bin/"
-    owner: root
-    group: root
-    remote_src: no
-    exclude:
-      - "kube-admin"
-      - "kube-apiserver"
-      - "kube-proxy"
-      - "kube-scheduler"
-      - "kube-aggregator"
-      - "kube-controller-manager"
+- name: Install Containerd With Plugins
+  ansible.builtin.shell: |
+    tar -xf /tmp/containerd-{{ containerd_version }}-linux-{{ arch_alias }}.tar.gz -C /usr/local/
+    if [ ! -d "/opt/cni/bin" ]; then
+      mkdir -p /opt/cni/bin
+    fi
+    tar --strip-components=1 -xf /tmp/cni-plugins-linux-{{ arch_alias }}-{{ cni_version }}.tgz -C /opt/cni/bin/
+    mv /tmp/runc.{{ arch_alias }} /usr/local/sbin/runc
+    chmod +x /usr/local/sbin/runc
+    rm -f /tmp/containerd-{{ containerd_version }}-linux-{{ arch_alias }}.tar.gz /tmp/cni-plugins-linux-{{ arch_alias }}-{{ cni_version }}.tgz
   
-# - name: Clean k8s Master Binary files
-#   ansible.builtin.file:
-#     path: "{{ kubernetes_home }}/bin/{{ item }}"
-#     state: absent
-#   with_items: 
-#     - "kube-admin"
-#     - "kube-apiserver"
-#     - "kube-proxy"
-#     - "kube-scheduler"
-#     - "kube-aggregator"
-#     - "kube-controller-manager"
-
-
 - name: Install Node SSL Certificate And Token 
   copy:
     src: "{{ item.src }}"
@@ -162,12 +112,13 @@
   tags: nodefix
 
 
-- name: Copy pause image to remote
+- name: Copy Pause Image To Node
   copy:
     src: "{{role_path}}/files/pause-3.9-{{ansible_architecture}}.tar"
-    dest: ~/
+    dest: /tmp/
 
-- name: Import pause image
+- name: Import Pause Image Into Containerd
   shell: |
-    ctr -n k8s.io i import ~/pause-3.9-{{ansible_architecture}}.tar
+    ctr -n k8s.io i import /tmp/pause-3.9-{{ansible_architecture}}.tar
+    rm -f /tmp/pause-3.9-{{ansible_architecture}}.tar
 

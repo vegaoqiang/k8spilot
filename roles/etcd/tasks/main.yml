@@ -1,21 +1,27 @@
 ---
 
-- name: Create Soft Directory
-  file:
-    path: /root/soft
-    state: directory
-    mode: 0755
-    recurse: yes
+# - name: Create Soft Directory
+#   file:
+#     path: /root/soft
+#     state: directory
+#     mode: 0755
+#     recurse: yes
+
+- name: Download Etcd {{ etcd_version }}
+  ansible.builtin.get_url:
+    url: https://github.com/etcd-io/etcd/releases/download/{{ etcd_version }}/etcd-{{ etcd_version }}-linux-{{ ansible_architecture }}.tar.gz
+    dest: /tmp/
+    mode: '0755'
 
 
-- name: Add etcd user
+- name: Add Etcd User
   user:
     name: "{{ etcd_user }}"
     home: "{{ etcd_home }}"
     shell: /sbin/nologin
     system: yes
 
-- name: create etcd dirctory
+- name: Create Etcd Dirctory
   file: 
     path: "{{ etcd_home }}/{{item}}"
     state: directory
@@ -29,7 +35,7 @@
   - 'etc'
   - 'ssl'
 
-- name: copy conf (.conf .service)
+- name: Make Etcd Config
   template:
     src: "{{ item.src }}"
     dest: "{{ item.dest }}"
@@ -43,7 +49,7 @@
   tags: conf
 
 
-- name: copy ssl and config
+- name: Copy SSL And Config
   copy:
     src: "{{ item.src }}"
     dest: "{{ item.dest }}"
@@ -85,14 +91,14 @@
 #     mode: get
 #   when: " ansible_architecture == 'x86_64' "
 
-- name: Install cfssl tools
-  ansible.builtin.unarchive:
-    src: "roles/kubernetes/files/cfssl_1.6.5_linux_{{ansible_architecture}}.tar.gz"
-    dest: "/tmp/"
-    owner: root
-    group: root
-    remote_src: no
-#   when: " ansible_architecture == 'x86_64' "
+# - name: Install cfssl tools
+#   ansible.builtin.unarchive:
+#     src: "roles/kubernetes/files/cfssl_1.6.5_linux_{{ansible_architecture}}.tar.gz"
+#     dest: "/tmp/"
+#     owner: root
+#     group: root
+#     remote_src: no
+
 
 # - name: Install cfssl tools ARM64
 #   ansible.builtin.unarchive:
@@ -114,14 +120,13 @@
 #   when: " ansible_architecture == 'aarch64' "
 
 
-- name: Copy etcd gz to remote
-  ansible.builtin.unarchive:
-    src: "{{role_path}}/files/etcd-{{ etcd_version }}-linux-{{ansible_architecture}}.tar.gz"
-    dest: "/tmp/"
-    owner: "{{ etcd_user }}"
-    group: "{{ etcd_user }}"
-    remote_src: no
-#   when: " ansible_architecture == 'x86_64' "
+# - name: Copy etcd gz to remote
+#   ansible.builtin.unarchive:
+#     src: "{{role_path}}/files/etcd-{{ etcd_version }}-linux-{{ansible_architecture}}.tar.gz"
+#     dest: "/tmp/"
+#     owner: "{{ etcd_user }}"
+#     group: "{{ etcd_user }}"
+#     remote_src: no
 
 # - name: Copy etcd gz to remote ARM64
 #   ansible.builtin.unarchive:
@@ -134,26 +139,24 @@
 
 
 
-- name: Adjust binary installed dirctory
-  shell: |
-    mv -f /tmp/cfssl/* /usr/local/bin/
-    mv -f /tmp/etcd-{{ etcd_version }}-linux-*/etcd* {{ etcd_home }}/bin/
-    rm -fr /tmp/cfssl
-    rm -fr /tmp/etcd-{{ etcd_version }}-linux-*
+# - name: Adjust binary installed dirctory
+#   shell: |
+#     mv -f /tmp/cfssl/* /usr/local/bin/
+#     mv -f /tmp/etcd-{{ etcd_version }}-linux-*/etcd* {{ etcd_home }}/bin/
+#     rm -fr /tmp/cfssl
+#     rm -fr /tmp/etcd-{{ etcd_version }}-linux-*
 
 
-- name: install etcd binary file
+- name: Install Etcd Binary
   shell: |
-    # unzip -qo cfssl.zip -d /usr/local/bin
-    # tar zxf etcd-{{ etcd_version }}-linux.tar.gz  --strip-components 1 -C {{ etcd_home }}/bin/
+    tar --strip-components=1 -xf /tmp/etcd-{{ etcd_version }}-linux-{{ ansible_architecture }}.tar.gz -C {{ etcd_home }}/bin/
+    rm -fr {{ etcd_home }}/bin/README* {{ etcd_home }}/bin/Documentation*
     export PATH=$PATH:/usr/local/bin
     cd {{ etcd_home }}/ssl/
     cfssl gencert -ca=ca.pem -ca-key=key.pem -config=vica-config.json etcd-csr.json  | cfssljson -bare etcd
     rm -rf key.pem
     ln -sf {{ etcd_home }}/bin/etcdctl /usr/local/bin/
     chown -R {{ etcd_user }}.{{ etcd_user }}  {{ etcd_home }}
-  args:
-    chdir: /root/soft
   notify:
   - reload systemd
   - start etcd

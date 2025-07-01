@@ -1,42 +1,31 @@
 ---
-  
-- name: Install Kubernetes Master
-  ansible.builtin.unarchive: 
-    src: "{{role_path}}/files/k8s_{{ kube_version }}_linux_{{ansible_architecture}}.tar.gz"
+
+- name: Set Architecture Alias
+  set_fact:
+    arch_alias: >-
+      {% if ansible_architecture == 'x86_64' %}
+        amd64
+      {% elif ansible_architecture == 'aarch64' %}
+        arm64
+      {% else %}
+        {{ ansible_architecture }}
+      {% endif %}
+
+- name: Download Kubernetes {{ kube_version }} Components
+  ansible.builtin.get_url:
+    url: https://dl.k8s.io/{{ kube_version }}/bin/linux/{{ arch_alias }}/{{ item }}
     dest: "{{ kubernetes_home }}/bin/"
-    owner: root
-    group: root
-    remote_src: no
-
-- name: Install Helm
-  ansible.builtin.unarchive: 
-    src: "{{role_path}}/files/helm-{{ helm_version }}-linux-{{ansible_architecture}}.tar.gz"
-    dest: "/usr/local/bin"
-    extra_opts: [--strip-components=1]
-    owner: root
-    group: root
-    remote_src: no
-
-- name: Install Cilium Cli
-  ansible.builtin.unarchive: 
-    src: "{{role_path}}/files/cilium-linux-{{ansible_architecture}}.tar.gz"
-    dest: "/usr/local/bin"
-    owner: root
-    group: root
-    remote_src: no
-
-- name: Install Cfssl Tools
-  ansible.builtin.unarchive:
-    src: "{{role_path}}/files/cfssl_1.6.5_linux_{{ansible_architecture}}.tar.gz"
-    dest: "/tmp/"
-    owner: root
-    group: root
-    remote_src: no
-
-- name: Clean Cfssl Temp Files
-  shell: |
-    mv -f /tmp/cfssl/* /usr/local/bin/
-    rm -fr /tmp/cfssl
+    mode: '0755'
+  loop:
+    - apiextensions-apiserver
+    - kube-apiserver
+    - kube-controller-manager
+    - kube-log-runner
+    - kube-proxy
+    - kube-scheduler
+    - kubectl
+    - kubectl-convert
+    - mounter
 
 
 - name: Install SSL Certificate
@@ -83,7 +72,6 @@
     cfssl gencert -ca=ca.pem -ca-key=key.pem -config=vica-config.json kube-apiserver-csr.json  | cfssljson -bare kube-apiserver  
     cfssl gencert -ca=ca.pem -ca-key=key.pem -config=vica-config.json kube-controller-manager-csr.json  | cfssljson -bare kube-controller-manager
     cfssl gencert -ca=ca.pem -ca-key=key.pem -config=vica-config.json kube-scheduler-csr.json  | cfssljson -bare kube-scheduler
-    ln -sfT {{ kubernetes_home }}/bin/kubectl /usr/local/bin/kubectl
   args:
     chdir: "{{ kubernetes_home }}/ssl"
 
@@ -113,4 +101,30 @@
 
 - name: Install Client Certificate Auto Approve
   shell: |
+    ln -sfT {{ kubernetes_home }}/bin/kubectl /usr/local/bin/kubectl
     kubectl apply -f {{ kubernetes_home }}/etc/bootstrap.yaml
+
+
+- name: Download Helm
+  ansible.builtin.get_url:
+    url: https://get.helm.sh/helm-{{ helm_version }}-linux-{{ arch_alias }}.tar.gz
+    dest: /tmp/
+    mode: '0755'
+
+- name: Install Helm
+  ansible.builtin.shell: | 
+    tar --strip-components=1  -xf /tmp/helm-{{ helm_version }}-linux-{{ arch_alias }}.tar.gz -C /usr/local/bin/
+    rm -f /usr/local/README.md /usr/local/LICENSE
+    rm -f /tmp/helm-{{ helm_version }}-linux-{{ arch_alias }}.tar.gz
+    chmod +x /usr/local/bin/helm
+
+- name: Download Cilium Cli
+  ansible.builtin.get_url:
+    url: https://github.com/cilium/cilium-cli/releases/download/{{ cilium_cli_version }}/cilium-linux-{{ arch_alias }}.tar.gz
+    dest: /tmp/
+    mode: '0755'
+
+- name: Install Cilium Cli
+  ansible.builtin.shell: | 
+    tar -xf /tmp/{{ cilium_cli_version }}/cilium-linux-{{ arch_alias }}.tar.gz -C /usr/local/bin/
+    chmod +x /usr/local/bin/cilium

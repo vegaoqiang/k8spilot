@@ -18,13 +18,8 @@ containerd_image_mirror: 'https://253dmx7q.mirror.aliyuncs.com'
 
 kube_proxy_mode: iptables
 
-etcd_user: etcd
-etcd_home: /usr/local/etcd
-etcd_version: v3.5.14
-
 cni_version: v1.5.1
 coredns_version: 1.11.3
-kube_version: v1.30.4
 
 cri_kernel_params:
   - { name: net.bridge.bridge-nf-call-iptables, value: 1 }
