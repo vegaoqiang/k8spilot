@@ -1,5 +1,13 @@
 ---
 
+- name: Set Architecture Alias
+  set_fact:
+    arch_alias: >-
+      {% if ansible_architecture == 'x86_64' %}amd64
+      {% elif ansible_architecture == 'aarch64' %}arm64
+      {% else %}{{ ansible_architecture }}
+      {% endif %}
+
 - name: Download Kubernetes {{ kube_version }} Node Components
   ansible.builtin.get_url:
     url: https://dl.k8s.io/{{ kube_version }}/bin/linux/{{ arch_alias }}/{{ item }}

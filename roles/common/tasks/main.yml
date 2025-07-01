@@ -72,25 +72,25 @@
       *     soft    nofile  800000
       *     hard    nofile  800000
 
-- name: disable service
+- name: Disable Services
   service: name={{ item }} enabled=no state=stopped
   with_items: "{{ centos_disable_service }}"
   ignore_errors: yes
   when: " ansible_distribution == 'CentOS' "
 
-- name: disable service
+- name: Disable services
   service: name={{ item }} enabled=no state=stopped
   with_items: "{{ openeuler_disable_service }}"
   ignore_errors: yes
   when: " ansible_distribution == 'openEuler' "
 
-- name: kernel tuning
+- name: Kernel Tuning
   sysctl: name={{ item.name }} value={{ item.value }} sysctl_set=yes state=present
   with_items: '{{ kernel_params }}'
   ignore_errors: yes
 
 
-- name: yum remove packages
+- name: Remove Packages
   yum: name={{ remove_package }} state=absent
 
 # - name: copy lib offline rpm  package to remote
@@ -163,9 +163,17 @@
 #     enabled: false
 #   ignore_errors: yes
 
+- name: Set Architecture Alias
+  set_fact:
+    arch_alias: >-
+      {% if ansible_architecture == 'x86_64' %}amd64
+      {% elif ansible_architecture == 'aarch64' %}arm64
+      {% else %}{{ ansible_architecture }}
+      {% endif %}
+
 - name: Download Cfssl v{{ cfssl_version }}
   ansible.builtin.get_url:
-    url: https://github.com/cloudflare/cfssl/releases/download/v{{ cfssl_version }}/cfssl_{{ cfssl_version }}_linux_{{ ansible_architecture }}
+    url: https://github.com/cloudflare/cfssl/releases/download/v{{ cfssl_version }}/cfssl_{{ cfssl_version }}_linux_{{ arch_alias }}
     dest: /tmp/cfssl
     mode: '0755'
 

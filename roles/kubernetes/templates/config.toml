@@ -4,7 +4,7 @@ imports = []
 oom_score = 0
 plugin_dir = ""
 required_plugins = []
-root = "/var/lib/containerd"
+root = "{{ containerd_root }}"
 state = "/run/containerd"
 temp = ""
 
