@@ -1,5 +1,4 @@
-centos_disable_service: [ 'firewalld', 'atd', 'irqbalance', 'smartd', 'dnsmasq' ]
-openeuler_disable_service: [ 'firewalld', 'irqbalance' ]
+disable_service: [ 'firewalld', 'atd', 'irqbalance', 'smartd', 'dnsmasq' ]
 
 remove_package: [ 'java-1.7.0-openjdk' ]
 update_package: [ 'pcre-devel', 'openssl-devel', 'libxslt-devel', 'libxml2-devel', 'gd-devel', 'glibc-common', 'gcc', 'make', 'glibc-common', 'unzip', 'perl-ExtUtils-Embed', 'perl-Time-HiRes', 'ca-certificates', 'curl', 'wget', 'lrzsz', 'ncurses-devel', 'perl-DBI', 'glibc', 'libstdc++', 'vim', 'gcc-c++', 'bind-utils', 'psmisc', 'bzip2', 'libaio', 'openssh',  'zip', 'lvm2', 'chrony', 'tar', 'nfs-utils', 'sshpass' ]

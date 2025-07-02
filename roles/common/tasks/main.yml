@@ -72,59 +72,30 @@
       *     soft    nofile  800000
       *     hard    nofile  800000
 
+- name: Gather service facts
+  ansible.builtin.service_facts:
+
 - name: Disable Services
   service: name={{ item }} enabled=no state=stopped
-  with_items: "{{ centos_disable_service }}"
+  with_items: "{{ disable_service }}"
   ignore_errors: yes
-  when: " ansible_distribution == 'CentOS' "
+  when: 
+    - ansible_facts.services[service_name] is defined
+  vars:
+    service_name: "{{ item }}.service"
 
-- name: Disable services
-  service: name={{ item }} enabled=no state=stopped
-  with_items: "{{ openeuler_disable_service }}"
-  ignore_errors: yes
-  when: " ansible_distribution == 'openEuler' "
+
+# - name: Disable Services
+#   service: name={{ item }} enabled=no state=stopped
+#   with_items: "{{ openeuler_disable_service }}"
+#   ignore_errors: yes
+#   when: " ansible_distribution == 'openEuler' "
 
 - name: Kernel Tuning
   sysctl: name={{ item.name }} value={{ item.value }} sysctl_set=yes state=present
   with_items: '{{ kernel_params }}'
   ignore_errors: yes
 
-
-- name: Remove Packages
-  yum: name={{ remove_package }} state=absent
-
-# - name: copy lib offline rpm  package to remote
-#   ansible.builtin.unarchive:
-#     src: "{{role_path}}/files/openeuler-{{ansible_distribution_version}}-lib-package-{{ansible_architecture}}.tar.gz"
-#     dest: "/root/soft/"
-#   when: " ansible_distribution == 'openEuler' "
-
-
-# - name: copy lib offline rpm  package to remote
-#   ansible.builtin.unarchive:
-#     src: "{{role_path}}/files/centos-lib-package-{{ansible_architecture}}.tar.gz"
-#     dest: "/root/soft/"
-#   when: " ansible_distribution == 'CentOS' "
-
-# - name: copy kylin-{{ansible_distribution_release}}-lib-package to remote
-#   ansible.builtin.unarchive:
-#     src: "{{role_path}}/files/kylin-{{ansible_distribution_release}}-lib-package-{{ansible_architecture}}.tar.gz"
-#     dest: "/root/soft/"
-#   when: " ansible_distribution == 'Kylin Linux Advanced Server' "
-
-
-# - name: install lib packages
-#   ansible.builtin.shell:
-#     yum localinstall -y /root/soft/*.rpm
-
-
-# - name: remove offline package
-#   ansible.builtin.shell:
-#     rm -f /root/soft/*.rpm
-
-# - name: update motd2
-#   shell:   figlet -w 200 {{ inventory_hostname }} >> /etc/motd
-#   tags: sethost
 
 - name: Update chrony.conf
   template:
