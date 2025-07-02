@@ -3,14 +3,11 @@
 - name: Set Architecture Alias
   set_fact:
     arch_alias: >-
-      {% if ansible_architecture == 'x86_64' %}amd64
-      {% elif ansible_architecture == 'aarch64' %}arm64
-      {% else %}{{ ansible_architecture }}
-      {% endif %}
+      {% if ansible_architecture == 'x86_64' %}amd64{% elif ansible_architecture == 'aarch64' %}arm64{% else %}{{ ansible_architecture }}{% endif %}
 
 - name: Download Kubernetes {{ kube_version }} Node Components
   ansible.builtin.get_url:
-    url: https://dl.k8s.io/{{ kube_version }}/bin/linux/{{ arch_alias }}/{{ item }}
+    url: "{{ download_location }}/kubernetes/{{ kube_version }}/linux/{{ arch_alias }}/{{ item }}"
     dest: "{{ kubernetes_home }}/bin/"
     mode: '0755'
   loop:
@@ -18,19 +15,19 @@
 
 - name: Download Containerd {{ containerd_version }}
   ansible.builtin.get_url:
-    url: https://github.com/containerd/containerd/releases/download/v{{ containerd_version }}/containerd-{{ containerd_version }}-linux-{{ arch_alias }}.tar.gz
+    url: "{{ download_location }}/containerd/v{{ containerd_version }}/linux/{{ arch_alias }}/containerd-{{ containerd_version }}-linux-{{ arch_alias }}.tar.gz"
     dest: /tmp/
     mode: '0755'
 
 - name: Download runc 
   ansible.builtin.get_url:
-    url: https://github.com/opencontainers/runc/releases/download/v1.3.0/runc.{{ arch_alias }}
+    url: "{{ download_location }}/runc/v1.3.0/linux/{{ arch_alias }}/runc.{{ arch_alias }}"
     dest: /tmp/
     mode: '0755'
 
 - name: Download CNI plugins
   ansible.builtin.get_url:
-    url: https://github.com/containernetworking/plugins/releases/download/{{ cni_version }}/cni-plugins-linux-{{ arch_alias }}-{{ cni_version }}.tgz
+    url: "{{ download_location }}/cni-plugins/{{ cni_version }}/linux/{{ arch_alias }}/cni-plugins-linux-{{ arch_alias }}-{{ cni_version }}.tgz"
     dest: /tmp/
     mode: '0755'
 

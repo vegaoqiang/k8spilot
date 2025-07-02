@@ -4,12 +4,12 @@
 #   ansible.builtin.debug:
 #     var: ansible_facts
 
-- name: Create Soft Directory
-  file:
-    path: /root/soft
-    state: directory
-    mode: 0755
-    recurse: yes
+# - name: Create Soft Directory
+#   file:
+#     path: /root/soft
+#     state: directory
+#     mode: 0755
+#     recurse: yes
 
 # - name: Update Motd
 #   template:
@@ -166,16 +166,16 @@
 - name: Set Architecture Alias
   set_fact:
     arch_alias: >-
-      {% if ansible_architecture == 'x86_64' %}amd64
-      {% elif ansible_architecture == 'aarch64' %}arm64
-      {% else %}{{ ansible_architecture }}
-      {% endif %}
+      {% if ansible_architecture == 'x86_64' %}amd64{% elif ansible_architecture == 'aarch64' %}arm64{% else %}{{ ansible_architecture }}{% endif %}
 
 - name: Download Cfssl v{{ cfssl_version }}
   ansible.builtin.get_url:
-    url: https://github.com/cloudflare/cfssl/releases/download/v{{ cfssl_version }}/cfssl_{{ cfssl_version }}_linux_{{ arch_alias }}
+    url: "{{ download_location }}/cfssl/v{{ cfssl_version }}/linux/{{ arch_alias }}/cfssl_{{ cfssl_version }}_linux_{{ arch_alias }}"
     dest: /tmp/cfssl
     mode: '0755'
+    timeout: 60
+  async: 6000
+  poll: 10
 
 - name: Install Cfssl Tool
   ansible.builtin.shell:

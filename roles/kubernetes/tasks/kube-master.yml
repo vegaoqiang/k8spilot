@@ -3,14 +3,11 @@
 - name: Set Architecture Alias
   set_fact:
     arch_alias: >-
-      {% if ansible_architecture == 'x86_64' %}amd64
-      {% elif ansible_architecture == 'aarch64' %}arm64
-      {% else %}{{ ansible_architecture }}
-      {% endif %}
+      {% if ansible_architecture == 'x86_64' %}amd64{% elif ansible_architecture == 'aarch64' %}arm64{% else %}{{ ansible_architecture }}{% endif %}
 
 - name: Download Kubernetes {{ kube_version }} Components
   ansible.builtin.get_url:
-    url: https://dl.k8s.io/{{ kube_version }}/bin/linux/{{ arch_alias }}/{{ item }}
+    url: "{{ download_location }}/kubernetes/{{ kube_version }}/linux/{{ arch_alias }}/{{ item }}"
     dest: "{{ kubernetes_home }}/bin/"
     mode: '0755'
   loop:
@@ -104,7 +101,7 @@
 
 - name: Download Helm
   ansible.builtin.get_url:
-    url: https://get.helm.sh/helm-{{ helm_version }}-linux-{{ arch_alias }}.tar.gz
+    url: "{{ download_location }}/helm/{{ helm_version }}/linux/{{ arch_alias }}/helm-{{ helm_version }}-linux-{{ arch_alias }}.tar.gz"
     dest: /tmp/
     mode: '0755'
 
@@ -117,7 +114,7 @@
 
 - name: Download Cilium Cli
   ansible.builtin.get_url:
-    url: https://github.com/cilium/cilium-cli/releases/download/{{ cilium_cli_version }}/cilium-linux-{{ arch_alias }}.tar.gz
+    url: "{{ download_location }}/cilium/cilium-cli/{{ cilium_cli_version }}/linux/{{ arch_alias }}/cilium-linux-{{ arch_alias }}.tar.gz"
     dest: /tmp/
     mode: '0755'
 
