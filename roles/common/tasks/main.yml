@@ -146,13 +146,19 @@
 
 - name: Downloading Cfssl v{{ cfssl_version }}
   ansible.builtin.get_url:
-    url: "{{ download_location }}/cfssl/v{{ cfssl_version }}/linux/{{ arch_alias }}/cfssl_{{ cfssl_version }}_linux_{{ arch_alias }}"
-    dest: /tmp/cfssl
+    url: "{{ download_location }}/cfssl/v{{ cfssl_version }}/linux/{{ arch_alias }}/{{ item }}_{{ cfssl_version }}_linux_{{ arch_alias }}"
+    dest: /tmp/
     mode: '0755'
     timeout: 60
+  loop:
+    - cfssl
+    - cfssljson
   async: 6000
   poll: 10
 
 - name: Install Cfssl Tool
   ansible.builtin.shell:
-    mv /tmp/cfssl /usr/local/bin/
+    mv /tmp/{{ item }}_{{ cfssl_version }}_linux_{{ arch_alias }} /usr/local/bin/{{ item }}
+  loop:
+    - cfssl
+    - cfssljson
