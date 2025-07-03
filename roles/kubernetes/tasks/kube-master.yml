@@ -34,8 +34,8 @@
     mode: 0640
   with_items:
   - { src: "vica-config.json", dest: "{{ kubernetes_home }}/ssl/vica-config.json" }
-  - { src: "{{ pem_file_ca }}", dest: "{{ kubernetes_home }}/ssl/ca.pem" }
-  - { src: "{{ pem_file_key }}", dest: "{{ kubernetes_home }}/ssl/key.pem" }
+  - { src: "{{ inventory_dir }}/{{ root_cert }}", dest: "{{ kubernetes_home }}/ssl/ca.pem" }
+  - { src: "{{ inventory_dir }}/{{ root_key }}", dest: "{{ kubernetes_home }}/ssl/key.pem" }
   - { src: "bootstrap.yaml", dest: "{{ kubernetes_home }}/etc/bootstrap.yaml" }
 
 - name: Install Kube-Master Systemd Config

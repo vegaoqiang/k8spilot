@@ -87,8 +87,8 @@
     group: root
     mode: 0640
   with_items:
-  - { src: "{{ pem_file_ca }}", dest: "{{ kubernetes_home }}/ssl/ca.pem" }
-  - { src: "{{ pem_file_key }}", dest: "{{ kubernetes_home }}/ssl/key.pem" }
+  - { src: "{{ inventory_dir }}/{{ root_cert }}", dest: "{{ kubernetes_home }}/ssl/ca.pem" }
+  - { src: "{{ inventory_dir }}/{{ root_key }}", dest: "{{ kubernetes_home }}/ssl/key.pem" }
 
 
 - name: Install Kube-Node Systemd Config
