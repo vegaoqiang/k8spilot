@@ -41,4 +41,6 @@
   tags: node
 
 
-
+- name: Setting Kubernetes Cluster Alter Installed
+  import_tasks: kube-setting.yml
+  tags: setting

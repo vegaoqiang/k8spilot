@@ -32,25 +32,28 @@
 - name: Cluster Settings
   hosts: k8smaster
   remote_user: root
-  tasks:
-    - name: Wait worker join to cluster
-      ansible.builtin.wait_for:
-        timeout: 30
+  # tasks:
+  #   - name: Wait worker join to cluster
+  #     ansible.builtin.wait_for:
+  #       timeout: 30
 
-    - name: Approve node sign request
-      shell: |
-        kubectl get csr|grep 'Pending'|awk '{print $1}'|xargs -n 1 kubectl certificate approve
+  #   - name: Approve node sign request
+  #     shell: |
+  #       kubectl get csr|grep 'Pending'|awk '{print $1}'|xargs -n 1 kubectl certificate approve
 
-    - name: Taint master
-      shell: |
-        kubectl taint nodes "{{ inventory_hostname }}" node-role.kubernetes.io/master=:NoSchedule
-      when: allow_master_schedule != true
+  #   - name: Taint master
+  #     shell: |
+  #       kubectl taint nodes "{{ inventory_hostname }}" node-role.kubernetes.io/master=:NoSchedule
+  #     when: allow_master_schedule != true
     
-    - name: Label Control Plane
-      shell: |
-        kubectl label nodes "{{ inventory_hostname }}" node-role.kubernetes.io/control-plane=
+  #   - name: Label Control Plane
+  #     shell: |
+  #       kubectl label nodes "{{ inventory_hostname }}" node-role.kubernetes.io/control-plane=
+  roles:
+    - role: kubernetes
+      tags: setting
 
-  tags: node
+  # tags: setting
 
 
 # - name: Taint Master To NoSchedule
