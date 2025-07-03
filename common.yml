@@ -14,14 +14,14 @@
     - role: etcd
       tags: [etcd]
 
-- name: Install K8S Master
+- name: Install K8S Control Plane
   hosts: k8smaster
   remote_user: root
   roles:
     - role: kubernetes
       tags: [ master ] 
 
-- name: Install K8S Node
+- name: Install K8S Worker
   hosts: k8snode
   remote_user: root
   roles:
@@ -29,26 +29,36 @@
       tags: [node]
 
 
-- name: Node Join To K8S Cluster
+- name: Cluster Settings
   hosts: k8smaster
   remote_user: root
   tasks:
-    - name: Wait node join to cluster
-      ansible.builtin.pause:
-        seconds: 30
+    - name: Wait worker join to cluster
+      ansible.builtin.wait_for:
+        timeout: 30
 
     - name: Approve node sign request
       shell: |
         kubectl get csr|grep 'Pending'|awk '{print $1}'|xargs -n 1 kubectl certificate approve
-  tags: node
 
-
-- name: Taint Master To NoSchedule
-  hosts: k8smaster
-  remote_user: root
-  tasks:
     - name: Taint master
       shell: |
         kubectl taint nodes "{{ inventory_hostname }}" node-role.kubernetes.io/master=:NoSchedule
       when: allow_master_schedule != true
+    
+    - name: Label Control Plane
+      shell: |
+        kubectl label nodes "{{ inventory_hostname }}" node-role.kubernetes.io/control-plane=
+
   tags: node
+
+
+# - name: Taint Master To NoSchedule
+#   hosts: k8smaster
+#   remote_user: root
+#   tasks:
+#     - name: Taint master
+#       shell: |
+#         kubectl taint nodes "{{ inventory_hostname }}" node-role.kubernetes.io/master=:NoSchedule
+#       when: allow_master_schedule != true
+#   tags: node
