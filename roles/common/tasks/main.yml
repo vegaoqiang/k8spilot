@@ -113,7 +113,7 @@
 - name: Disable SWAP
   shell: |
     swapoff -a
-    sed -i "s/.*swap.*/#&/" /etc/fstab
+    sed -i "/#.*swap/! s/.*swap.*/#&/" /etc/fstab
     sysctl --system
 
 #- name: repair polkit pkexec
