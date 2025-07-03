@@ -1,34 +1,28 @@
-- name: reload systemd
-  shell: |
-    systemctl daemon-reload
 
-- name: start etcd
+- name: Start And Enable Etcd Service
   systemd:
     name: etcd
     state: started
-    enabled: yes
+    enabled: true
+    daemon_reload: true
+  register: etcd_status
 
-
-- name: wait etcd service started
-  ansible.builtin.pause:
-    seconds: 30
-
-- name: check etcd service started
-  ansible.builtin.systemd:
-    name: etcd
+- name: Wait Etcd Service Started
+  ansible.builtin.wait_for:
+    port: 2379
     state: started
+    timeout: 60
 
-
-- name: check etcd cluster healthly 
+- name: Check Etcd Cluster Healthly 
   shell: |
     export ENDPOINT='--endpoints={% for host in groups['etcd'] %}{{ hostvars[host]['ansible_default_ipv4']['address'] }}:2379{% if not loop.last %},{% endif %}{% endfor %}'
-    export ETCD_ARGS='--cacert=/usr/local/etcd/ssl/ca.pem --cert=/usr/local/etcd/ssl/etcd.pem --key=/usr/local/etcd/ssl/etcd-key.pem --write-out=table'
+    export ETCD_ARGS='--cacert={{ etcd_home }}/ssl/ca.pem --cert={{ etcd_home }}/ssl/etcd.pem --key={{ etcd_home }}/ssl/etcd-key.pem --write-out=table'
     etcdctl $ETCD_ARGS member list
     etcdctl $ETCD_ARGS endpoint status
     etcdctl $ETCD_ARGS endpoint health
     etcdctl $ENDPOINT $ETCD_ARGS endpoint status
   register: shell_output
 
-- name: etcd cluster status
+- name: Print Etcd Cluster Status
   ansible.builtin.debug:
-    msg: "{{ shell_output.stdout_lines }}"
+    msg: "{{ shell_output.stdout_lines.msg }}"
