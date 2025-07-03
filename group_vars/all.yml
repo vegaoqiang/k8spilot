@@ -16,9 +16,9 @@ containerd_root: /var/lib/containerd
 cni_version: v1.7.1
 root_cert: ca.pem
 root_key: ca-key.pem
-pem_file_key: ~/k8splaybook/ca/ca-key.pem
-pem_file_ca: ~/k8splaybook/ca/ca.pem
 # 是否允许master调度pod
 allow_master_schedule: true
 cfssl_version: 1.6.5
 download_location: https://dl.k8spilot.icu
+# 网络插件类型，默认使用cilium, 可选calico
+cni_plugin: cilium

@@ -8,7 +8,7 @@
 - name: Downloading Kubernetes {{ kube_version }} Components
   ansible.builtin.get_url:
     url: "{{ download_location }}/kubernetes/{{ kube_version }}/linux/{{ arch_alias }}/{{ item }}"
-    dest: "{{ kubernetes_home }}/bin/"
+    dest: "{{ kubernetes_home }}/bin/{{ item }}"
     mode: '0755'
     timeout: 60
   async: 6000
@@ -105,7 +105,7 @@
 - name: Downloading Helm
   ansible.builtin.get_url:
     url: "{{ download_location }}/helm/{{ helm_version }}/linux/{{ arch_alias }}/helm-{{ helm_version }}-linux-{{ arch_alias }}.tar.gz"
-    dest: /tmp/
+    dest: "/tmp/helm-{{ helm_version }}-linux-{{ arch_alias }}.tar.gz"
     mode: '0755'
     timeout: 60
   async: 6000
@@ -120,14 +120,17 @@
 
 - name: Downloading Cilium Cli
   ansible.builtin.get_url:
-    url: "{{ download_location }}/cilium/cilium-cli/{{ cilium_cli_version }}/linux/{{ arch_alias }}/cilium-linux-{{ arch_alias }}.tar.gz"
-    dest: /tmp/
+    url: "{{ download_location }}/cilium/cilium-cli/{{ cilium_cli_version }}/linux/cilium-linux-{{ arch_alias }}.tar.gz"
+    dest: "/tmp/cilium-linux-{{ arch_alias }}.tar.gz"
     mode: '0755'
     timeout: 60
   async: 6000
   poll: 10
+  when: "{{ cni_plugin }} == 'cilium'"
+
 
 - name: Install Cilium Cli
   ansible.builtin.shell: | 
-    tar -xf /tmp/{{ cilium_cli_version }}/cilium-linux-{{ arch_alias }}.tar.gz -C /usr/local/bin/
+    tar -xf /tmp/cilium-linux-{{ arch_alias }}.tar.gz -C /usr/local/bin/
     chmod +x /usr/local/bin/cilium
+  when: "{{ cni_plugin }} == 'cilium'"
