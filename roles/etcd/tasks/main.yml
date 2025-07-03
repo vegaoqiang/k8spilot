@@ -7,11 +7,20 @@
 #     mode: 0755
 #     recurse: yes
 
-- name: Download Etcd {{ etcd_version }}
+- name: Set Architecture Alias
+  set_fact:
+    arch_alias: >-
+      {% if ansible_architecture == 'x86_64' %}amd64{% elif ansible_architecture == 'aarch64' %}arm64{% else %}{{ ansible_architecture }}{% endif %}
+
+
+- name: Downloading Etcd {{ etcd_version }}
   ansible.builtin.get_url:
-    url: https://github.com/etcd-io/etcd/releases/download/{{ etcd_version }}/etcd-{{ etcd_version }}-linux-{{ ansible_architecture }}.tar.gz
+    url: "{{ download_location }}/etcd/{{ etcd_version }}/linux/{{ arch_alias }}/etcd-{{ etcd_version }}-linux-{{ arch_alias }}.tar.gz"
     dest: /tmp/
     mode: '0755'
+    timeout: 60
+  async: 6000
+  poll: 10
 
 
 - name: Add Etcd User
@@ -57,8 +66,8 @@
     group: "{{ etcd_user }}"
     mode: 0644
   with_items:
-  - { src: "{{ pem_file_ca }}", dest: "{{ etcd_home }}/ssl/ca.pem" }
-  - { src: "{{ pem_file_key }}", dest: "{{ etcd_home }}/ssl/key.pem" }
+  - { src: "{{ inventory_dir }}/{{ cert_ca }}", dest: "{{ etcd_home }}/ssl/ca.pem" }
+  - { src: "{{ inventory_dir }}/{{ cert_key }}", dest: "{{ etcd_home }}/ssl/key.pem" }
   - { src: "vica-config.json", dest: "{{ etcd_home }}/ssl/vica-config.json" }
 
 

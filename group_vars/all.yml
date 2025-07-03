@@ -14,6 +14,8 @@ cilium_cli_version: v0.18.4
 containerd_version: 2.1.3
 containerd_root: /var/lib/containerd
 cni_version: v1.7.1
+cert_ca: ca.pem
+cert_key: ca-key.pem
 pem_file_key: ~/k8splaybook/ca/ca-key.pem
 pem_file_ca: ~/k8splaybook/ca/ca.pem
 # 是否允许master调度pod

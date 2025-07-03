@@ -5,11 +5,14 @@
     arch_alias: >-
       {% if ansible_architecture == 'x86_64' %}amd64{% elif ansible_architecture == 'aarch64' %}arm64{% else %}{{ ansible_architecture }}{% endif %}
 
-- name: Download Kubernetes {{ kube_version }} Components
+- name: Downloading Kubernetes {{ kube_version }} Components
   ansible.builtin.get_url:
     url: "{{ download_location }}/kubernetes/{{ kube_version }}/linux/{{ arch_alias }}/{{ item }}"
     dest: "{{ kubernetes_home }}/bin/"
     mode: '0755'
+    timeout: 60
+  async: 6000
+  poll: 10
   loop:
     - apiextensions-apiserver
     - kube-apiserver
@@ -99,11 +102,14 @@
     kubectl apply -f {{ kubernetes_home }}/etc/bootstrap.yaml
 
 
-- name: Download Helm
+- name: Downloading Helm
   ansible.builtin.get_url:
     url: "{{ download_location }}/helm/{{ helm_version }}/linux/{{ arch_alias }}/helm-{{ helm_version }}-linux-{{ arch_alias }}.tar.gz"
     dest: /tmp/
     mode: '0755'
+    timeout: 60
+  async: 6000
+  poll: 10
 
 - name: Install Helm
   ansible.builtin.shell: | 
@@ -112,11 +118,14 @@
     rm -f /tmp/helm-{{ helm_version }}-linux-{{ arch_alias }}.tar.gz
     chmod +x /usr/local/bin/helm
 
-- name: Download Cilium Cli
+- name: Downloading Cilium Cli
   ansible.builtin.get_url:
     url: "{{ download_location }}/cilium/cilium-cli/{{ cilium_cli_version }}/linux/{{ arch_alias }}/cilium-linux-{{ arch_alias }}.tar.gz"
     dest: /tmp/
     mode: '0755'
+    timeout: 60
+  async: 6000
+  poll: 10
 
 - name: Install Cilium Cli
   ansible.builtin.shell: | 

@@ -1,1 +1,8 @@
 #!/bin/bash
+
+
+case $1 in
+    deploy)
+    echo "deploy an kubernetes cluster"
+    ;;
+esac

@@ -139,7 +139,7 @@
     arch_alias: >-
       {% if ansible_architecture == 'x86_64' %}amd64{% elif ansible_architecture == 'aarch64' %}arm64{% else %}{{ ansible_architecture }}{% endif %}
 
-- name: Download Cfssl v{{ cfssl_version }}
+- name: Downloading Cfssl v{{ cfssl_version }}
   ansible.builtin.get_url:
     url: "{{ download_location }}/cfssl/v{{ cfssl_version }}/linux/{{ arch_alias }}/cfssl_{{ cfssl_version }}_linux_{{ arch_alias }}"
     dest: /tmp/cfssl
