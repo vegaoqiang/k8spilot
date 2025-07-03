@@ -126,11 +126,11 @@
     timeout: 60
   async: 6000
   poll: 10
-  when: "{{ cni_plugin }} == 'cilium'"
+  when: cni_plugin == 'cilium'
 
 
 - name: Install Cilium Cli
   ansible.builtin.shell: | 
     tar -xf /tmp/cilium-linux-{{ arch_alias }}.tar.gz -C /usr/local/bin/
     chmod +x /usr/local/bin/cilium
-  when: "{{ cni_plugin }} == 'cilium'"
+  when: cni_plugin == 'cilium'
