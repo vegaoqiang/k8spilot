@@ -25,4 +25,4 @@
 
 - name: Print Etcd Cluster Status
   ansible.builtin.debug:
-    msg: "{{ shell_output.stdout_lines.msg }}"
+    msg: "{{ shell_output.stdout_lines }}"
