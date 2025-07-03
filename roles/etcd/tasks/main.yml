@@ -66,8 +66,8 @@
     group: "{{ etcd_user }}"
     mode: 0644
   with_items:
-  - { src: "{{ inventory_dir }}/{{ cert_ca }}", dest: "{{ etcd_home }}/ssl/ca.pem" }
-  - { src: "{{ inventory_dir }}/{{ cert_key }}", dest: "{{ etcd_home }}/ssl/key.pem" }
+  - { src: "{{ inventory_dir }}/{{ root_cert }}", dest: "{{ etcd_home }}/ssl/ca.pem" }
+  - { src: "{{ inventory_dir }}/{{ root_key }}", dest: "{{ etcd_home }}/ssl/key.pem" }
   - { src: "vica-config.json", dest: "{{ etcd_home }}/ssl/vica-config.json" }
 
 
@@ -158,7 +158,7 @@
 
 - name: Install Etcd Binary
   shell: |
-    tar --strip-components=1 -xf /tmp/etcd-{{ etcd_version }}-linux-{{ ansible_architecture }}.tar.gz -C {{ etcd_home }}/bin/
+    tar --strip-components=1 -xf /tmp/etcd-{{ etcd_version }}-linux-{{ arch_alias }}.tar.gz -C {{ etcd_home }}/bin/
     rm -fr {{ etcd_home }}/bin/README* {{ etcd_home }}/bin/Documentation*
     export PATH=$PATH:/usr/local/bin
     cd {{ etcd_home }}/ssl/

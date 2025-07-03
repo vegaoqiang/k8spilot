@@ -56,6 +56,11 @@
       fi
     fi
 
+- name: Update Or Install Dependence Package
+  ansible.builtin.package:
+    name: "{{ item }}"
+    state: present
+  loop: "{{ update_package }}"
 
 - name: Update Timezone
   shell: timedatectl set-timezone Asia/Shanghai
