@@ -156,11 +156,20 @@
   loop: "{{ pip_module }}"
 
 - name: Downloading Cfssl v{{ cfssl_version }}
-  ansible.builtin.get_url:
-    url: "{{ download_location }}/cfssl/v{{ cfssl_version }}/linux/{{ arch_alias }}/{{ item }}_{{ cfssl_version }}_linux_{{ arch_alias }}"
+  # ansible.builtin.get_url:
+  #   url: "{{ download_location }}/cfssl/v{{ cfssl_version }}/linux/{{ arch_alias }}/{{ item }}_{{ cfssl_version }}_linux_{{ arch_alias }}"
+  #   dest: "/tmp/{{ item }}_{{ cfssl_version }}_linux_{{ arch_alias }}"
+  #   mode: '0755'
+  #   timeout: 60
+  amazon.aws.s3_object:
+    endpoint_url: "{{ s3_endpoint_url }}"
+    access_key: "{{ s3_access_key }}"
+    secret_key: "{{ s3_secret_key }}"
+    bucket: "{{ s3_bucket_name }}"
+    object: "cfssl/v{{ cfssl_version }}/linux/{{ arch_alias }}/{{ item }}_{{ cfssl_version }}_linux_{{ arch_alias }}"
     dest: "/tmp/{{ item }}_{{ cfssl_version }}_linux_{{ arch_alias }}"
-    mode: '0755'
-    timeout: 60
+    mode: get
+    overwrite: different
   loop:
     - cfssl
     - cfssljson
@@ -170,8 +179,9 @@
   delay: 10
 
 - name: Install Cfssl Tool
-  ansible.builtin.shell:
+  ansible.builtin.shell: |
     mv /tmp/{{ item }}_{{ cfssl_version }}_linux_{{ arch_alias }} /usr/local/bin/{{ item }}
+    chmod +x /usr/local/bin/{{ item }}
   loop:
     - cfssl
     - cfssljson

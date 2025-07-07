@@ -28,7 +28,7 @@
   kubernetes.core.helm:
     chart_ref: "/tmp/tigera-operator-{{ calico_version }}.tgz"
     name: calico
-    chart_version: "{{calico_version}}"
+    chart_version: "{{ calico_version }}"
     wait: false
     # state: absent
     release_namespace: tigera-operator
