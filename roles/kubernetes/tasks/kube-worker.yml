@@ -6,42 +6,89 @@
       {% if ansible_architecture == 'x86_64' %}amd64{% elif ansible_architecture == 'aarch64' %}arm64{% else %}{{ ansible_architecture }}{% endif %}
 
 - name: Downloading Kubernetes {{ kube_version }} Worker Components
-  ansible.builtin.get_url:
-    url: "{{ download_location }}/kubernetes/{{ kube_version }}/linux/{{ arch_alias }}/{{ item }}"
+  # ansible.builtin.get_url:
+  #   url: "{{ download_location }}/kubernetes/{{ kube_version }}/linux/{{ arch_alias }}/{{ item }}"
+  #   dest: "{{ kubernetes_home }}/bin/{{ item }}"
+  #   mode: '0755'
+  #   timeout: 60
+  amazon.aws.s3_object:
+    endpoint_url: "{{ s3_endpoint_url }}"
+    access_key: "{{ s3_access_key }}"
+    secret_key: "{{ s3_secret_key }}"
+    bucket: "{{ s3_bucket_name }}"
+    object: "kubernetes/{{ kube_version }}/linux/{{ arch_alias }}/{{ item }}"
     dest: "{{ kubernetes_home }}/bin/{{ item }}"
-    mode: '0755'
-    timeout: 60
+    mode: get
+    overwrite: different
   async: 6000
   poll: 10
   loop:
     - kubelet
+  retries: 5
+  delay: 10
+
+- name: Grant Executable Permissions To Components
+  ansible.builtin.shell: chmod +x {{ kubernetes_home }}/bin/*
 
 - name: Downloading Containerd {{ containerd_version }}
-  ansible.builtin.get_url:
-    url: "{{ download_location }}/containerd/v{{ containerd_version }}/linux/{{ arch_alias }}/containerd-{{ containerd_version }}-linux-{{ arch_alias }}.tar.gz"
+  # ansible.builtin.get_url:
+  #   url: "{{ download_location }}/containerd/v{{ containerd_version }}/linux/{{ arch_alias }}/containerd-{{ containerd_version }}-linux-{{ arch_alias }}.tar.gz"
+  #   dest: "/tmp/containerd-{{ containerd_version }}-linux-{{ arch_alias }}.tar.gz"
+  #   mode: '0755'
+  #   timeout: 60
+  amazon.aws.s3_object:
+    endpoint_url: "{{ s3_endpoint_url }}"
+    access_key: "{{ s3_access_key }}"
+    secret_key: "{{ s3_secret_key }}"
+    bucket: "{{ s3_bucket_name }}"
+    object: "containerd/v{{ containerd_version }}/linux/{{ arch_alias }}/containerd-{{ containerd_version }}-linux-{{ arch_alias }}.tar.gz"
     dest: "/tmp/containerd-{{ containerd_version }}-linux-{{ arch_alias }}.tar.gz"
-    mode: '0755'
-    timeout: 60
+    mode: get
+    overwrite: different
   async: 6000
   poll: 10
+  retries: 5
+  delay: 10
 
 - name: Downloading runc 
-  ansible.builtin.get_url:
-    url: "{{ download_location }}/runc/v1.3.0/linux/{{ arch_alias }}/runc.{{ arch_alias }}"
-    dest: "/tmp/runc.{{ arch_alias }}"
-    mode: '0755'
-    timeout: 60
+  # ansible.builtin.get_url:
+  #   url: "{{ download_location }}/runc/v1.3.0/linux/{{ arch_alias }}/runc.{{ arch_alias }}"
+  #   dest: "/tmp/runc.{{ arch_alias }}"
+  #   mode: '0755'
+  #   timeout: 60
+  amazon.aws.s3_object:
+    endpoint_url: "{{ s3_endpoint_url }}"
+    access_key: "{{ s3_access_key }}"
+    secret_key: "{{ s3_secret_key }}"
+    bucket: "{{ s3_bucket_name }}"
+    object: "runc/v1.3.0/linux/{{ arch_alias }}/runc.{{ arch_alias }}"
+    dest: "/usr/local/sbin/runc"
+    mode: get
+    overwrite: different
   async: 6000
   poll: 10
+  retries: 5
+  delay: 10
 
 - name: Downloading CNI plugins
-  ansible.builtin.get_url:
-    url: "{{ download_location }}/cni-plugins/{{ cni_version }}/linux/{{ arch_alias }}/cni-plugins-linux-{{ arch_alias }}-{{ cni_version }}.tgz"
+  # ansible.builtin.get_url:
+  #   url: "{{ download_location }}/cni-plugins/{{ cni_version }}/linux/{{ arch_alias }}/cni-plugins-linux-{{ arch_alias }}-{{ cni_version }}.tgz"
+  #   dest: "/tmp/cni-plugins-linux-{{ arch_alias }}-{{ cni_version }}.tgz"
+  #   mode: '0755'
+  #   timeout: 60
+  amazon.aws.s3_object:
+    endpoint_url: "{{ s3_endpoint_url }}"
+    access_key: "{{ s3_access_key }}"
+    secret_key: "{{ s3_secret_key }}"
+    bucket: "{{ s3_bucket_name }}"
+    object: "cni-plugins/{{ cni_version }}/linux/{{ arch_alias }}/cni-plugins-linux-{{ arch_alias }}-{{ cni_version }}.tgz"
     dest: "/tmp/cni-plugins-linux-{{ arch_alias }}-{{ cni_version }}.tgz"
-    mode: '0755'
-    timeout: 60
+    mode: get
+    overwrite: different
   async: 6000
   poll: 10
+  retries: 5
+  delay: 10
 
 - name: Install Kernel Module Conf 
   copy:
@@ -81,7 +128,7 @@
       mkdir -p /etc/containerd
     fi
     tar --strip-components=1 -xf /tmp/cni-plugins-linux-{{ arch_alias }}-{{ cni_version }}.tgz -C /opt/cni/bin/
-    cp -a /tmp/runc.{{ arch_alias }} /usr/local/sbin/runc
+    # cp -a /tmp/runc.{{ arch_alias }} /usr/local/sbin/runc
     chmod +x /usr/local/sbin/runc
     # rm -f /tmp/containerd-{{ containerd_version }}-linux-{{ arch_alias }}.tar.gz /tmp/cni-plugins-linux-{{ arch_alias }}-{{ cni_version }}.tgz
   
@@ -139,16 +186,30 @@
 
 
 - name: Downloading Pause Image
-  ansible.builtin.get_url:
-    url: "{{ download_location }}/pause/{{ pause_version }}/pause-{{ pause_version }}-{{ansible_architecture}}.tar"
-    dest: /tmp/pause-{{ pause_version }}-{{ansible_architecture}}.tar
-    mode: '0755'
-    timeout: 60
+  # ansible.builtin.get_url:
+  #   url: "{{ download_location }}/pause/{{ pause_version }}/pause-{{ pause_version }}-{{ansible_architecture}}.tar"
+  #   dest: /tmp/pause-{{ pause_version }}-{{ansible_architecture}}.tar
+  #   mode: '0755'
+  #   timeout: 60
+  amazon.aws.s3_object:
+    endpoint_url: "{{ s3_endpoint_url }}"
+    access_key: "{{ s3_access_key }}"
+    secret_key: "{{ s3_secret_key }}"
+    bucket: "{{ s3_bucket_name }}"
+    object: "pause/{{ pause_version }}/pause-{{ pause_version }}-{{ansible_architecture}}.tar"
+    dest: "/tmp/pause-{{ pause_version }}-{{ansible_architecture}}.tar"
+    mode: get
+    overwrite: different
   async: 6000
   poll: 10
+  retries: 5
+  delay: 10
 
 - name: Import Pause Image Into Containerd
   shell: |
     ctr -n k8s.io i import /tmp/pause-{{ pause_version }}-{{ansible_architecture}}.tar
     # rm -f /tmp/pause-{{ pause_version }}-{{ansible_architecture}}.tar
 
+- name: Wait Worker Join To Cluster
+  ansible.builtin.wait_for:
+    timeout: 10

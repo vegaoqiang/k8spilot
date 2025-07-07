@@ -1,0 +1,41 @@
+
+- name: Transfor ConfigMap To Control Plane
+  ansible.builtin.template:
+    src: tigera-configmap.yaml.j2
+    dest: /tmp/tigera-configmap.yaml
+
+
+- name: Apply Tigera ConfigMap
+  ansible.builtin.shell: |
+    kubectl create namespace tigera-operator
+    kubectl apply -f /tmp/tigera-configmap.yaml
+    rm -f /tmp/tigera-configmap.yaml
+
+
+- name: Downloading tigera-operator Helm Chart
+  amazon.aws.s3_object:
+    endpoint_url: "{{ s3_endpoint_url }}"
+    access_key: "{{ s3_access_key }}"
+    secret_key: "{{ s3_secret_key }}"
+    bucket: "{{ s3_bucket_name }}"
+    object: "tigera-operator/tigera-operator-{{ calico_version }}.tgz"
+    dest: "/tmp/tigera-operator-{{ calico_version }}.tgz"
+    mode: get
+    overwrite: different
+
+
+- name: Install Calico
+  kubernetes.core.helm:
+    chart_ref: "/tmp/tigera-operator-{{ calico_version }}.tgz"
+    name: calico
+    chart_version: "{{calico_version}}"
+    wait: false
+    # state: absent
+    release_namespace: tigera-operator
+    create_namespace: true
+    values:
+      calicoNetwork:
+        linuxDataplane: BPF
+      installation:
+        registry: "{{ calico_installation_registry }}"
+

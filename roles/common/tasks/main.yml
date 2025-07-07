@@ -144,10 +144,21 @@
     arch_alias: >-
       {% if ansible_architecture == 'x86_64' %}amd64{% elif ansible_architecture == 'aarch64' %}arm64{% else %}{{ ansible_architecture }}{% endif %}
 
+
+- name: Enable PIP Package Manager
+  ansible.builtin.shell: python3 -m ensurepip
+
+
+- name: Install Python Module
+  ansible.builtin.pip:
+    name: "{{ item }}"
+    extra_args: -i https://mirrors.tuna.tsinghua.edu.cn/pypi/web/simple
+  loop: "{{ pip_module }}"
+
 - name: Downloading Cfssl v{{ cfssl_version }}
   ansible.builtin.get_url:
     url: "{{ download_location }}/cfssl/v{{ cfssl_version }}/linux/{{ arch_alias }}/{{ item }}_{{ cfssl_version }}_linux_{{ arch_alias }}"
-    dest: /tmp/
+    dest: "/tmp/{{ item }}_{{ cfssl_version }}_linux_{{ arch_alias }}"
     mode: '0755'
     timeout: 60
   loop:
@@ -155,6 +166,8 @@
     - cfssljson
   async: 6000
   poll: 10
+  retries: 5
+  delay: 10
 
 - name: Install Cfssl Tool
   ansible.builtin.shell:

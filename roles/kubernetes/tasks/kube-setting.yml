@@ -1,12 +1,10 @@
 ---
 
-- name: Wait worker join to cluster
-  ansible.builtin.wait_for:
-    timeout: 30
-
 - name: Approve node sign request
   shell: |
-    kubectl get csr|grep 'Pending'|awk '{print $1}'|xargs -n 1 kubectl certificate approve
+    for csr in $(kubectl get csr|grep 'Pending'|awk '{print $1}'); do
+      kubectl certificate approve $csr
+    done
 
 - name: Taint master
   shell: |
@@ -16,3 +14,7 @@
 - name: Label Control Plane
   shell: |
     kubectl label nodes "{{ inventory_hostname }}" node-role.kubernetes.io/control-plane=
+
+- name: Install CNI Plugin
+  ansible.builtin.include_role:
+    name: "{{ cni_plugin }}"

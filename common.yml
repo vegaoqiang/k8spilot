@@ -14,19 +14,19 @@
     - role: etcd
       tags: [etcd]
 
-- name: Install K8S Control Plane
+- name: Install Kubernetes Control Plane
   hosts: k8smaster
   remote_user: root
   roles:
     - role: kubernetes
-      tags: [ master ] 
+      tags: [ control ] 
 
-- name: Install K8S Worker
+- name: Install Kubernetes Worker
   hosts: k8snode
   remote_user: root
   roles:
     - role: kubernetes
-      tags: [node]
+      tags: [ worker ]
 
 
 - name: Cluster Settings

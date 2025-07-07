@@ -5,24 +5,53 @@
     arch_alias: >-
       {% if ansible_architecture == 'x86_64' %}amd64{% elif ansible_architecture == 'aarch64' %}arm64{% else %}{{ ansible_architecture }}{% endif %}
 
-- name: Downloading Kubernetes {{ kube_version }} Components
-  ansible.builtin.get_url:
-    url: "{{ download_location }}/kubernetes/{{ kube_version }}/linux/{{ arch_alias }}/{{ item }}"
+# - name: Downloading Kubernetes {{ kube_version }} Components
+#   ansible.builtin.get_url:
+#     url: "{{ download_location }}/kubernetes/{{ kube_version }}/linux/{{ arch_alias }}/{{ item }}"
+#     dest: "{{ kubernetes_home }}/bin/{{ item }}"
+#     mode: '0755'
+#     timeout: 60
+#   async: 6000
+#   poll: 10
+#   loop:
+#     - apiextensions-apiserver
+#     - kube-apiserver
+#     - kube-controller-manager
+#     - kube-log-runner
+#     - kube-proxy
+#     - kube-scheduler
+#     - kubectl
+#     - kubectl-convert
+#     - mounter
+#   retries: 5
+#   delay: 10
+
+
+- name:  Downloading Kubernetes {{ kube_version }} Components
+  amazon.aws.s3_object:
+    endpoint_url: "{{ s3_endpoint_url }}"
+    access_key: "{{ s3_access_key }}"
+    secret_key: "{{ s3_secret_key }}"
+    bucket: "{{ s3_bucket_name }}"
+    object: "kubernetes/{{ kube_version }}/linux/{{ arch_alias }}/{{ item }}"
     dest: "{{ kubernetes_home }}/bin/{{ item }}"
-    mode: '0755'
-    timeout: 60
+    mode: get
+    overwrite: different
   async: 6000
   poll: 10
   loop:
-    - apiextensions-apiserver
+    # - apiextensions-apiserver
     - kube-apiserver
     - kube-controller-manager
-    - kube-log-runner
-    - kube-proxy
+    # - kube-log-runner
+    # - kube-proxy
     - kube-scheduler
     - kubectl
-    - kubectl-convert
-    - mounter
+    # - kubectl-convert
+    # - mounter
+
+- name: Grant Executable Permissions To Components
+  ansible.builtin.shell: chmod +x {{ kubernetes_home }}/bin/*
 
 
 - name: Install SSL Certificate
@@ -103,13 +132,24 @@
 
 
 - name: Downloading Helm
-  ansible.builtin.get_url:
-    url: "{{ download_location }}/helm/{{ helm_version }}/linux/{{ arch_alias }}/helm-{{ helm_version }}-linux-{{ arch_alias }}.tar.gz"
+  # ansible.builtin.get_url:
+  #   url: "{{ download_location }}/helm/{{ helm_version }}/linux/{{ arch_alias }}/helm-{{ helm_version }}-linux-{{ arch_alias }}.tar.gz"
+  #   dest: "/tmp/helm-{{ helm_version }}-linux-{{ arch_alias }}.tar.gz"
+  #   mode: '0755'
+  #   timeout: 60
+  amazon.aws.s3_object:
+    endpoint_url: "{{ s3_endpoint_url }}"
+    access_key: "{{ s3_access_key }}"
+    secret_key: "{{ s3_secret_key }}"
+    bucket: "{{ s3_bucket_name }}"
+    object: "helm/{{ helm_version }}/linux/{{ arch_alias }}/helm-{{ helm_version }}-linux-{{ arch_alias }}.tar.gz"
     dest: "/tmp/helm-{{ helm_version }}-linux-{{ arch_alias }}.tar.gz"
-    mode: '0755'
-    timeout: 60
+    mode: get
+    overwrite: different
   async: 6000
   poll: 10
+  retries: 5
+  delay: 10
 
 - name: Install Helm
   ansible.builtin.shell: | 
@@ -119,14 +159,25 @@
     chmod +x /usr/local/bin/helm
 
 - name: Downloading Cilium Cli
-  ansible.builtin.get_url:
-    url: "{{ download_location }}/cilium/cilium-cli/{{ cilium_cli_version }}/linux/cilium-linux-{{ arch_alias }}.tar.gz"
+  # ansible.builtin.get_url:
+  #   url: "{{ download_location }}/cilium/cilium-cli/{{ cilium_cli_version }}/linux/cilium-linux-{{ arch_alias }}.tar.gz"
+  #   dest: "/tmp/cilium-linux-{{ arch_alias }}.tar.gz"
+  #   mode: '0755'
+  #   timeout: 60
+  amazon.aws.s3_object:
+    endpoint_url: "{{ s3_endpoint_url }}"
+    access_key: "{{ s3_access_key }}"
+    secret_key: "{{ s3_secret_key }}"
+    bucket: "{{ s3_bucket_name }}"
+    object: "cilium/cilium-cli/{{ cilium_cli_version }}/linux/cilium-linux-{{ arch_alias }}.tar.gz"
     dest: "/tmp/cilium-linux-{{ arch_alias }}.tar.gz"
-    mode: '0755'
-    timeout: 60
+    mode: get
+    overwrite: different
   async: 6000
   poll: 10
   when: cni_plugin == 'cilium'
+  retries: 5
+  delay: 10
 
 
 - name: Install Cilium Cli

@@ -29,16 +29,16 @@
 
 #### Kube-Master 安装 ####
 
-- name: Install Kubernetes Master
-  import_tasks: kube-master.yml
-  tags: master
+- name: Install Kubernetes Control Plane
+  import_tasks: kube-control.yml
+  tags: control
 
 
 #### Kube-Node 安装 ####
 
-- name: Install Kubernetes Node
-  import_tasks: kube-node.yml
-  tags: node
+- name: Install Kubernetes Worker
+  import_tasks: kube-worker.yml
+  tags: worker
 
 
 - name: Setting Kubernetes Cluster Alter Installed
