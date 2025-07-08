@@ -160,8 +160,6 @@ spec:
             path: /ready
             port: 8181
             scheme: HTTP
-      imagePullSecrets:
-        - name: regcred
       dnsPolicy: Default
       volumes:
         - name: config-volume
