@@ -185,3 +185,27 @@
   loop:
     - cfssl
     - cfssljson
+
+
+- name: Create Kubernetes Dirctory
+  file:
+    path: "{{ kubernetes_home }}/{{item}}"
+    state: directory
+    mode: 0755
+    recurse: yes
+    owner: root
+    group: root
+  with_items:
+  - 'bin'
+  - 'etc'
+  - 'ssl'
+  - 'logs'
+
+- name: Create .kube Dirctory
+  file:
+    path: "/root/.kube"
+    state: directory
+    mode: 0755
+    recurse: yes
+    owner: root
+    group: root

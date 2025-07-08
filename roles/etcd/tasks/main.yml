@@ -7,11 +7,20 @@
 
 
 - name: Downloading Etcd {{ etcd_version }}
-  ansible.builtin.get_url:
-    url: "{{ download_location }}/etcd/{{ etcd_version }}/linux/{{ arch_alias }}/etcd-{{ etcd_version }}-linux-{{ arch_alias }}.tar.gz"
-    dest: /tmp/
-    mode: '0755'
-    timeout: 60
+  # ansible.builtin.get_url:
+  #   url: "{{ download_location }}/etcd/{{ etcd_version }}/linux/{{ arch_alias }}/etcd-{{ etcd_version }}-linux-{{ arch_alias }}.tar.gz"
+  #   dest: /tmp/
+  #   mode: '0755'
+  #   timeout: 60
+  amazon.aws.s3_object:
+    endpoint_url: "{{ s3_endpoint_url }}"
+    access_key: "{{ s3_access_key }}"
+    secret_key: "{{ s3_secret_key }}"
+    bucket: "{{ s3_bucket_name }}"
+    object: "etcd/{{ etcd_version }}/linux/{{ arch_alias }}/etcd-{{ etcd_version }}-linux-{{ arch_alias }}.tar.gz"
+    dest: "/tmp/etcd-{{ etcd_version }}-linux-{{ arch_alias }}.tar.gz"
+    mode: get
+    overwrite: different
   async: 6000
   poll: 10
   retries: 5

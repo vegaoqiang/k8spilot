@@ -6,7 +6,7 @@
       kubectl certificate approve $csr
     done
 
-- name: Taint master To NoSchedule
+- name: Taint master
   shell: |
     kubectl taint nodes "{{ inventory_hostname }}" node-role.kubernetes.io/master=:NoSchedule
   when: allow_master_schedule != true

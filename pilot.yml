@@ -1,0 +1,39 @@
+
+- name: System Init
+  hosts: k8smaster,k8snode,etcd
+  remote_user: root
+  roles:
+    - role: common
+      tags: [ master, node, common ] 
+
+ 
+- name: Install Etcd Cluster
+  hosts: etcd
+  remote_user: root
+  roles:
+    - role: etcd
+      tags: [etcd]
+
+
+- name: Install Kubernetes Control Plane
+  hosts: k8smaster
+  remote_user: root
+  roles:
+    - role: control
+      tags: [ control ] 
+
+
+- name: Install Kubernetes Worker
+  hosts: k8snode
+  remote_user: root
+  roles:
+    - role: worker
+      tags: [ worker ]
+
+
+- name: Prepare Kubernetes Cluster
+  hosts: k8smaster
+  remote_user: root
+  roles:
+    - role: settings
+      tags: [ settings ]

@@ -5,27 +5,6 @@
     arch_alias: >-
       {% if ansible_architecture == 'x86_64' %}amd64{% elif ansible_architecture == 'aarch64' %}arm64{% else %}{{ ansible_architecture }}{% endif %}
 
-# - name: Downloading Kubernetes {{ kube_version }} Components
-#   ansible.builtin.get_url:
-#     url: "{{ download_location }}/kubernetes/{{ kube_version }}/linux/{{ arch_alias }}/{{ item }}"
-#     dest: "{{ kubernetes_home }}/bin/{{ item }}"
-#     mode: '0755'
-#     timeout: 60
-#   async: 6000
-#   poll: 10
-#   loop:
-#     - apiextensions-apiserver
-#     - kube-apiserver
-#     - kube-controller-manager
-#     - kube-log-runner
-#     - kube-proxy
-#     - kube-scheduler
-#     - kubectl
-#     - kubectl-convert
-#     - mounter
-#   retries: 5
-#   delay: 10
-
 
 - name:  Downloading Kubernetes {{ kube_version }} Components
   amazon.aws.s3_object:
@@ -40,15 +19,10 @@
   async: 6000
   poll: 10
   loop:
-    # - apiextensions-apiserver
     - kube-apiserver
     - kube-controller-manager
-    # - kube-log-runner
-    # - kube-proxy
     - kube-scheduler
     - kubectl
-    # - kubectl-convert
-    # - mounter
 
 - name: Grant Executable Permissions For Components
   ansible.builtin.shell: chmod +x {{ kubernetes_home }}/bin/*
@@ -62,7 +36,7 @@
     group: root 
     mode: 0640
   with_items:
-  - { src: "vica-config.json", dest: "{{ kubernetes_home }}/ssl/vica-config.json" }
+  - { src: "ca-config.json", dest: "{{ kubernetes_home }}/ssl/ca-config.json" }
   - { src: "{{ inventory_dir }}/{{ root_cert }}", dest: "{{ kubernetes_home }}/ssl/ca.pem" }
   - { src: "{{ inventory_dir }}/{{ root_key }}", dest: "{{ kubernetes_home }}/ssl/key.pem" }
   - { src: "bootstrap.yaml", dest: "{{ kubernetes_home }}/etc/bootstrap.yaml" }
@@ -89,15 +63,14 @@
   - { src: "cilium-helm-release.yml", dest: "{{ kubernetes_home }}/etc/cilium-helm-release.yml" }
   - { src: "coredns.yml", dest: "{{ kubernetes_home }}/etc/coredns.yml" }
   - { src: "ip-masq-agent.yml", dest: "{{ kubernetes_home }}/etc/ip-masq-agent.yml" }
-  tags:
-    - masterconfig
+
 
 - name: Generate SSL Certificates
   shell: |
-    cfssl gencert -ca=ca.pem -ca-key=key.pem -config=vica-config.json kube-admin-csr.json  | cfssljson -bare kube-admin
-    cfssl gencert -ca=ca.pem -ca-key=key.pem -config=vica-config.json kube-apiserver-csr.json  | cfssljson -bare kube-apiserver  
-    cfssl gencert -ca=ca.pem -ca-key=key.pem -config=vica-config.json kube-controller-manager-csr.json  | cfssljson -bare kube-controller-manager
-    cfssl gencert -ca=ca.pem -ca-key=key.pem -config=vica-config.json kube-scheduler-csr.json  | cfssljson -bare kube-scheduler
+    cfssl gencert -ca=ca.pem -ca-key=key.pem -config=ca-config.json kube-admin-csr.json  | cfssljson -bare kube-admin
+    cfssl gencert -ca=ca.pem -ca-key=key.pem -config=ca-config.json kube-apiserver-csr.json  | cfssljson -bare kube-apiserver  
+    cfssl gencert -ca=ca.pem -ca-key=key.pem -config=ca-config.json kube-controller-manager-csr.json  | cfssljson -bare kube-controller-manager
+    cfssl gencert -ca=ca.pem -ca-key=key.pem -config=ca-config.json kube-scheduler-csr.json  | cfssljson -bare kube-scheduler
   args:
     chdir: "{{ kubernetes_home }}/ssl"
 
@@ -132,11 +105,6 @@
 
 
 - name: Downloading Helm
-  # ansible.builtin.get_url:
-  #   url: "{{ download_location }}/helm/{{ helm_version }}/linux/{{ arch_alias }}/helm-{{ helm_version }}-linux-{{ arch_alias }}.tar.gz"
-  #   dest: "/tmp/helm-{{ helm_version }}-linux-{{ arch_alias }}.tar.gz"
-  #   mode: '0755'
-  #   timeout: 60
   amazon.aws.s3_object:
     endpoint_url: "{{ s3_endpoint_url }}"
     access_key: "{{ s3_access_key }}"
@@ -159,11 +127,6 @@
     chmod +x /usr/local/bin/helm
 
 - name: Downloading Cilium Cli
-  # ansible.builtin.get_url:
-  #   url: "{{ download_location }}/cilium/cilium-cli/{{ cilium_cli_version }}/linux/cilium-linux-{{ arch_alias }}.tar.gz"
-  #   dest: "/tmp/cilium-linux-{{ arch_alias }}.tar.gz"
-  #   mode: '0755'
-  #   timeout: 60
   amazon.aws.s3_object:
     endpoint_url: "{{ s3_endpoint_url }}"
     access_key: "{{ s3_access_key }}"
