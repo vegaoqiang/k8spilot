@@ -18,3 +18,12 @@
 - name: Install CNI Plugin
   ansible.builtin.include_role:
     name: "{{ cni_plugin }}"
+
+- name: Copy CoreDNS YML To Control
+  ansible.builtin.template:
+    src: coredns.yaml
+    dest: "{{ kubernetes_home }}/etc/coredns.yml"
+
+- name: Install CoreDNS {{ coredns_version }}
+  ansible.builtin.shell: |
+    kubectl apply -f {{ kubernetes_home }}/etc/coredns.yml

@@ -1,15 +1,15 @@
 
-- name: Transfor ConfigMap To Control Plane
-  ansible.builtin.template:
-    src: tigera-configmap.yaml.j2
-    dest: /tmp/tigera-configmap.yaml
+# - name: Transfor ConfigMap To Control Plane
+#   ansible.builtin.template:
+#     src: tigera-configmap.yaml.j2
+#     dest: /tmp/tigera-configmap.yaml
 
 
-- name: Apply Tigera ConfigMap
-  ansible.builtin.shell: |
-    kubectl create namespace tigera-operator
-    kubectl apply -f /tmp/tigera-configmap.yaml
-    rm -f /tmp/tigera-configmap.yaml
+# - name: Apply Tigera ConfigMap
+#   ansible.builtin.shell: |
+#     kubectl create namespace tigera-operator
+#     kubectl apply -f /tmp/tigera-configmap.yaml
+#     rm -f /tmp/tigera-configmap.yaml
 
 
 - name: Downloading tigera-operator Helm Chart
@@ -38,4 +38,12 @@
         linuxDataplane: BPF
       installation:
         registry: "{{ calico_installation_registry }}"
-
+      apiServer:
+        enabled: false
+      goldmane:
+        enabled: false
+      whisker:
+        enabled: false
+      kubernetesServiceEndpoint:
+        host: "{{ ansible_default_ipv4.address }}"
+        port: "6443"
