@@ -1,12 +1,12 @@
 ---
 
-- name: Approve node sign request
+- name: Approve Worker Sign Request
   shell: |
     for csr in $(kubectl get csr|grep 'Pending'|awk '{print $1}'); do
       kubectl certificate approve $csr
     done
 
-- name: Taint master
+- name: Taint Control To NoSchedule
   shell: |
     kubectl taint nodes "{{ inventory_hostname }}" node-role.kubernetes.io/master=:NoSchedule
   when: allow_master_schedule != true

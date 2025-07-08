@@ -125,26 +125,3 @@
     rm -f /usr/local/README.md /usr/local/LICENSE
     rm -f /tmp/helm-{{ helm_version }}-linux-{{ arch_alias }}.tar.gz
     chmod +x /usr/local/bin/helm
-
-- name: Downloading Cilium Cli
-  amazon.aws.s3_object:
-    endpoint_url: "{{ s3_endpoint_url }}"
-    access_key: "{{ s3_access_key }}"
-    secret_key: "{{ s3_secret_key }}"
-    bucket: "{{ s3_bucket_name }}"
-    object: "cilium/cilium-cli/{{ cilium_cli_version }}/linux/cilium-linux-{{ arch_alias }}.tar.gz"
-    dest: "/tmp/cilium-linux-{{ arch_alias }}.tar.gz"
-    mode: get
-    overwrite: different
-  async: 6000
-  poll: 10
-  when: cni_plugin == 'cilium'
-  retries: 5
-  delay: 10
-
-
-- name: Install Cilium Cli
-  ansible.builtin.shell: | 
-    tar -xf /tmp/cilium-linux-{{ arch_alias }}.tar.gz -C /usr/local/bin/
-    chmod +x /usr/local/bin/cilium
-  when: cni_plugin == 'cilium'

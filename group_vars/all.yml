@@ -33,5 +33,5 @@ cni_plugin: calico
 # pause容器版本
 pause_version: 3.9
 # 是否安装nfs网络存储
-nfs_provisioner: true
-nfs_version: 
+csi_nfs: true
+csi_nfs_version: v4.11.0

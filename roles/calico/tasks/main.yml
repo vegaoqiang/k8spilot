@@ -36,6 +36,8 @@
     values:
       calicoNetwork:
         linuxDataplane: BPF
+        typha:
+          enabled: false
       installation:
         registry: "{{ calico_installation_registry }}"
       apiServer:
@@ -43,6 +45,8 @@
       goldmane:
         enabled: false
       whisker:
+        enabled: false
+      csi:
         enabled: false
       kubernetesServiceEndpoint:
         host: "{{ ansible_default_ipv4.address }}"

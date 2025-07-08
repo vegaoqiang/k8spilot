@@ -1,12 +1,40 @@
 
-- name: Copy cilium tgz to remote
-  copy:
-    src: "{{role_path}}/files/cilium-{{cilium_version}}.tgz"
-    dest: "~/cilium/"
+
+- name: Downloading Cilium Cli
+  amazon.aws.s3_object:
+    endpoint_url: "{{ s3_endpoint_url }}"
+    access_key: "{{ s3_access_key }}"
+    secret_key: "{{ s3_secret_key }}"
+    bucket: "{{ s3_bucket_name }}"
+    object: "cilium/cilium-cli/{{ cilium_cli_version }}/linux/cilium-linux-{{ arch_alias }}.tar.gz"
+    dest: "/tmp/cilium-linux-{{ arch_alias }}.tar.gz"
+    mode: get
+    overwrite: different
+  async: 6000
+  poll: 10
+  retries: 5
+  delay: 10
+
+
+- name: Install Cilium Cli
+  ansible.builtin.shell: | 
+    tar -xf /tmp/cilium-linux-{{ arch_alias }}.tar.gz -C /usr/local/bin/
+    chmod +x /usr/local/bin/cilium
+
+- name: Downloading Cilium Helm Chart
+  amazon.aws.s3_object:
+    endpoint_url: "{{ s3_endpoint_url }}"
+    access_key: "{{ s3_access_key }}"
+    secret_key: "{{ s3_secret_key }}"
+    bucket: "{{ s3_bucket_name }}"
+    object: "cilium/cilium/cilium-{{cilium_version}}.tgz"
+    dest: "/tmp/cilium-{{cilium_version}}.tgz"
+    mode: get
+    overwrite: different
 
 - name: Install Cilium
   kubernetes.core.helm:
-    chart_ref: "~/cilium/cilium-{{cilium_version}}.tgz"
+    chart_ref: "/tmp/cilium-{{cilium_version}}.tgz"
     name: cilium
     chart_version: "{{cilium_version}}"
     wait: false
@@ -61,7 +89,7 @@
 
 - name: Install Cilium-{{cilium_version}} in Kylin
   kubernetes.core.helm:
-    chart_ref: "~/cilium/cilium-{{cilium_version}}.tgz"
+    chart_ref: "/tmp/cilium-{{cilium_version}}.tgz"
     name: cilium
     chart_version: "{{cilium_version}}"
     wait: false
