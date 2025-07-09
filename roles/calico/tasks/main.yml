@@ -38,6 +38,9 @@
         calicoNetwork:
           linuxDataplane: BPF
           bgp: Disabled
+          ipPools:
+            - encapsulation: VXLANCrossSubnet
+              cidr: "{{ kube_pod_ip_range }}"
         registry: "{{ calico_installation_registry }}"
       apiServer:
         enabled: false
