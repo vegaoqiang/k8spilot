@@ -22,7 +22,7 @@
     mode: get
     overwrite: different
   async: 6000
-  poll: 10
+  poll: 100
   retries: 5
   delay: 10
 

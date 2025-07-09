@@ -37,7 +37,7 @@
       installation:
         calicoNetwork:
           linuxDataplane: BPF
-        bgp: Disabled
+          bgp: Disabled
         registry: "{{ calico_installation_registry }}"
       apiServer:
         enabled: false
@@ -49,3 +49,4 @@
         host: "{{ ansible_default_ipv4.address }}"
         port: "6443"
       controlPlaneReplicas: 1
+      kubeletVolumePluginPath: None

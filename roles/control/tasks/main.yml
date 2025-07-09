@@ -6,7 +6,7 @@
       {% if ansible_architecture == 'x86_64' %}amd64{% elif ansible_architecture == 'aarch64' %}arm64{% else %}{{ ansible_architecture }}{% endif %}
 
 
-- name:  Downloading Kubernetes {{ kube_version }} Components
+- name:  Downloading Kubernetes {{ kube_version }} Control Components
   amazon.aws.s3_object:
     endpoint_url: "{{ s3_endpoint_url }}"
     access_key: "{{ s3_access_key }}"
@@ -17,7 +17,7 @@
     mode: get
     overwrite: different
   async: 6000
-  poll: 10
+  poll: 100
   loop:
     - kube-apiserver
     - kube-controller-manager
@@ -104,7 +104,7 @@
     kubectl apply -f {{ kubernetes_home }}/etc/bootstrap.yaml
 
 
-- name: Downloading Helm
+- name: Downloading Helm {{ helm_version }}
   amazon.aws.s3_object:
     endpoint_url: "{{ s3_endpoint_url }}"
     access_key: "{{ s3_access_key }}"
@@ -115,11 +115,11 @@
     mode: get
     overwrite: different
   async: 6000
-  poll: 10
+  poll: 100
   retries: 5
   delay: 10
 
-- name: Install Helm
+- name: Install Helm {{ helm_version }}
   ansible.builtin.shell: | 
     tar --strip-components=1  -xf /tmp/helm-{{ helm_version }}-linux-{{ arch_alias }}.tar.gz -C /usr/local/bin/
     rm -f /usr/local/README.md /usr/local/LICENSE

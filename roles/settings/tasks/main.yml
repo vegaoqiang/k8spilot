@@ -27,3 +27,7 @@
 - name: Install CoreDNS {{ coredns_version }}
   ansible.builtin.shell: |
     kubectl apply -f {{ kubernetes_home }}/etc/coredns.yml
+
+- name: Install CSI Driver
+  ansible.builtin.include_role:
+    name: csi
