@@ -34,11 +34,10 @@
     release_namespace: tigera-operator
     create_namespace: true
     values:
-      calicoNetwork:
-        linuxDataplane: BPF
-        typha:
-          enabled: false
       installation:
+        calicoNetwork:
+          linuxDataplane: BPF
+        bgp: Disabled
         registry: "{{ calico_installation_registry }}"
       apiServer:
         enabled: false
@@ -46,8 +45,7 @@
         enabled: false
       whisker:
         enabled: false
-      csi:
-        enabled: false
       kubernetesServiceEndpoint:
         host: "{{ ansible_default_ipv4.address }}"
         port: "6443"
+      controlPlaneReplicas: 1
