@@ -31,3 +31,4 @@
 - name: Install CSI Driver
   ansible.builtin.include_role:
     name: csi
+  when: csi_nfs

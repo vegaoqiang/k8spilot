@@ -6,11 +6,16 @@ coredns_ip: 223.5.5.5
 coredns_version: 1.11.3
 kube_apiserver_address: 'https://{{ hostvars[groups["k8smaster"][0]].ansible_default_ipv4.address }}:6443'
 kubelet_bootstrap_token: df1ab884bcfe0840b90bed680a53ee42
+# service的IP范围
 kube_cluster_ip_range: '192.168.20.0/24'
+# nodeport允许监听的端口范围
 kube_node_port_range: 20000-42767
+# api-server的service地址
 kube_cluster_apiserver: '192.168.20.1'
+# coredns的service地址
 kube_cluster_dns: '192.168.20.2'
-kube_pod_ip_range: '172.16.0.0/16'
+# pod的IP范围
+kube_pod_ip_range: '10.0.0.0/8'
 kube_version: v1.30.4
 etcd_version: v3.5.15
 helm_version: v3.15.2
@@ -34,4 +39,12 @@ cni_plugin: calico
 pause_version: 3.9
 # 是否安装nfs网络存储
 csi_nfs: true
-csi_nfs_version: v4.11.0
+csi_nfs_version: 4.11.0
+# 指定nfs服务端的地址, 指定的nfs服务端必须支持NFSv4
+custom_nfs_server_address: 
+
+# 如果没有指定nfs-server地址，将在集群中自动安装nfs-server
+# 指定nfs-server在主机上的存储位置，请指定大容量磁盘目录，默认nfs数据存放在/var/lib/nfs-data
+nfs_host_path: /var/lib/nfs-data
+# 指定nfs-server容器运行在哪买节点上，默认调度到主节点上, 推荐在主节点上将nfs_host_path目录单独挂载磁盘
+nfs_server_host: control

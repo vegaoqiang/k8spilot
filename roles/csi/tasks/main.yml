@@ -1,0 +1,73 @@
+
+- name: Update nfsmount.conf
+  ansible.builtin.blockinfile:
+    path: /etc/nfsmount.conf
+    insertafter: "[ NFSMount_Global_Options ]"
+    block: |
+      retrans=5
+      acregmin=0
+      acregmax=0
+      acdirmin=0
+      acdirmax=0
+      noac
+
+
+- name: Transfor NFS YAML To Control
+  ansible.builtin.template:
+    src: nfs-server.yaml.j2
+    dest: "{{ kubernetes_home }}/etc/nfs-server.yaml"
+  when: nfs_server_address is not defined or nfs_server_address is none
+
+- name: Install NFS Server
+  ansible.builtin.shell: |
+    kubectl apply -f {{ kubernetes_home }}/etc/nfs-server.yaml
+  when: nfs_server_address is not defined or nfs_server_address is none
+
+
+- name: Downloading CSI Driver NFS Helm Chart
+  amazon.aws.s3_object:
+    endpoint_url: "{{ s3_endpoint_url }}"
+    access_key: "{{ s3_access_key }}"
+    secret_key: "{{ s3_secret_key }}"
+    bucket: "{{ s3_bucket_name }}"
+    object: "csi-driver-nfs/csi-driver-nfs-{{ csi_nfs_version }}.tgz"
+    dest: "/tmp/csi-driver-nfs-{{ csi_nfs_version }}.tgz"
+    mode: get
+    overwrite: different
+
+- name: Install CSI Driver NFS v{{ csi_nfs_version }}
+  kubernetes.core.helm:
+    chart_ref: "/tmp/csi-driver-nfs-{{ csi_nfs_version }}.tgz"
+    name: nfs-server
+    chart_version: "{{ csi_nfs_version }}"
+    wait: false
+    # state: absent
+    release_namespace: kube-system
+    create_namespace: true
+    values:
+      driver:
+        name: nfs.csi.k8s.io
+      image: 
+        nfs: 
+          repository: "{{ csi_registry_prefix }}/registry.k8s.io/sig-storage/nfsplugin"
+          tag: "{{ nfsplugin_tag }}"
+        csiProvisioner:
+          repository: "{{ csi_registry_prefix }}/registry.k8s.io/sig-storage/csi-provisioner"
+          tag: "{{ csiprovisioner_tag }}"
+        livenessProbe:
+          repository: "{{ csi_registry_prefix }}/registry.k8s.io/sig-storage/livenessprobe"
+          tag: "{{ livenessprobe_tag }}"
+        nodeDriverRegistrar:
+          repository: "{{ csi_registry_prefix }}/registry.k8s.io/sig-storage/csi-node-driver-registrar"
+          tag: "{{ nodedriverregistrar_tag }}"
+      storageClass:
+        create: true
+        name: nfs-csi
+        annotations:
+          storageclass.kubernetes.io/is-default-class: "true"
+        parameters:
+          server: "{{ custom_nfs_server_address if custom_nfs_server_address else 'nfs-server.kube-system.svc.cluster.local' }}"
+      feature: 
+        propagateHostMountOptions: true
+
+      

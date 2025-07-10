@@ -1,0 +1,5 @@
+csi_registry_prefix: m.daocloud.io
+nfsplugin_tag: latest
+csiprovisioner_tag: v5.3.0
+livenessprobe_tag: v2.16.0
+nodedriverregistrar_tag: v2.14.0

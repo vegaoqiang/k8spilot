@@ -179,6 +179,6 @@
   shell: |
     ctr -n k8s.io i import /tmp/pause-{{ pause_version }}-{{ansible_architecture}}.tar
 
-- name: Wait Worker Join To Cluster
-  ansible.builtin.wait_for:
-    timeout: 10
+# - name: Wait Worker Join To Cluster
+#   ansible.builtin.wait_for:
+#     timeout: 10
