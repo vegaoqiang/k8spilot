@@ -31,4 +31,9 @@
 - name: Install CSI Driver
   ansible.builtin.include_role:
     name: csi
-  when: csi_nfs
+  when: enable_csi_nfs
+
+- name: Install Ingress
+  ansible.builtin.include_role:
+    name: ingress
+  when: enable_ingress and ingress_controller == 'ingress-nginx'

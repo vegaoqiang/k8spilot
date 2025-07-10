@@ -1,0 +1,35 @@
+
+- name: Downloading Ingress-Nginx Helm Chart
+  amazon.aws.s3_object:
+    endpoint_url: "{{ s3_endpoint_url }}"
+    access_key: "{{ s3_access_key }}"
+    secret_key: "{{ s3_secret_key }}"
+    bucket: "{{ s3_bucket_name }}"
+    object: "ingress-nginx/ingress-nginx-{{ ingress_helm_version }}.tgz"
+    dest: "/tmp/ingress-nginx-{{ ingress_helm_version }}.tgz"
+    mode: get
+    overwrite: different
+
+
+- name: Install Ingress-Nginx
+  kubernetes.core.helm:
+    chart_ref: "/tmp/ingress-nginx-{{ ingress_helm_version }}.tgz"
+    name: ingress-nginx
+    chart_version: "{{ ingress_helm_version }}"
+    wait: false
+    # state: absent
+    release_namespace: ingress-nginx
+    create_namespace: true
+    values:
+      global:
+        image:
+          registry: "{{ ingress_registry_prefix }}/registry.k8s.io"
+      controller:
+        tag: "{{ ingress_nginx_version }}"
+        service:
+          nodePorts:
+            http: "{{ ingress_nodeport_http }}"
+            https: "{{ ingress_nodeport_https }}"
+        ingressClassResource:
+          default: true
+        
