@@ -42,6 +42,7 @@
             - encapsulation: VXLANCrossSubnet
               cidr: "{{ kube_pod_ip_range }}"
         registry: "{{ calico_installation_registry }}"
+        controlPlaneReplicas: 1
       apiServer:
         enabled: false
       goldmane:
@@ -51,5 +52,4 @@
       kubernetesServiceEndpoint:
         host: "{{ ansible_default_ipv4.address }}"
         port: "6443"
-      controlPlaneReplicas: 1
       kubeletVolumePluginPath: None
