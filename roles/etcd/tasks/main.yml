@@ -72,7 +72,7 @@
   with_items:
   - { src: "{{ inventory_dir }}/{{ root_cert }}", dest: "{{ etcd_home }}/ssl/ca.pem" }
   - { src: "{{ inventory_dir }}/{{ root_key }}", dest: "{{ etcd_home }}/ssl/key.pem" }
-  - { src: "vica-config.json", dest: "{{ etcd_home }}/ssl/vica-config.json" }
+  - { src: "ca-config.json", dest: "{{ etcd_home }}/ssl/ca-config.json" }
 
 
 - name: Install Etcd Binary
@@ -81,7 +81,7 @@
     rm -fr {{ etcd_home }}/bin/README* {{ etcd_home }}/bin/Documentation*
     export PATH=$PATH:/usr/local/bin
     cd {{ etcd_home }}/ssl/
-    cfssl gencert -ca=ca.pem -ca-key=key.pem -config=vica-config.json etcd-csr.json  | cfssljson -bare etcd
+    cfssl gencert -ca=ca.pem -ca-key=key.pem -config=ca-config.json etcd-csr.json  | cfssljson -bare etcd
     rm -rf key.pem
     ln -sfT {{ etcd_home }}/bin/etcdctl /usr/local/bin/etcdctl
     chown -R {{ etcd_user }}.{{ etcd_user }}  {{ etcd_home }}
