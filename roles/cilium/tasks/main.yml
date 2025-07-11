@@ -1,4 +1,9 @@
 
+- name: Set Architecture Alias
+  set_fact:
+    arch_alias: >-
+      {% if ansible_architecture == 'x86_64' %}amd64{% elif ansible_architecture == 'aarch64' %}arm64{% else %}{{ ansible_architecture }}{% endif %}
+
 
 - name: Downloading Cilium Cli
   amazon.aws.s3_object:
