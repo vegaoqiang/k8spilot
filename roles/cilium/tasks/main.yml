@@ -48,22 +48,20 @@
       kubeProxyReplacement: "true"
       bpf:
         lbExternalClusterIP: true
-      # imagePullSecrets:
-      #   - name: regcred
       operator:
         image:
-          tag: "{{cilium_version}}"
-          repository: reg.guideirai.online/cilium/operator
+          tag: "{{ cilium_version }}"
+          repository: quay.io/cilium/operator
           useDigest: false
           suffix: ""
-        replicas: 2
+        replicas: 1
       image:
-        repository: reg.guideirai.online/cilium/cilium
-        tag: "{{cilium_version}}"
+        repository: quay.io/cilium/cilium
+        tag: "{{ cilium_version }}"
         useDigest: false
       ingressController:
-        enabled: true
-        default: true
+        enabled: "{{ true if ingress_controller == 'cilium' else false }}"
+        default: "{{ true if ingress_controller == 'cilium' else false }}"
         loadbalancerMode: shared
         service:
           type: NodePort
@@ -81,8 +79,8 @@
       envoy:
         enabled: true
         image: 
-          tag: v1.29.7
-          repository: "reg.guideirai.online/cilium/cilium-envoy"
+          tag: "{{ cilium_envoy_version }}"
+          repository: "quay.io/cilium/cilium-envoy"
           useDigest: false
   when: ansible_distribution != 'Kylin Linux Advanced Server'
 
