@@ -74,19 +74,12 @@
           insecureNodePort: 30080
           # -- Configure a specific nodePort for secure HTTPS traffic on the shared LB service
           secureNodePort : 30443
-        # hostNetwork:
-        #   enabled: true
-      # hubble:
-      #   ui:
-      #     enabled: true
-      #   relay:
-      #     enabled: true
       envoy:
         enabled: true
-        image: 
-          tag: "{{ cilium_envoy_version }}"
-          repository: "quay.io/cilium/cilium-envoy"
-          useDigest: false
+        # image: 
+        #   tag: "{{ cilium_envoy_version }}"
+        #   repository: "quay.io/cilium/cilium-envoy"
+        #   useDigest: false
 
 
 
