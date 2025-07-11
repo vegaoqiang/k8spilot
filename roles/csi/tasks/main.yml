@@ -38,7 +38,7 @@
 - name: Install CSI Driver NFS v{{ csi_nfs_version }}
   kubernetes.core.helm:
     chart_ref: "/tmp/csi-driver-nfs-{{ csi_nfs_version }}.tgz"
-    name: nfs-server
+    name: csi-driver-nfs
     chart_version: "{{ csi_nfs_version }}"
     wait: false
     # state: absent
@@ -73,6 +73,7 @@
           storageclass.kubernetes.io/is-default-class: "true"
         parameters:
           server: "{{ custom_nfs_server_address if custom_nfs_server_address else 'nfs-server.kube-system.svc.cluster.local' }}"
+          share: /
       feature: 
         propagateHostMountOptions: true
 
