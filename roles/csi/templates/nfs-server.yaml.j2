@@ -44,7 +44,7 @@ spec:
 {% endif %}  
       containers:
         - name: nfs-server
-          image: quay.io/vegaoqiang/nfs-server-alpine:v1.0
+          image: quay.io/k8spilot/nfs-server-alpine:v1.0
           env:
             - name: SHARED_DIRECTORY
               value: "/exports"
