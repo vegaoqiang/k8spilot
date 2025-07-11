@@ -60,9 +60,6 @@
   - { src: "kube-apiserver.service.j2", dest: "/usr/lib/systemd/system/kube-apiserver.service" }
   - { src: "kube-controller-manager.service.j2", dest: "/usr/lib/systemd/system/kube-controller-manager.service" }
   - { src: "kube-scheduler.service.j2", dest: "/usr/lib/systemd/system/kube-scheduler.service" }
-  - { src: "cilium-helm-release.yml", dest: "{{ kubernetes_home }}/etc/cilium-helm-release.yml" }
-  - { src: "coredns.yml", dest: "{{ kubernetes_home }}/etc/coredns.yml" }
-  - { src: "ip-masq-agent.yml", dest: "{{ kubernetes_home }}/etc/ip-masq-agent.yml" }
 
 
 - name: Generate SSL Certificates

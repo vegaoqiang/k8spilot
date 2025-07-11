@@ -4,19 +4,6 @@
 #   ansible.builtin.debug:
 #     var: ansible_facts
 
-# - name: Create Soft Directory
-#   file:
-#     path: /root/soft
-#     state: directory
-#     mode: 0755
-#     recurse: yes
-
-# - name: Update Motd
-#   template:
-#     src: motd
-#     dest: /etc/motd
-#   tags: sethost
-
 - name: Delete Repo Default
   shell: rm -rf /etc/yum.repos.d/*
   args:
