@@ -2,8 +2,8 @@ s3_bucket_name: k8spilot
 s3_endpoint_url: https://e84c8f218bbaff182a7c9b8898f3e8ae.r2.cloudflarestorage.com
 s3_access_key: e1a9ba8f5c9d1c9a0aed60a45937b86f
 s3_secret_key: 9d1dac1da208f189f709d4fa01c39ffd52d238ee6e669667c02865c0889d3bc6
-coredns_ip: 223.5.5.5
-coredns_version: 1.11.3
+
+# kube-apiserver地址
 kube_apiserver_address: 'https://{{ hostvars[groups["k8smaster"][0]].ansible_default_ipv4.address }}:6443'
 kubelet_bootstrap_token: df1ab884bcfe0840b90bed680a53ee42
 # service的IP范围
@@ -16,33 +16,56 @@ kube_cluster_apiserver: '192.168.20.1'
 kube_cluster_dns: '192.168.20.2'
 # pod的IP范围
 kube_pod_ip_range: '10.0.0.0/8'
+# kuberneters集群版本
 kube_version: v1.30.4
-etcd_version: v3.5.15
-helm_version: v3.15.2
-cilium_version: "{{ 'v1.13.12' if ansible_distribution == 'Kylin Linux Advanced Server' else 'v1.16.1' }}"
-cilium_cli_version: v0.18.4
-calico_version: v3.30.2
-containerd_version: 2.1.3
-containerd_root: /var/lib/containerd
+# kubernetes安装目录
 kubernetes_home: /usr/local/kubernetes
+# 是否允许Kubernetes Control-Plane(master)调度pod
+allow_master_schedule: true
+
+# etcd版本
+etcd_version: v3.5.15
+
+# helm版本
+helm_version: v3.15.2
+
+# coreDNS版本
+coredns_version: 1.11.3
+# coreDNS版本上游DNS地址
+coredns_ip: 223.5.5.5
+
+# cilium版本
+cilium_version: v1.16.1
+cilium_cli_version: v0.18.4
+
+# calico版本
+calico_version: v3.30.2
+
+# containerd版本
+containerd_version: 2.1.3
+# containerd根目录
+containerd_root: /var/lib/containerd
+# cni版本: https://github.com/containernetworking/plugins
 cni_version: v1.7.1
+
+# 根证书证书名称，根证书用于签发集群证书
 root_cert: ca.pem
 root_key: ca-key.pem
-# 是否允许master调度pod
-allow_master_schedule: true
+# 证书工具版本
 cfssl_version: 1.6.5
+
+# 集群安装文件下载地址
 # download_location: https://pub-86cf087c79b64b9a8e73f0431cdf4f0d.r2.dev
 download_location: https://dl.k8spilot.icu
+
 # 网络插件类型，推荐使用cilium, 可选calico
 cni_plugin: cilium
-# pause容器版本
-pause_version: 3.9
+
 # 是否安装nfs网络存储
 enable_csi_nfs: true
 csi_nfs_version: 4.11.0
 # 指定nfs服务端的地址, 指定的nfs服务端必须支持NFSv4
 custom_nfs_server_address: 
-
 # 如果没有指定nfs-server地址，将在集群中自动安装nfs-server
 # 指定nfs-server在主机上的存储位置，请指定大容量磁盘目录，默认nfs数据存放在/var/lib/nfs-data
 nfs_host_path: /var/lib/nfs-data
