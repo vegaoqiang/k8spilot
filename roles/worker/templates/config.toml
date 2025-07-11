@@ -174,10 +174,6 @@ temp = ""
   [plugins."io.containerd.internal.v1.restart"]
     interval = "10s"
 
-  [plugins."io.containerd.internal.v1.tracing"]
-    sampling_ratio = 1.0
-    service_name = "containerd"
-
   [plugins."io.containerd.metadata.v1.bolt"]
     content_sharing_policy = "shared"
 
