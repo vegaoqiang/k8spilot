@@ -108,6 +108,11 @@
     dest: /root/.kube/config-encode
   tags: encode
 
+- name: Downloading Encode Client Config
+  ansible.builtin.fetch:
+    src: /root/.kube/config-encode
+    dest: "{{ inventory_dir }}/config"
+
 - name: Enable Kubernetes Master Service
   ansible.builtin.service:
     name: "{{ item }}"
