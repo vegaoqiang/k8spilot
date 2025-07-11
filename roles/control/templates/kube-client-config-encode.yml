@@ -1,0 +1,22 @@
+apiVersion: v1
+kind: Config
+current-context: default
+preferences: {}
+
+contexts:
+- name: default
+  context:
+    cluster: kubernetes
+    user: kube-admin
+
+clusters:
+- name: kubernetes
+  cluster:
+    server: "https://{{ ansible_default_ipv4.address }}:6443"
+    certificate-authority-data: "{{ ca_encode }}"
+
+users:
+- name: kube-admin
+  user:
+    client-certificate-data: "{{ kube_admin_encode }}"
+    client-key-data: "{{ kube_admin_key_encode }}"

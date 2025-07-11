@@ -85,6 +85,29 @@
   - { dest: "{{ kubernetes_home }}/etc/kube-scheduler.kubeconfig", context_user: "kube-scheduler" }
   changed_when: True
 
+- name: Encode Certificate
+  ansible.builtin.slurp:
+    src: "{{ item.path }}"
+  loop:
+    - { path: "{{ kubernetes_home }}/ssl/ca.pem", varname: "ca_encode" }
+    - { path: "{{ kubernetes_home }}/ssl/kube-admin.pem", varname: "kube_admin_encode" }
+    - { path: "{{ kubernetes_home }}/ssl/kube-admin-key.pem", varname: "kube_admin_key_encode" }
+  register: certs_encode
+  tags: encode
+  
+- name: Set Facts Encode Variable
+  set_fact:
+    "{{ item.item.varname }}": "{{ item.content }}"
+  no_log: true
+  loop: "{{ certs_encode.results }}"
+  tags: encode
+
+- name: Encode Kube Client Config
+  ansible.builtin.template:
+    src: kube-client-config-encode.yml
+    dest: /root/.kube/config-encode
+  tags: encode
+
 - name: Enable Kubernetes Master Service
   ansible.builtin.service:
     name: "{{ item }}"
