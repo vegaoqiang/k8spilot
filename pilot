@@ -7,3 +7,22 @@ case $1 in
     ;;
 esac
 
+
+check_requirements(){
+  local py_interpreter=""
+  if which python3 >/dev/null 2>&1; then
+    py_interpreter=$(which python3)
+  elif which python >/dev/null 2>&1; then
+    py_interpreter=$(which python)
+  else
+    echo "Can not found avaliable python interpreter in system"
+    echo "You may install python >= 3.10 by manual."
+    exit 1
+  fi
+  ${py_interpreter} $(dirname ${BASH_SOURCE[0]})/library/py_checker.py
+  if [ "$?" -ne 0 ]; then
+    exit 1
+  fi
+}
+
+check_requirements
