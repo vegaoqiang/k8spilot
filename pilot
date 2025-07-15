@@ -48,7 +48,11 @@ select_kube_version(){
     else
       version=${default_version}
     fi
-    sed -i "s#kube_version: .*#kube_version: $version#g" $(dirname ${BASH_SOURCE[0]})/inventory/group_vars/all.yml
+    if [ "$(uname)" == "Darwin" ]; then
+      sed -i '' "s#kube_version: .*#kube_version: $version#g" $(dirname ${BASH_SOURCE[0]})/inventory/group_vars/all.yml
+    else
+      sed -i "s#kube_version: .*#kube_version: $version#g" $(dirname ${BASH_SOURCE[0]})/inventory/group_vars/all.yml
+    fi
   fi
 }
 
