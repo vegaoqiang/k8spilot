@@ -44,7 +44,7 @@ select_kube_version(){
         printf "\e[32m你输入kubernetes版本${version}不在支持列表中\e[0m\n"
         exit 1
       fi
-      printf "\e[32m你选择的安装的kubernetes版本是$version\e[0m\n"
+      printf "\e[32m你选择安装的kubernetes版本是$version\e[0m\n"
     else
       version=${default_version}
     fi
