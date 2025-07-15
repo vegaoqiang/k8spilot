@@ -26,10 +26,12 @@ check_inventory(){
     if [ "$?" -ne 0 ]; then
       exit 1
     fi 
+    printf "\e[32minventory初始化完成\e[0m\n"
   fi
 }
 
 select_kube_version(){
+  printf "\e[32m开始获取kubernetes版本信息\e[0m\n"
   local version_list=$(curl -s https://dl.k8spilot.icu/kubernetes/kube-versions)
   if [ "$?" -ne 0 ] || [ -z "${version_list}" ]; then
     local kube_version=$(grep 'kube_version' $(dirname ${BASH_SOURCE[0]})/inventory/group_vars/all.yml|awk '{print $NF}')

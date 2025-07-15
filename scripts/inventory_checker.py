@@ -82,6 +82,7 @@ def profile_inventory() -> tuple:
       if len(worker_profile_bucket) < 2:
         print("\033[31mworker[node]节点数量必须大于等于2才能正常安装集群\033[0m")
         sys.exit(1)
+      print("录入终止")
       break
   return control_profile, worker_profile_bucket
 
