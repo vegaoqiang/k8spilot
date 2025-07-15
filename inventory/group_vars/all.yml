@@ -69,7 +69,7 @@ custom_nfs_server_address:
 # 如果没有指定自定义nfs-server地址，将在集群中自动安装nfs-server
 # 安装nfs-server服务时，指定nfs-server在主机上的存储位置，请指定大容量磁盘目录，默认nfs数据存放在/var/lib/nfs-data
 nfs_host_path: /var/lib/nfs-data
-# 指定nfs-server容器运行在哪买节点上，默认调度到主节点上, 推荐在主节点上将nfs_host_path目录单独挂载磁盘
+# 指定nfs-server容器运行在哪个节点上，默认调度到主节点上, 推荐在主节点上将nfs_host_path目录单独挂载磁盘
 nfs_server_host: control
 
 # 是否开启ingress
@@ -79,4 +79,9 @@ ingress_controller: cilium
 # ingress入口，将在所有节点上通过nodeport暴露ingress入口
 ingress_nodeport_http: 30080
 ingress_nodeport_https: 30443
+
+# 定义kubernetes控制节（master）点主机的主机名前缀，示例：control，则第一个控制节点主机名为: control01，第二个控制节点主机名为: control02，依次类推
+control_hostname_prefix: control
+# 定义kubernetes调度（node）节点主机的主机名前缀，示例：worker，则第一个调度节点主机名为: worker01，第二个调度节点主机名为: worker02，依次类推
+worker_hostname_prefix: worker
 

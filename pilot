@@ -1,28 +1,64 @@
 #!/bin/bash
 
 
-case $1 in
-    deploy)
-    echo "deploy an kubernetes cluster"
-    ;;
-esac
-
-
 check_requirements(){
-  local py_interpreter=""
+  PY_INTERPRETER=""
   if which python3 >/dev/null 2>&1; then
-    py_interpreter=$(which python3)
+    PY_INTERPRETER=$(which python3)
   elif which python >/dev/null 2>&1; then
-    py_interpreter=$(which python)
+    PY_INTERPRETER=$(which python)
   else
     echo "Can not found avaliable python interpreter in system"
     echo "You may install python >= 3.10 by manual."
     exit 1
   fi
-  ${py_interpreter} $(dirname ${BASH_SOURCE[0]})/library/py_checker.py
+  ${PY_INTERPRETER} $(dirname ${BASH_SOURCE[0]})/scripts/py_checker.py
   if [ "$?" -ne 0 ]; then
     exit 1
   fi
 }
 
-check_requirements
+check_inventory(){
+  ${PY_INTERPRETER} $(dirname ${BASH_SOURCE[0]})/scripts/inventory_checker.py validation
+  if [ "$?" -ne 0 ]; then
+    echo "开始初始化inventory"
+    ${PY_INTERPRETER} $(dirname ${BASH_SOURCE[0]})/scripts/inventory_checker.py generate
+    if [ "$?" -ne 0 ]; then
+      exit 1
+    fi 
+  fi
+}
+
+select_kube_version(){
+  local version_list=$(curl -s https://dl.k8spilot.icu/kubernetes/kube-versions)
+  if [ "$?" -ne 0 ] || [ -z "${version_list}" ]; then
+    local kube_version=$(grep 'kube_version' $(dirname ${BASH_SOURCE[0]})/inventory/group_vars/all.yml|awk '{print $NF}')
+  else
+    printf "\e[32m${version_list}\e[0m\n"
+    local default_version=$(echo "${version_list}"|sed -n '$p')
+    read -p "请从以上版本列表选择并输入本次安装的kubernetes版本 [默认:${default_version}]:" version
+    if [ ! -z "${version}" ]; then
+      if ! echo "${version_list}"|grep ${version} > /dev/null; then
+        printf "\e[32m你输入kubernetes版本${version}不在支持列表中\e[0m\n"
+        exit 1
+      fi
+      printf "\e[32m你选择的安装的kubernetes版本是$version\e[0m\n"
+    else
+      version=${default_version}
+    fi
+    sed -i "s#kube_version: .*#kube_version: $version#g" $(dirname ${BASH_SOURCE[0]})/inventory/group_vars/all.yml
+  fi
+}
+
+deploy_kube(){
+  ansible-playbook -i $(dirname ${BASH_SOURCE[0]})/inventory/inventory.ini pilot.yml
+}
+
+case $1 in
+    deploy)
+    check_requirements
+    check_inventory
+    select_kube_version
+    deploy_kube
+    ;;
+esac

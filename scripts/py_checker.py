@@ -1,3 +1,6 @@
+# Author: vegaoqiang
+# Date: 20250715 
+
 import sys
 import subprocess
 
@@ -38,7 +41,7 @@ except ModuleNotFoundError as e:
 
 ansible_core_version = float(ansible.__version__.rsplit('.', 1)[0])
 if ansible_core_version < REQUIRE_ANSIBLE_CORE_VERSION:
-    print("Current installed ansible-core version is %s less than 2.17.0") % ansible.__version__
+    print("Current installed ansible-core version is %s less than 2.17.0" % ansible.__version__) 
     sys.exit(1)
 
 ansible_verison_info = subprocess.run(["pip3", "show", "ansible"], capture_output=True, text=True)

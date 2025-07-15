@@ -6,3 +6,4 @@
 *.whl
 hosts
 minio.yaml
+local.ini
