@@ -1,7 +1,7 @@
 {
   "CN": "kube-apiserver",
   "hosts": [
-    {% for host in groups['k8smaster'] %}
+    {% for host in groups['control'] %}
     "{{ hostvars[host]['ansible_ssh_host'] }}",
     {% endfor %}
     "{{ kube_cluster_apiserver }}",
@@ -19,8 +19,8 @@
   "names": [
     {
       "C": "CN",
-      "L": "HangZhou",
-      "O": "system:masters"
+      "L": "K8SPILOT",
+      "O": "system"
     }
   ]
 }
