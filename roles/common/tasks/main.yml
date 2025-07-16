@@ -77,12 +77,6 @@
     service_name: "{{ item }}.service"
 
 
-# - name: Disable Services
-#   service: name={{ item }} enabled=no state=stopped
-#   with_items: "{{ openeuler_disable_service }}"
-#   ignore_errors: yes
-#   when: " ansible_distribution == 'openEuler' "
-
 - name: Kernel Tuning
   sysctl: name={{ item.name }} value={{ item.value }} sysctl_set=yes state=present
   with_items: '{{ kernel_params }}'
@@ -103,28 +97,6 @@
     sed -i "/#.*swap/! s/.*swap.*/#&/" /etc/fstab
     sysctl --system
 
-#- name: repair polkit pkexec
-#  shell: chmod 0755 /usr/bin/pkexec
-# 
-# 
-# - name: update network
-#   shell: nmcli  con mod 'System eth0'  ipv4.dns "{{ coredns_ip }}"; nmcli con mod 'System eth0' ipv4.ignore-auto-dns yes
-#   tags:  dns
-# 
-# - name: update network DNS
-#   shell: echo 'supersede domain-name-servers {{ coredns_ip }};' > /etc/dhcp/dhclient.conf
-#   tags:  dns
-# 
-# - name: restart network
-#   shell: systemctl restart NetworkManager
-#   tags:  dns
-
-# - name: disable node_exporter
-#   ansible.builtin.systemd_service:
-#     name: node_exporter.service
-#     state: stopped
-#     enabled: false
-#   ignore_errors: yes
 
 - name: Set Architecture Alias
   set_fact:
