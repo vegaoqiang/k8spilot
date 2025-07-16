@@ -21,6 +21,7 @@
     etcdctl $ETCD_ARGS endpoint status
     etcdctl $ETCD_ARGS endpoint health
     etcdctl $ENDPOINT $ETCD_ARGS endpoint status
+  when: inventory_hostname == groups['etcd'][0]
   register: shell_output
 
 - name: Print Etcd Cluster Status
