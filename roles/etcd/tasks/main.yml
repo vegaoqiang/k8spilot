@@ -70,8 +70,8 @@
     group: "{{ etcd_user }}"
     mode: 0644
   with_items:
-  - { src: "{{ inventory_dir }}/{{ root_cert }}", dest: "{{ etcd_home }}/ssl/ca.pem" }
-  - { src: "{{ inventory_dir }}/{{ root_key }}", dest: "{{ etcd_home }}/ssl/key.pem" }
+  - { src: "{{ playbook_dir }}/ca/{{ root_cert }}", dest: "{{ etcd_home }}/ssl/ca.pem" }
+  - { src: "{{ playbook_dir }}/ca/{{ root_key }}", dest: "{{ etcd_home }}/ssl/key.pem" }
   - { src: "ca-config.json", dest: "{{ etcd_home }}/ssl/ca-config.json" }
 
 

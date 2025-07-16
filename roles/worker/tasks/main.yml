@@ -118,8 +118,8 @@
     group: root
     mode: 0640
   with_items:
-  - { src: "{{ inventory_dir }}/{{ root_cert }}", dest: "{{ kubernetes_home }}/ssl/ca.pem" }
-  - { src: "{{ inventory_dir }}/{{ root_key }}", dest: "{{ kubernetes_home }}/ssl/key.pem" }
+  - { src: "{{ playbook_dir }}/ca/{{ root_cert }}", dest: "{{ kubernetes_home }}/ssl/ca.pem" }
+  - { src: "{{ playbook_dir }}/ca/{{ root_key }}", dest: "{{ kubernetes_home }}/ssl/key.pem" }
   - { src: "containerd.service", dest: "/usr/lib/systemd/system/containerd.service" }
   - { src: "crictl.yaml", dest: "/etc/crictl.yaml" }
   - { src: "10-containerd-net.conflist", dest: "/etc/cni/net.d/"}

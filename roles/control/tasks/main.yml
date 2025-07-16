@@ -37,8 +37,8 @@
     mode: 0640
   with_items:
   - { src: "ca-config.json", dest: "{{ kubernetes_home }}/ssl/ca-config.json" }
-  - { src: "{{ playbook_dir }}/{{ root_cert }}", dest: "{{ kubernetes_home }}/ssl/ca.pem" }
-  - { src: "{{ playbook_dir }}/{{ root_key }}", dest: "{{ kubernetes_home }}/ssl/key.pem" }
+  - { src: "{{ playbook_dir }}/ca/{{ root_cert }}", dest: "{{ kubernetes_home }}/ssl/ca.pem" }
+  - { src: "{{ playbook_dir }}/ca/{{ root_key }}", dest: "{{ kubernetes_home }}/ssl/key.pem" }
   - { src: "bootstrap.yaml", dest: "{{ kubernetes_home }}/etc/bootstrap.yaml" }
 
 - name: Install Kube-Master Systemd Config
