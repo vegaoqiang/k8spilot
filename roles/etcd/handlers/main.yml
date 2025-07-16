@@ -27,3 +27,4 @@
 - name: Print Etcd Cluster Status
   ansible.builtin.debug:
     msg: "{{ shell_output.stdout_lines }}"
+  when: inventory_hostname == groups['etcd'][0]
