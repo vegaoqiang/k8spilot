@@ -52,7 +52,7 @@ def get_host_profile(hostname_prefix: str, hostname_suffix: int) -> str:
     return ''
   sshport = input("\033[33m请输入{0}的ssh端口 [默认: 22]:\033[0m".format(ipaddress)) or '22'
   sshpass = input("\033[33m请输入{0}的root登录密码 [免密登录请回车跳过]:\033[0m".format(ipaddress))
-  return '{hostname_prefix}{suffix} ansible_ssh_host={ipaddress} ansible_port={sshport} ansible_password={sshpass}'.format(
+  return '{hostname_prefix}{suffix} ansible_ssh_host={ipaddress} ansible_port={sshport} ansible_password=\'{sshpass}\''.format(
     hostname_prefix=hostname_prefix,
     suffix=suffix,
     ipaddress=ipaddress,
