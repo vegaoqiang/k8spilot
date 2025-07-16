@@ -7,5 +7,6 @@
 hosts
 minio.yaml
 local.ini
+ca
 ca-key.pem
 ca.pem
