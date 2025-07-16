@@ -176,7 +176,7 @@
 - name: Create CA CSR File
   ansible.builtin.copy:
     src: root-csr.json
-    dest: /tmp/ca/root-csr.json
+    dest: /tmp/ca/
   when: inventory_hostname in groups['control']
 
 - name: Generate Root CA
