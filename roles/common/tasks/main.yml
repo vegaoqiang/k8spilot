@@ -177,14 +177,14 @@
   ansible.builtin.copy:
     src: root-csr.json
     dest: /tmp/ca/root-csr.json
-  delegate_to: control
+  when: inventory_hostname in groups['control']
 
 - name: Generate Root CA
   ansible.builtin.shell: |
     cfssl gencert -initca ca-csr.json |cfssljson -bare ca
   args:
     chdir: /tmp/ca
-  delegate_to: control
+  when: inventory_hostname in groups['control']
 
 - name: Fetch CA File
   ansible.builtin.fetch:
@@ -194,7 +194,7 @@
   loop:
     - ca.pem
     - ca-key.pem
-  delegate_to: control
+  when: inventory_hostname in groups['control']
 
 - name: Create Kubernetes Dirctory
   file:
