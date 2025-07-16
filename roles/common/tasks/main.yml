@@ -173,6 +173,28 @@
     - cfssl
     - cfssljson
 
+- name: Create CA CSR File
+  ansible.builtin.copy:
+    src: root-csr.json
+    dest: /tmp/ca/root-csr.json
+  delegate_to: control
+
+- name: Generate Root CA
+  ansible.builtin.shell: |
+    cfssl gencert -initca ca-csr.json |cfssljson -bare ca
+  args:
+    chdir: /tmp/ca
+  delegate_to: control
+
+- name: Fetch CA File
+  ansible.builtin.fetch:
+    src: "/tmp/ca/{{ item }}"
+    dest: "{{ playbook_dir }}/ca/{{ item }}"
+    flat: true
+  loop:
+    - ca.pem
+    - ca-key.pem
+  delegate_to: control
 
 - name: Create Kubernetes Dirctory
   file:

@@ -1,0 +1,19 @@
+{
+  "CN": "K8spilot Root CA",
+  "key": {
+    "algo": "rsa",
+    "size": 4096
+  },
+  "names": [
+    {
+      "C": "CN",
+      "L": "K8SPILOT",
+      "O": "K8SPILOT",
+      "OU": "K8SPILOT",
+      "ST": "K8SPILOT"
+    }
+  ],
+  "ca": {
+    "expiry": "876000h"
+  }
+}
