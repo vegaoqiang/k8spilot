@@ -44,7 +44,7 @@ select_kube_version(){
         printf "\e[32m你输入kubernetes版本${version}不在支持列表中\e[0m\n"
         exit 1
       fi
-      printf "\e[32mu已选择安装的kubernetes $version\e[0m\n"
+      printf "\e[32m已选择安装kubernetes $version\e[0m\n"
     else
       version=${default_version}
     fi
@@ -57,7 +57,12 @@ select_kube_version(){
 }
 
 deploy_kube(){
-  ansible-playbook -i $(dirname ${BASH_SOURCE[0]})/inventory/inventory.ini pilot.yml
+  printf "\e[32m开始安装kubernetes集群\e[0m\n"
+  local inventory_file="inventory.ini"
+  if [ ! -z "${K8SPILOT}" ]; then
+    inventory_file="local.ini"
+  fi
+  ansible-playbook -i $(dirname ${BASH_SOURCE[0]})/inventory/${inventory_file} pilot.yml
 }
 
 case $1 in

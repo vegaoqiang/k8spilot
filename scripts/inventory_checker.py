@@ -6,7 +6,12 @@ import sys
 import configparser
 import yaml
 
-inventory_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), os.pardir, 'inventory', 'inventory.ini')
+
+inventory_name = 'inventory.ini'
+if os.environ.get('K8SPILOT', None):
+  inventory_name = 'local.ini'
+
+inventory_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), os.pardir, 'inventory', inventory_name)
 
 if not os.path.isfile(inventory_path):
   print("inventory file: %s not exist!" %inventory_path)
