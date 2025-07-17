@@ -4,7 +4,7 @@ s3_access_key: e1a9ba8f5c9d1c9a0aed60a45937b86f
 s3_secret_key: 9d1dac1da208f189f709d4fa01c39ffd52d238ee6e669667c02865c0889d3bc6
 
 # kube-apiserver地址
-kube_apiserver_address: 'https://{{ hostvars[groups["k8smaster"][0]].ansible_default_ipv4.address }}:6443'
+kube_apiserver_address: 'https://{{ hostvars[groups["control"][0]].ansible_default_ipv4.address }}:6443'
 kubelet_bootstrap_token: df1ab884bcfe0840b90bed680a53ee42
 # service的IP范围
 kube_cluster_ip_range: '192.168.20.0/24'
