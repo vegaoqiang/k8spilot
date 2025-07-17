@@ -10,3 +10,4 @@ local.ini
 ca
 ca-key.pem
 ca.pem
+config-encode
