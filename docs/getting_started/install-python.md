@@ -37,12 +37,7 @@ sudo dnf install -y \
   tk-devel \
   libuuid-devel \
   libffi-devel \
-  xz-devel \
-  wget \
-  git \
-  gdbm-devel \
-  lzma-sdk-devel \
-  libnsl2-devel
+  xz-devel 
 ```
 
 依赖作用说明：  
