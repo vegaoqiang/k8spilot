@@ -37,7 +37,8 @@ sudo dnf install -y \
   tk-devel \
   libuuid-devel \
   libffi-devel \
-  xz-devel 
+  xz-devel \
+  wget
 ```
 
 依赖作用说明：  
