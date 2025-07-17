@@ -19,7 +19,7 @@
     {
       "C": "CN",
       "L": "K8SPILOT",
-      "O": "system"
+      "O": "system:masters"
     }
   ]
 }

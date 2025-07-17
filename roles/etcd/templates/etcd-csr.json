@@ -1,5 +1,5 @@
 {
-  "CN": "etcd.gsdt",
+  "CN": "etcd",
   "hosts": [
     {% for host in groups['etcd'] %}
     "{{ hostvars[host]['ansible_ssh_host'] }}",
@@ -13,8 +13,8 @@
   "names": [
     {
       "C": "CN",
-      "L": "HangZhou",
-      "O": "GSDT"
+      "L": "K8SPILOT",
+      "O": "etcd"
     }
   ]
 }
