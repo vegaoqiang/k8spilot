@@ -2,7 +2,7 @@ disable_service: [ 'firewalld', 'atd', 'irqbalance', 'smartd', 'dnsmasq' ]
 
 remove_package: [ 'java-1.7.0-openjdk' ]
 update_package: [ 'glibc-common', 'unzip', 'ca-certificates', 'curl', 'wget', 'lrzsz', 'glibc', 'libstdc++', 'vim', 'bind-utils', 'psmisc', 'bzip2', 'openssh',  'zip', 'lvm2', 'chrony', 'tar', 'nfs-utils', 'sshpass' ]
-pip_module: [ 'boto3', 'botocore' ]
+pip_module: [ 'boto3', 'botocore', 'pyyaml' ]
 
 kernel_params:
   - { name: net.core.somaxconn, value: 2048 }
