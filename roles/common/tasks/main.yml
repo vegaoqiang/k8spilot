@@ -4,6 +4,15 @@
 #   ansible.builtin.debug:
 #     var: ansible_facts
 
+
+# - name: Clear Fact Cache
+#   delegate_to: localhost
+#   file:
+#     path: .cache
+#     state: absent
+#   run_once: true
+
+
 - name: Delete Repo Default
   shell: rm -rf /etc/yum.repos.d/*
   args:
