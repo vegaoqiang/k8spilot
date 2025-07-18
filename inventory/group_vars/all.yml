@@ -75,7 +75,7 @@ nfs_server_host: control
 # 是否开启ingress
 enable_ingress: true
 # 选择ingress类型，默认使用ingress-nginx, 可选cilium, 当设置为cilium时，cni_plugin必须同时为cilium，否则k8spilot不会安装ingress
-ingress_controller: cilium
+ingress_controller: ingress-nginx
 # ingress入口，将在所有节点上通过nodeport暴露ingress入口
 ingress_nodeport_http: 30080
 ingress_nodeport_https: 30443
