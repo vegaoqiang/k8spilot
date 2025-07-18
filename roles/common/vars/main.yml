@@ -2,7 +2,12 @@ disable_service: [ 'firewalld', 'atd', 'irqbalance', 'smartd', 'dnsmasq' ]
 
 remove_package: [ 'java-1.7.0-openjdk' ]
 update_package: [ 'glibc-common', 'unzip', 'ca-certificates', 'curl', 'wget', 'lrzsz', 'glibc', 'libstdc++', 'vim', 'bind-utils', 'psmisc', 'bzip2', 'openssh',  'zip', 'lvm2', 'chrony', 'tar', 'nfs-utils', 'sshpass' ]
+# 部分REHL系依赖包的名称在debian系统中有所区别
+apt_package: [ 'libc6', 'unzip', 'ca-certificates', 'curl', 'wget', 'lrzsz', 'libstdc++6', 'vim', 'psmisc', 'bzip2', 'openssh-server',  'zip', 'lvm2', 'chrony', 'tar', 'nfs-common', 'nfs-kernel-server', 'sshpass' ]
+
 pip_module: [ 'boto3', 'botocore', 'pyyaml' ]
+# 适用于如debian12系统使用apt包管理器安装python模块，模块名称与包管理器pip的名称有所区别
+python_module: [ 'python3-boto3', 'python3-botocore', 'python3-yaml' ]
 
 kernel_params:
   - { name: net.core.somaxconn, value: 2048 }

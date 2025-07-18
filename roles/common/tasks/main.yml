@@ -48,6 +48,16 @@
     name: "{{ item }}"
     state: present
   loop: "{{ update_package }}"
+  when: 
+    - ansible_distribution != 'Debian'
+
+- name: Update Or Install Dependence Package
+  ansible.builtin.package:
+    name: "{{ item }}"
+    state: present
+  loop: "{{ apt_package }}"
+  when: 
+    - ansible_distribution == 'Debian'
 
 - name: Update Timezone
   shell: timedatectl set-timezone Asia/Shanghai
@@ -105,15 +115,29 @@
 
 
 - name: Enable PIP Package Manager
-  ansible.builtin.shell: python3 -m ensurepip
+  ansible.builtin.shell: |
+    if ! python3 -m ensurepip; then
+      exit 0
+    fi
 
 
-- name: Install Python Module
+- name: Install Python Module Use PIP
   ansible.builtin.pip:
     name: "{{ item }}"
     extra_args: -i https://mirrors.tuna.tsinghua.edu.cn/pypi/web/simple
   loop: "{{ pip_module }}"
+  when: 
+    - ansible_distribution != 'Debian'
 
+
+- name: Install Python Module Use PackageManager
+  ansible.builtin.package:
+    name: "{{ item }}"
+    state: present
+  loop: "{{ python_module }}"
+  when: 
+    - ansible_distribution == 'Debian'
+  
 - name: Downloading Cfssl v{{ cfssl_version }}
   # ansible.builtin.get_url:
   #   url: "{{ download_location }}/cfssl/v{{ cfssl_version }}/linux/{{ arch_alias }}/{{ item }}_{{ cfssl_version }}_linux_{{ arch_alias }}"
