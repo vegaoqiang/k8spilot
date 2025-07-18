@@ -59,6 +59,7 @@
   loop: "{{ update_package }}"
   when: 
     - ansible_distribution != 'Debian'
+    - ansible_distribution != 'Ubuntu'
 
 - name: Update Or Install Dependence Package
   ansible.builtin.package:
@@ -66,7 +67,7 @@
     state: present
   loop: "{{ apt_package }}"
   when: 
-    - ansible_distribution == 'Debian'
+    - ansible_distribution in ['Debian','Ubuntu']
 
 - name: Update Timezone
   shell: timedatectl set-timezone Asia/Shanghai
@@ -137,6 +138,7 @@
   loop: "{{ pip_module }}"
   when: 
     - ansible_distribution != 'Debian'
+    - ansible_distribution != 'Ubuntu'
 
 
 - name: Install Python Module Use PackageManager
@@ -145,7 +147,7 @@
     state: present
   loop: "{{ python_module }}"
   when: 
-    - ansible_distribution == 'Debian'
+    - ansible_distribution in ['Debian','Ubuntu']
   
 - name: Downloading Cfssl v{{ cfssl_version }}
   # ansible.builtin.get_url:

@@ -11,3 +11,5 @@ ca
 ca-key.pem
 ca.pem
 config-encode
+.cache
+.ansible_facts_cache
