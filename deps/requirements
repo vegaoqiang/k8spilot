@@ -1,2 +1,4 @@
 ansible>=10.5.0
 packaging
+botocore
+boto3
