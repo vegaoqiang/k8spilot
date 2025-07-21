@@ -148,6 +148,14 @@
   loop: "{{ python_module }}"
   when: 
     - ansible_distribution in ['Debian','Ubuntu']
+
+- name: Create Temp Directory In localhost
+  ansible.builtin.file:
+    path: "{{ playbook_dir }}/.ansible_temp"
+    state: directory
+    mode: '0755'
+  run_once: true
+  delegate_to: localhost
   
 - name: Downloading Cfssl v{{ cfssl_version }}
   # ansible.builtin.get_url:
@@ -161,24 +169,35 @@
     secret_key: "{{ s3_secret_key }}"
     bucket: "{{ s3_bucket_name }}"
     object: "cfssl/v{{ cfssl_version }}/linux/{{ arch_alias }}/{{ item }}_{{ cfssl_version }}_linux_{{ arch_alias }}"
-    dest: "/tmp/{{ item }}_{{ cfssl_version }}_linux_{{ arch_alias }}"
+    dest: "{{ playbook_dir }}/.ansible_temp/{{ item }}_{{ cfssl_version }}_linux_{{ arch_alias }}"
     mode: get
     overwrite: different
   loop:
     - cfssl
     - cfssljson
-  async: 6000
-  poll: 100
+  delegate_to: localhost
+  run_once: true
+  # async: 6000
+  # poll: 100
   retries: 5
   delay: 10
 
-- name: Install Cfssl Tool
-  ansible.builtin.shell: |
-    mv /tmp/{{ item }}_{{ cfssl_version }}_linux_{{ arch_alias }} /usr/local/bin/{{ item }}
-    chmod +x /usr/local/bin/{{ item }}
+- name: Copy Cfssl Tool To Remote Host
+  ansible.builtin.copy:
+    src: "{{ playbook_dir }}/.ansible_temp/{{ item }}_{{ cfssl_version }}_linux_{{ arch_alias }}"
+    dest: "/usr/local/bin/{{ item }}"
+    mode: '0755'
   loop:
     - cfssl
     - cfssljson
+
+# - name: Install Cfssl Tool
+#   ansible.builtin.shell: |
+#     mv /tmp/{{ item }}_{{ cfssl_version }}_linux_{{ arch_alias }} /usr/local/bin/{{ item }}
+#     chmod +x /usr/local/bin/{{ item }}
+#   loop:
+#     - cfssl
+#     - cfssljson
 
 - name: Create CA CSR File
   ansible.builtin.copy:

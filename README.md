@@ -1,4 +1,5 @@
-# 一键部署Kubernetes集群
+# k8spilot
+
 
 ## 快速开始
 以下两种方式都可以使用k8spilot部署Kubernetes集群

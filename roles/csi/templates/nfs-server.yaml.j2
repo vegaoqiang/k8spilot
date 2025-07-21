@@ -43,23 +43,32 @@ spec:
           effect: "NoSchedule"
 {% endif %}  
       containers:
-        - name: nfs-server
-          image: quay.io/k8spilot/nfs-server-alpine:v1.0
-          env:
-            - name: SHARED_DIRECTORY
-              value: "/exports"
-          volumeMounts:
-            - mountPath: /exports
-              name: nfs-vol
-          securityContext:
-            privileged: true
-          ports:
-            - name: tcp-2049
-              containerPort: 2049
-              protocol: TCP
-            - name: udp-111
-              containerPort: 111
-              protocol: UDP
+      - name: nfs-server
+        image: quay.io/k8spilot/nfs-server-alpine:v1.0
+        env:
+          - name: SHARED_DIRECTORY
+            value: "/exports"
+        volumeMounts:
+          - mountPath: /exports
+            name: nfs-vol
+        securityContext:
+          privileged: true
+        ports:
+          - name: tcp-2049
+            containerPort: 2049
+            protocol: TCP
+          - name: udp-111
+            containerPort: 111
+            protocol: UDP
+        readinessProbe:
+          exec:
+            command:
+            - sh
+            - -c
+            - "nslookup nfs-server.kube-system.svc.cluster.local"
+          initialDelaySeconds: 5
+          periodSeconds: 5
+          failureThreshold: 3
       volumes:
         - name: nfs-vol
           hostPath:

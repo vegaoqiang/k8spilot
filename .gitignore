@@ -13,3 +13,4 @@ ca.pem
 config-encode
 .cache
 .ansible_facts_cache
+.ansible_temp
