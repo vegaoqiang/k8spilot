@@ -17,7 +17,6 @@
       acregmax=0
       acdirmin=0
       acdirmax=0
-      noac
 
 
 - name: Transfor NFS YAML To Control
