@@ -18,14 +18,18 @@
     secret_key: "{{ s3_secret_key }}"
     bucket: "{{ s3_bucket_name }}"
     object: "etcd/{{ etcd_version }}/linux/{{ arch_alias }}/etcd-{{ etcd_version }}-linux-{{ arch_alias }}.tar.gz"
-    dest: "/tmp/etcd-{{ etcd_version }}-linux-{{ arch_alias }}.tar.gz"
+    dest: "{{ playbook_dir }}/.ansible_temp/etcd-{{ etcd_version }}-linux-{{ arch_alias }}.tar.gz"
     mode: get
     overwrite: different
-  async: 6000
-  poll: 100
+  delegate_to: localhost
+  run_once: true
   retries: 5
   delay: 10
 
+- name: Copy Etcd Binary To Remote Host
+  ansible.builtin.copy:
+    src: "{{ playbook_dir }}/.ansible_temp/etcd-{{ etcd_version }}-linux-{{ arch_alias }}.tar.gz"
+    dest: "/tmp/etcd-{{ etcd_version }}-linux-{{ arch_alias }}.tar.gz"
 
 - name: Add Etcd User
   user:

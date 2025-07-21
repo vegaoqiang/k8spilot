@@ -13,19 +13,35 @@
     secret_key: "{{ s3_secret_key }}"
     bucket: "{{ s3_bucket_name }}"
     object: "kubernetes/{{ kube_version }}/linux/{{ arch_alias }}/{{ item }}"
-    dest: "{{ kubernetes_home }}/bin/{{ item }}"
+    dest: "{{ playbook_dir }}/.ansible_temp/{{ item }}"
     mode: get
     overwrite: different
-  async: 6000
-  poll: 100
+  # async: 6000
+  # poll: 100
+  delegate_to: localhost
+  run_once: true
+  retries: 5
+  delay: 10
   loop:
     - kube-apiserver
     - kube-controller-manager
     - kube-scheduler
     - kubectl
 
-- name: Grant Executable Permissions For Components
-  ansible.builtin.shell: chmod +x {{ kubernetes_home }}/bin/*
+- name: Copy Kubernetes Control Components To Remote Host
+  ansible.builtin.copy:
+    src: "{{ playbook_dir }}/.ansible_temp/{{ item }}"
+    dest: /usr/local/kubernetes/bin/{{ item }}
+    mode: '0755'
+  loop:
+    - kube-apiserver
+    - kube-controller-manager
+    - kube-scheduler
+    - kubectl
+
+
+# - name: Grant Executable Permissions For Components
+#   ansible.builtin.shell: chmod +x {{ kubernetes_home }}/bin/*
 
 
 - name: Install SSL Certificate
