@@ -6,9 +6,16 @@
     secret_key: "{{ s3_secret_key }}"
     bucket: "{{ s3_bucket_name }}"
     object: "ingress-nginx/ingress-nginx-{{ ingress_helm_version }}.tgz"
-    dest: "/tmp/ingress-nginx-{{ ingress_helm_version }}.tgz"
+    dest: "{{ playbook_dir }}/.ansible_temp/ingress-nginx-{{ ingress_helm_version }}.tgz"
     mode: get
     overwrite: different
+  delegate_to: localhost
+  run_once: true
+
+- name: Copy Ingress-Nginx Helm Chart To Remote Host
+  ansible.builtin.copy:
+    src: "{{ playbook_dir }}/.ansible_temp/ingress-nginx-{{ ingress_helm_version }}.tgz"
+    dest: "/tmp/ingress-nginx-{{ ingress_helm_version }}.tgz"
 
 
 - name: Install Ingress-Nginx

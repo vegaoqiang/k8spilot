@@ -153,13 +153,18 @@
     secret_key: "{{ s3_secret_key }}"
     bucket: "{{ s3_bucket_name }}"
     object: "helm/{{ helm_version }}/linux/{{ arch_alias }}/helm-{{ helm_version }}-linux-{{ arch_alias }}.tar.gz"
-    dest: "/tmp/helm-{{ helm_version }}-linux-{{ arch_alias }}.tar.gz"
+    dest: "{{ playbook_dir }}/.ansible_temp/helm-{{ helm_version }}-linux-{{ arch_alias }}.tar.gz"
     mode: get
     overwrite: different
-  async: 6000
-  poll: 100
+  delegate_to: localhost
+  run_once: true
   retries: 5
   delay: 10
+
+- name: Copy Helm Binary To Remote Host
+  ansible.builtin.copy:
+    src:  "{{ playbook_dir }}/.ansible_temp/helm-{{ helm_version }}-linux-{{ arch_alias }}.tar.gz"
+    dest: "/tmp/helm-{{ helm_version }}-linux-{{ arch_alias }}.tar.gz"
 
 - name: Install Helm {{ helm_version }}
   ansible.builtin.shell: | 

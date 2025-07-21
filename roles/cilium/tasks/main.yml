@@ -5,26 +5,26 @@
       {% if ansible_architecture == 'x86_64' %}amd64{% elif ansible_architecture == 'aarch64' %}arm64{% else %}{{ ansible_architecture }}{% endif %}
 
 
-- name: Downloading Cilium Cli
-  amazon.aws.s3_object:
-    endpoint_url: "{{ s3_endpoint_url }}"
-    access_key: "{{ s3_access_key }}"
-    secret_key: "{{ s3_secret_key }}"
-    bucket: "{{ s3_bucket_name }}"
-    object: "cilium/cilium-cli/{{ cilium_cli_version }}/linux/cilium-linux-{{ arch_alias }}.tar.gz"
-    dest: "/tmp/cilium-linux-{{ arch_alias }}.tar.gz"
-    mode: get
-    overwrite: different
-  async: 6000
-  poll: 100
-  retries: 5
-  delay: 10
+# - name: Downloading Cilium Cli
+#   amazon.aws.s3_object:
+#     endpoint_url: "{{ s3_endpoint_url }}"
+#     access_key: "{{ s3_access_key }}"
+#     secret_key: "{{ s3_secret_key }}"
+#     bucket: "{{ s3_bucket_name }}"
+#     object: "cilium/cilium-cli/{{ cilium_cli_version }}/linux/cilium-linux-{{ arch_alias }}.tar.gz"
+#     dest: "/tmp/cilium-linux-{{ arch_alias }}.tar.gz"
+#     mode: get
+#     overwrite: different
+#   async: 6000
+#   poll: 100
+#   retries: 5
+#   delay: 10
 
 
-- name: Install Cilium Cli
-  ansible.builtin.shell: | 
-    tar -xf /tmp/cilium-linux-{{ arch_alias }}.tar.gz -C /usr/local/bin/
-    chmod +x /usr/local/bin/cilium
+# - name: Install Cilium Cli
+#   ansible.builtin.shell: | 
+#     tar -xf /tmp/cilium-linux-{{ arch_alias }}.tar.gz -C /usr/local/bin/
+#     chmod +x /usr/local/bin/cilium
 
 - name: Downloading Cilium Helm Chart
   amazon.aws.s3_object:
@@ -33,9 +33,16 @@
     secret_key: "{{ s3_secret_key }}"
     bucket: "{{ s3_bucket_name }}"
     object: "cilium/cilium/cilium-{{ cilium_version| replace('v', '') }}.tgz"
-    dest: "/tmp/cilium-{{ cilium_version| replace('v', '') }}.tgz"
+    dest: "{{ playbook_dir }}/.ansible_temp/cilium-{{ cilium_version| replace('v', '') }}.tgz"
     mode: get
     overwrite: different
+  delegate_to: localhost
+  run_once: true
+
+- name: Copy  Cilium Helm Chart To Remote Host
+  ansible.builtin.copy:
+    src: "{{ playbook_dir }}/.ansible_temp/cilium-{{ cilium_version| replace('v', '') }}.tgz"
+    dest: "/tmp/cilium-{{ cilium_version| replace('v', '') }}.tgz"
 
 - name: Install Cilium
   kubernetes.core.helm:

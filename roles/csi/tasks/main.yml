@@ -39,9 +39,16 @@
     secret_key: "{{ s3_secret_key }}"
     bucket: "{{ s3_bucket_name }}"
     object: "csi-driver-nfs/csi-driver-nfs-{{ csi_nfs_version }}.tgz"
-    dest: "/tmp/csi-driver-nfs-{{ csi_nfs_version }}.tgz"
+    dest: "{{ playbook_dir }}/.ansible_temp/csi-driver-nfs-{{ csi_nfs_version }}.tgz"
     mode: get
     overwrite: different
+  delegate_to: localhost
+  run_once: true
+
+- name: Copy CSI Driver NFS Helm Chart To Remote Host
+  ansible.builtin.copy:
+    src: "{{ playbook_dir }}/.ansible_temp/csi-driver-nfs-{{ csi_nfs_version }}.tgz"
+    dest: "/tmp/csi-driver-nfs-{{ csi_nfs_version }}.tgz"
 
 - name: Install CSI Driver NFS v{{ csi_nfs_version }}
   kubernetes.core.helm:

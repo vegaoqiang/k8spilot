@@ -19,9 +19,16 @@
     secret_key: "{{ s3_secret_key }}"
     bucket: "{{ s3_bucket_name }}"
     object: "tigera-operator/tigera-operator-{{ calico_version }}.tgz"
-    dest: "/tmp/tigera-operator-{{ calico_version }}.tgz"
+    dest: "{{ playbook_dir }}/.ansible_temp/tigera-operator-{{ calico_version }}.tgz"
     mode: get
     overwrite: different
+  delegate_to: localhost
+  run_once: true
+
+- name: Copy tigera-operator Helm Chart To Remote Host
+  ansible.builtin.copy:
+    src: "{{ playbook_dir }}/.ansible_temp/tigera-operator-{{ calico_version }}.tgz"
+    dest: "/tmp/tigera-operator-{{ calico_version }}.tgz"
 
 
 - name: Install Calico
