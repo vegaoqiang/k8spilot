@@ -60,12 +60,14 @@ spec:
           - name: udp-111
             containerPort: 111
             protocol: UDP
-        readinessProbe:
+        livenessProbe:
           exec:
             command: ["sh", "-c", "getent hosts nfs-server.kube-system.svc.cluster.local"]
-          initialDelaySeconds: 5
-          periodSeconds: 5
-          failureThreshold: 3
+          initialDelaySeconds: 60
+          timeoutSeconds: 5
+          successThreshold: 1
+          periodSeconds: 10
+          failureThreshold: 100
       volumes:
         - name: nfs-vol
           hostPath:

@@ -19,18 +19,6 @@
 #       acdirmax=0
 
 
-- name: Transfor NFS YAML To Control
-  ansible.builtin.template:
-    src: nfs-server.yaml.j2
-    dest: "{{ kubernetes_home }}/etc/nfs-server.yaml"
-  when: nfs_server_address is not defined or nfs_server_address is none
-
-- name: Install NFS Server
-  ansible.builtin.shell: |
-    kubectl apply -f {{ kubernetes_home }}/etc/nfs-server.yaml
-  when: nfs_server_address is not defined or nfs_server_address is none
-
-
 - name: Downloading CSI Driver NFS Helm Chart
   amazon.aws.s3_object:
     endpoint_url: "{{ s3_endpoint_url }}"
@@ -92,3 +80,13 @@
       #   propagateHostMountOptions: true
 
       
+- name: Transfor NFS YAML To Control
+  ansible.builtin.template:
+    src: nfs-server.yaml.j2
+    dest: "{{ kubernetes_home }}/etc/nfs-server.yaml"
+  when: nfs_server_address is not defined or nfs_server_address is none
+
+- name: Install NFS Server
+  ansible.builtin.shell: |
+    kubectl apply -f {{ kubernetes_home }}/etc/nfs-server.yaml
+  when: nfs_server_address is not defined or nfs_server_address is none
