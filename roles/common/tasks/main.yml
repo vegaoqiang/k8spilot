@@ -12,16 +12,32 @@
 #     state: absent
 #   run_once: true
 
+- name: Check System Kernel Version
+  ansible.builtin.shell: |
+    kernel_major=$(uname -r|awk -F'.' '{print $1}')
+    kernel_minor=$(uname -r|awk -F'.' '{print $2}')
+    if [ "${kernel_major}" -lt 5 ]; then 
+      exit 1
+    elif [ "${kernel_minor}" -lt 4 ]; then
+      exit 1
+    fi
+  register: kernel_check
+
+- name: Fail If Kernel < 5.4
+  ansible.builtin.meta: end_play
+  when: kernel_check.rc != 0
+
 - name: Check System GLIBC Version
   ansible.builtin.shell: |
     if  glibc_info=$(ldd --version 2>&1); then
-      echo "${glibc_info}"|head 1|awk '{print $NF}'
+      echo "${glibc_info}"|head -n 1|awk '{print $NF}'
+    else
+      echo 0
     fi
   register: glibc_version_raw
 
 - name: Fail If GLIBC Version < 2.17
-  ansible.builtin.fail:
-    msg: "glibc version is too old: {{ glibc_version_raw.stdout }}"
+  ansible.builtin.meta: end_play
   when: glibc_version_raw.stdout is version('2.17', '<')
 
 - name: Delete Repo Default
