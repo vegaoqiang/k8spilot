@@ -27,7 +27,6 @@
     # state: absent
     release_namespace: ingress-nginx
     create_namespace: true
-    disable_hook: true
     values:
       global:
         image:
