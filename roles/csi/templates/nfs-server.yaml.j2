@@ -62,10 +62,7 @@ spec:
             protocol: UDP
         readinessProbe:
           exec:
-            command:
-            - sh
-            - -c
-            - "nslookup nfs-server.kube-system.svc.cluster.local"
+            command: ["sh", "-c", "getent hosts nfs-server.kube-system.svc.cluster.local"]
           initialDelaySeconds: 5
           periodSeconds: 5
           failureThreshold: 3

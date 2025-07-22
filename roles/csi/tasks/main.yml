@@ -1,22 +1,22 @@
 
-- name: Ensure nfsmount.conf exists
-  ansible.builtin.lineinfile:
-    path: /etc/nfsmount.conf
-    line: "[ NFSMount_Global_Options ]"
-    create: yes
-    state: present
+# - name: Ensure nfsmount.conf exists
+#   ansible.builtin.lineinfile:
+#     path: /etc/nfsmount.conf
+#     line: "[ NFSMount_Global_Options ]"
+#     create: yes
+#     state: present
 
-- name: Update nfsmount.conf
-  ansible.builtin.blockinfile:
-    path: /etc/nfsmount.conf
-    insertafter: "[ NFSMount_Global_Options ]"
-    create: yes
-    block: |
-      retrans=5
-      acregmin=0
-      acregmax=0
-      acdirmin=0
-      acdirmax=0
+# - name: Update nfsmount.conf
+#   ansible.builtin.blockinfile:
+#     path: /etc/nfsmount.conf
+#     insertafter: "[ NFSMount_Global_Options ]"
+#     create: yes
+#     block: |
+#       retrans=5
+#       acregmin=0
+#       acregmax=0
+#       acdirmin=0
+#       acdirmax=0
 
 
 - name: Transfor NFS YAML To Control
@@ -88,7 +88,7 @@
         parameters:
           server: "{{ custom_nfs_server_address if custom_nfs_server_address else 'nfs-server.kube-system.svc.cluster.local' }}"
           share: /
-      feature: 
-        propagateHostMountOptions: true
+      # feature: 
+      #   propagateHostMountOptions: true
 
       
