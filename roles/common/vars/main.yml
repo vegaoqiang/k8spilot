@@ -1,8 +1,8 @@
 disable_service: [ 'firewalld', 'atd', 'irqbalance', 'smartd', 'dnsmasq' ]
 
-update_package: [ 'glibc-common', 'unzip', 'ca-certificates', 'curl', 'wget', 'lrzsz', 'glibc', 'libstdc++', 'vim', 'bind-utils', 'psmisc', 'bzip2', 'openssh',  'zip', 'lvm2', 'chrony', 'tar', 'nfs-utils', 'sshpass' ]
+update_package: [ 'chrony', 'tar', 'python3-yaml' ]
 # 部分REHL系依赖包的名称在debian系统中有所区别
-apt_package: [ 'libc6', 'unzip', 'ca-certificates', 'curl', 'wget', 'lrzsz', 'libstdc++6', 'vim', 'psmisc', 'bzip2',  'zip', 'lvm2', 'chrony', 'tar', 'nfs-common', 'nfs-kernel-server', 'sshpass' ]
+apt_package: [ 'chrony', 'tar', 'python3-yaml' ]
 
 pip_module: [ 'pyyaml' ]
 # 适用于如debian12系统使用apt包管理器安装python模块，模块名称与包管理器pip的名称有所区别
