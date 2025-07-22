@@ -18,7 +18,7 @@
     kernel_minor=$(uname -r|awk -F'.' '{print $2}')
     if [ "${kernel_major}" -lt 5 ]; then 
       exit 1
-    elif [ "${kernel_minor}" -lt 4 ]; then
+    elif [ "${kernel_major}" -ge 5 ] && [ "${kernel_minor}" -lt 4 ]; then
       exit 1
     fi
   register: kernel_check
