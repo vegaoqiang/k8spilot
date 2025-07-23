@@ -18,7 +18,8 @@
     kernel_minor=$(uname -r|awk -F'.' '{print $2}')
     if [ "${kernel_major}" -lt 5 ]; then 
       exit 1
-    elif [ "${kernel_major}" -ge 5 ] && [ "${kernel_minor}" -lt 4 ]; then
+    fi
+    if [ "${kernel_major}" -eq 5 ] && [ "${kernel_minor}" -lt 4 ]; then
       exit 1
     fi
   register: kernel_check
@@ -40,36 +41,36 @@
   ansible.builtin.meta: end_play
   when: glibc_version_raw.stdout is version('2.17', '<')
 
-- name: Delete Repo Default
-  shell: rm -rf /etc/yum.repos.d/*
-  args:
-      chdir: /etc/yum.repos.d/
-  when: 
-    - ansible_distribution == 'CentOS'
-    - ansible_distribution_release == "Stream"
-    - ansible_distribution_major_version == "9"
+# - name: Delete Repo Default
+#   shell: rm -rf /etc/yum.repos.d/*
+#   args:
+#       chdir: /etc/yum.repos.d/
+#   when: 
+#     - ansible_distribution == 'CentOS'
+#     - ansible_distribution_release == "Stream"
+#     - ansible_distribution_major_version == "9"
 
  
-- name: Change CN Mirror Centos/RHEL 9
-  template:
-    src: centos.repo
-    dest: /etc/yum.repos.d/centos.repo
-  when: 
-    - ansible_distribution == 'CentOS'
-    - ansible_distribution_release == "Stream"
-    - ansible_distribution_major_version == "9"
+# - name: Change CN Mirror Centos/RHEL 9
+#   template:
+#     src: centos.repo
+#     dest: /etc/yum.repos.d/centos.repo
+#   when: 
+#     - ansible_distribution == 'CentOS'
+#     - ansible_distribution_release == "Stream"
+#     - ansible_distribution_major_version == "9"
 
-- name: Install EPEL Repo - Centos/RHEL 9
-  template:
-    src: epel-9.repo
-    dest: /etc/yum.repos.d/epel.repo
-  when: 
-    - ansible_distribution == 'CentOS'
-    - ansible_distribution_release == "Stream"
-    - ansible_distribution_major_version == "9"
+# - name: Install EPEL Repo - Centos/RHEL 9
+#   template:
+#     src: epel-9.repo
+#     dest: /etc/yum.repos.d/epel.repo
+#   when: 
+#     - ansible_distribution == 'CentOS'
+#     - ansible_distribution_release == "Stream"
+#     - ansible_distribution_major_version == "9"
     
     
-- name: Change Selinux Config
+- name: Disable SELINUX
   ansible.builtin.shell: |
     if [ -f /etc/selinux/config ]; then 
       sed -i 's/SELINUX=enforcing/SELINUX=disabled/g' /etc/selinux/config
@@ -79,7 +80,7 @@
       fi
     fi
 
-- name: Update Or Install Dependence Package
+- name: Install {{ update_package | join(',') }} In Remote Host
   ansible.builtin.package:
     name: "{{ item }}"
     state: present
@@ -88,7 +89,7 @@
     - ansible_distribution != 'Debian'
     - ansible_distribution != 'Ubuntu'
 
-- name: Update Or Install Dependence Package
+- name: Install {{ apt_package | join(',') }} In Remote Host
   ansible.builtin.package:
     name: "{{ item }}"
     state: present
@@ -103,7 +104,7 @@
   hostname: name={{ inventory_hostname }}
 
 
-- name: Change limit config
+- name: Update System Limit Config
   blockinfile:
     dest: /etc/security/limits.conf
     insertafter: "# End of file"
