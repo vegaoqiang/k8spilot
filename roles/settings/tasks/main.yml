@@ -19,6 +19,7 @@
   ansible.builtin.shell: |
     kubectl taint nodes "{{ item }}" node.cilium.io/agent-not-ready=:NoSchedule
   loop: "{{ groups['worker'] }}"
+  when: cni_plugin == 'cilium'
 
 - name: Label Control Plane
   shell: |
