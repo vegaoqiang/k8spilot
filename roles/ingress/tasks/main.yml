@@ -65,7 +65,7 @@
     dest: "/tmp/ingress-nginx.yaml"
 
 - name: Install Ingress-Nginx Use Manifest
-  ansible.builtin.shell:
+  ansible.builtin.shell: |
     sed -i "s#registry.k8s.io#{{ ingress_registry_prefix }}/registry.k8s.io#g" /tmp/ingress-nginx.yaml
     kubectl apply -f /tmp/ingress-nginx.yaml
     kubectl patch ingressclass nginx -p '{"metadata":{"annotations":{"ingressclass.kubernetes.io/is-default-class":"true"}}}'
