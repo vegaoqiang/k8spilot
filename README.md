@@ -1,7 +1,7 @@
 # k8spilot
 k8spilot可以简单、快速的搭建一个生产级别的Kuebrnetes集群；k8spilot能帮你完成搭建Kubernetes集群时所有复杂的操作，你要做的，只需要提供运行Kubernetes的主机或服务器。k8spilot安装Kubernetes集群的速度取决于你电脑和服务器的互联网下载速度。
 
-## 功能预览
+## 功能概述
 + Kubernetes安装版本可自定义，可选参考: [版本列表](https://dl.k8spilot.icu/kubernetes/kube-versions)
 + Kubernetes所有组件裸运行在系统中，而不是容器化部署，更稳定和易维护
 + 无docker，采用更现代的containerd作为容器运行时
@@ -13,8 +13,14 @@ k8spilot可以简单、快速的搭建一个生产级别的Kuebrnetes集群；k8
 + 可选ingress-nginx作为集群默认IngressClass
 
 ## 快速开始
-以下两种方式都可以使用k8spilot部署Kubernetes集群
-
+以下两种方式都可以使用k8spilot部署Kubernetes集群, 在开始使用k8spilot前，需要先明白k8spilot中的两个名词：**控制端**和**被控端**  
+**主控端**  
+运行k8spilot的机器，可以是你的笔记本电脑，可以是一台独立服务器，也可以是被控端机器中的任意一台。主控端需要满足以下要求  
++ 主控端要求能连接互联网，能与所有被控端通过ssh连接
++ 主控端必须是Linux/MacOS，不支持Windows（windows使用docker或者wsl方案替代）
++ 主控端必须安装了Python 3.10及以上版本
+**被控端**
++ 被控端要求能连接互联网，并且所有被控端之间网络互通
 ### Ansible
 #### 使用方法
 见：
