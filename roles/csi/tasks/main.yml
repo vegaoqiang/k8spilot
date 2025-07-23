@@ -78,7 +78,6 @@
           share: /
       # feature: 
       #   propagateHostMountOptions: true
-
       
 - name: Transfor NFS YAML To Control
   ansible.builtin.template:

@@ -42,7 +42,6 @@ spec:
           operator: "Exists"
           effect: "NoSchedule"
 {% endif %}  
-      priorityClassName: system-cluster-critical
       containers:
       - name: nfs-server
         image: quay.io/k8spilot/nfs-server-alpine:v1.0
@@ -62,13 +61,20 @@ spec:
             containerPort: 111
             protocol: UDP
         livenessProbe:
-          exec:
-            command: ["sh", "-c", "getent hosts nfs-server.kube-system.svc.cluster.local"]
+          tcpSocket:
+            port: 2049
           initialDelaySeconds: 60
           timeoutSeconds: 5
           successThreshold: 1
           periodSeconds: 10
-          failureThreshold: 100
+          failureThreshold: 2000
+        readinessProbe:
+          tcpSocket:
+            port: 2049
+          initialDelaySeconds: 60
+          timeoutSeconds: 5
+          successThreshold: 1
+          periodSeconds: 10
       volumes:
         - name: nfs-vol
           hostPath:
