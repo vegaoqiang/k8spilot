@@ -6,10 +6,19 @@
       kubectl certificate approve $csr
     done
 
+- name: Wait 10s For Node Ready
+  ansible.builtin.wait_for:
+    timeout: 10
+
 - name: Taint Control To NoSchedule
   shell: |
     kubectl taint nodes "{{ inventory_hostname }}" node-role.kubernetes.io/master=:NoSchedule
   when: allow_master_schedule != true
+
+- name: Taint All Nodes To NoSchedule
+  ansible.builtin.shell: |
+    kubectl taint nodes "{{ item }}" node.cilium.io/agent-not-ready=:NoSchedule
+  loop: "{{ groups['worker'] }}"
 
 - name: Label Control Plane
   shell: |
