@@ -31,7 +31,7 @@ check_inventory(){
 }
 
 select_kube_version(){
-  printf "\e[32m开始获取kubernetes版本信息\e[0m\n"
+  printf "\e[32m正在获取kubernetes版本信息\e[0m\n"
   local version_list=$(curl -s --max-time 10 https://dl.k8spilot.icu/kubernetes/kube-versions)
   if [ "$?" -ne 0 ] || [ -z "${version_list}" ]; then
     local kube_version=$(grep 'kube_version' $(dirname ${BASH_SOURCE[0]})/inventory/group_vars/all.yml|awk '{print $NF}')
