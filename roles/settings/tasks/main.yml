@@ -1,5 +1,9 @@
 ---
 
+- name: Wait 10s For Node Join The Cluster
+  ansible.builtin.wait_for:
+    timeout: 10
+
 - name: Approve Worker Sign Request
   shell: |
     for csr in $(kubectl get csr|grep 'Pending'|awk '{print $1}'); do
