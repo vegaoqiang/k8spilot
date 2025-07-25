@@ -45,8 +45,10 @@ spec:
   template:
     spec:
       serviceAccountName: k8spilot
+      nodeSelector:
+        node-role.kubernetes.io/control-plane: ""
       containers:
       - name: pilot-job
         image: quay.io/k8spilot/pilot-job:v1.0
-        imagePullPolicy: Always
+        imagePullPolicy: IfNotPresent
       restartPolicy: Never

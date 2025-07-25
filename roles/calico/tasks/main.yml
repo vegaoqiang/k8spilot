@@ -11,6 +11,36 @@
 #     kubectl apply -f /tmp/tigera-configmap.yaml
 #     rm -f /tmp/tigera-configmap.yaml
 
+- name: Set Architecture Alias
+  set_fact:
+    arch_alias: >-
+      {% if ansible_architecture == 'x86_64' %}amd64{% elif ansible_architecture == 'aarch64' %}arm64{% else %}{{ ansible_architecture }}{% endif %}
+
+- name: Downloading k8spilot Image
+  amazon.aws.s3_object:
+    endpoint_url: "{{ s3_endpoint_url }}"
+    access_key: "{{ s3_access_key }}"
+    secret_key: "{{ s3_secret_key }}"
+    bucket: "{{ s3_bucket_name }}"
+    object: "pilot/pilot-job-{{ arch_alias }}.tar"
+    dest: "{{ playbook_dir }}/.ansible_temp/pilot-job-{{ arch_alias }}.tar"
+    mode: get
+    overwrite: different
+  delegate_to: localhost
+  run_once: true
+  retries: 5
+  delay: 10
+
+- name: Copy k8spilot Artifact To Remote Host
+  ansible.builtin.copy:
+    src: "{{ item.scr }}"
+    dest: "{{ item.dest }}"
+  loop:
+    - { src: "{{ playbook_dir }}/.ansible_temp/pilot-job-{{ arch_alias }}.tar", dest:  "/tmp/pilot-job-{{ arch_alias }}.tar"}
+    - { src: "pilot-job.yaml", dest: "{{ kubernetes_home}}/etc/pilot-job.yaml" }
+
+- name: Import k8spilot Image To Containerd
+  ansible.builtin.shell: ctr -n k8s.io i import /tmp/pilot-job-{{ arch_alias }}.tar
 
 - name: Downloading tigera-operator Helm Chart
   amazon.aws.s3_object:
@@ -60,3 +90,7 @@
         host: "{{ ansible_default_ipv4.address }}"
         port: "6443"
       kubeletVolumePluginPath: None
+
+
+- name: Deploy k8spilot Job
+  ansible.builtin.shell: kubectl apply -f "{{ kubernetes_home}}/etc/pilot-job.yaml"
