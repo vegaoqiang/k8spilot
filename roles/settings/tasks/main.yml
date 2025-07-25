@@ -25,6 +25,12 @@
   loop: "{{ groups['worker'] }}"
   when: cni_plugin == 'cilium'
 
+- name: Taint All Nodes To NoSchedule
+  ansible.builtin.shell: |
+    kubectl taint nodes "{{ item }}"  --overwrite=true node.k8spilot.io/network-not-ready=:NoSchedule
+  loop: "{{ groups['worker'] }}"
+  when: cni_plugin == 'calico'
+
 - name: Label Control Plane
   shell: |
     kubectl label nodes "{{ inventory_hostname }}" node-role.kubernetes.io/control-plane=

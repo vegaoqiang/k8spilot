@@ -82,16 +82,16 @@
               cidr: "{{ kube_pod_ip_range }}"
         registry: "{{ calico_installation_registry }}"
         controlPlaneReplicas: 1
-        calicoNodeDaemonSet:
-          properties:
-            spec:
-              properties:
-                tolerations:
-                  items:
-                    properties:
-                      - effect: NoSchedule
-                        operator: Exists
-                        key: node.k8spilot.io/network-not-ready
+        # calicoNodeDaemonSet:
+        #   properties:
+        #     spec:
+        #       properties:
+        #         tolerations:
+        #           items:
+        #             properties:
+        #               - effect: NoSchedule
+        #                 operator: Exists
+        #                 key: node.k8spilot.io/network-not-ready
       apiServer:
         enabled: false
       goldmane:
@@ -107,10 +107,13 @@
           operator: Exists
           key: node.k8spilot.io/network-not-ready
 
-- name: Wait k8spilot pod Running
-  ansible.builtin.shell: kubectl get pod -n kube-system -l job-name=pilot-job -o json
-  register: pod_result
-  until: >
-    pod_result.stdout | from_json | dict2items(attribute='items') | selectattr('value.status.phase', 'equalto', 'Running') | list | length > 0
-  retries: 60
-  delay: 5
+# - name: Wait k8spilot pod Running
+#   ansible.builtin.shell: kubectl get pod -n kube-system -l job-name=pilot-job -o json
+#   register: pod_result
+  # until: pod_result.output|from_json|get('items', None)
+  # retries: 60
+  # delay: 5
+
+# - name: debug
+#   ansible.builtin.debug:
+#     msg: "{{ pod_result.stdout | from_json }}"
