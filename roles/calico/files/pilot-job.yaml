@@ -47,6 +47,10 @@ spec:
       serviceAccountName: k8spilot
       nodeSelector:
         node-role.kubernetes.io/control-plane: ""
+      tolerations:
+        - key: "node-role.kubernetes.io/master"
+          operator: "Exists"
+          effect: "NoSchedule"
       containers:
       - name: pilot-job
         image: quay.io/k8spilot/pilot-job:v1.0
