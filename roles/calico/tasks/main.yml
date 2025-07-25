@@ -33,10 +33,10 @@
 
 - name: Copy k8spilot Artifact To Remote Host
   ansible.builtin.copy:
-    src: "{{ item.scr }}"
+    src: "{{ item.src }}"
     dest: "{{ item.dest }}"
   loop:
-    - { src: "{{ playbook_dir }}/.ansible_temp/pilot-job-{{ arch_alias }}.tar", dest:  "/tmp/pilot-job-{{ arch_alias }}.tar"}
+    - { src: "{{ playbook_dir }}/.ansible_temp/pilot-job-{{ arch_alias }}.tar", dest:  "/tmp/pilot-job-{{ arch_alias }}.tar" }
     - { src: "pilot-job.yaml", dest: "{{ kubernetes_home}}/etc/pilot-job.yaml" }
 
 - name: Import k8spilot Image To Containerd
