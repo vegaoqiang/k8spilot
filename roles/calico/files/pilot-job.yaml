@@ -44,6 +44,7 @@ metadata:
 spec:
   template:
     spec:
+      hostNetwork: true 
       serviceAccountName: k8spilot
       nodeSelector:
         node-role.kubernetes.io/control-plane: ""
@@ -55,4 +56,9 @@ spec:
       - name: pilot-job
         image: quay.io/k8spilot/pilot-job:v1.0
         imagePullPolicy: IfNotPresent
+        env:
+        - name: KUBERNETES_SERVICE_HOST
+          value: "127.0.0.1"
+        - name: KUBERNETES_SERVICE_PORT
+          value: "6443"
       restartPolicy: Never
