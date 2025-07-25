@@ -52,13 +52,16 @@ spec:
         - key: "node-role.kubernetes.io/master"
           operator: "Exists"
           effect: "NoSchedule"
+        - key: "node.k8spilot.io/network-not-ready"
+          operator: "Exists"
+          effect: "NoSchedule"
       containers:
       - name: pilot-job
         image: quay.io/k8spilot/pilot-job:v1.0
         imagePullPolicy: IfNotPresent
         env:
         - name: KUBERNETES_SERVICE_HOST
-          value: "127.0.0.1"
+          value: "{{ ansible_default_ipv4.address }}"
         - name: KUBERNETES_SERVICE_PORT
           value: "6443"
       restartPolicy: Never

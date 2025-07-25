@@ -42,6 +42,9 @@
 - name: Import k8spilot Image To Containerd
   ansible.builtin.shell: ctr -n k8s.io i import /tmp/pilot-job-{{ arch_alias }}.tar
 
+- name: Deploy k8spilot Job
+  ansible.builtin.shell: kubectl apply -f "{{ kubernetes_home}}/etc/pilot-job.yaml"
+
 - name: Downloading tigera-operator Helm Chart
   amazon.aws.s3_object:
     endpoint_url: "{{ s3_endpoint_url }}"
@@ -59,7 +62,6 @@
   ansible.builtin.copy:
     src: "{{ playbook_dir }}/.ansible_temp/tigera-operator-{{ calico_version }}.tgz"
     dest: "/tmp/tigera-operator-{{ calico_version }}.tgz"
-
 
 - name: Install Calico
   kubernetes.core.helm:
@@ -80,6 +82,16 @@
               cidr: "{{ kube_pod_ip_range }}"
         registry: "{{ calico_installation_registry }}"
         controlPlaneReplicas: 1
+        calicoNodeDaemonSet:
+          properties:
+            spec:
+              properties:
+                tolerations:
+                  items:
+                    properties:
+                      - effect: NoSchedule
+                        operator: Exists
+                        key: node.k8spilot.io/network-not-ready
       apiServer:
         enabled: false
       goldmane:
@@ -90,7 +102,15 @@
         host: "{{ ansible_default_ipv4.address }}"
         port: "6443"
       kubeletVolumePluginPath: None
+      tolerations:
+        - effect: NoSchedule
+          operator: Exists
+          key: node.k8spilot.io/network-not-ready
 
-
-- name: Deploy k8spilot Job
-  ansible.builtin.shell: kubectl apply -f "{{ kubernetes_home}}/etc/pilot-job.yaml"
+- name: Wait k8spilot pod Running
+  ansible.builtin.shell: kubectl get pod -n kube-system -l job-name=pilot-job -o json
+  register: pod_result
+  until: >
+    pod_result.stdout | from_json | dict2items(attribute='items') | selectattr('value.status.phase', 'equalto', 'Running') | list | length > 0
+  retries: 60
+  delay: 5
