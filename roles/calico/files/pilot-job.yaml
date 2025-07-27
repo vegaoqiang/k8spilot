@@ -42,6 +42,7 @@ metadata:
   name: pilot-job
   namespace: kube-system
 spec:
+  ttlSecondsAfterFinished: 60
   template:
     spec:
       hostNetwork: true 
