@@ -18,8 +18,8 @@ k8spilot可以简单、快速的搭建一个生产级别，纯净的Kuebrnetes�
 **主控端**  
 运行k8spilot的机器，可以是你的笔记本电脑，可以是一台独立服务器，也可以是被控端机器中的任意一台。主控端需要满足以下要求  
 + 主控端要求能连接互联网，能与所有被控端通过ssh连接(如果主控端不能连接互联网，请参见离线方案: k8spilot-offline)
-+ 主控端必须是Linux/MacOS，不支持Windows（windows使用docker或者wsl方案替代）
-+ 主控端必须安装了Python 3.10及以上版本  
++ 主控端必须是Linux/MacOS，不支持Windows（Windows使用docker或者wsl方案替代）
++ 主控端必须安装了Python 3.10及以上版本，否则，需要升级Python版本，参见：[Python安装方法](docs/getting_started/install-python.md)    
 
 **被控端**  
 用于安装Kubernetes集群的虚拟机或者服务器，被控端需要满足以下要求  
@@ -35,6 +35,8 @@ k8spilot可以简单、快速的搭建一个生产级别，纯净的Kuebrnetes�
 
 
 ## 支持的Linux发行版本
+以下Linux发行版支持作为被控端安装Kubernetes集群  
+
 + :penguin: **CentOS Stream** 9/10
 + :penguin: **Rocky Linux** 8/9/10
 + :penguin: **Oracle Linux** 8/9/10

@@ -1,5 +1,12 @@
 # 安装Python
 
+`k8spilot`要求`Python`最低版本为`3.10`，如果你的`Python`刚好大于等于`3.10`可跳过本文。
+
+查看Python版本.
+```shell
+python --version
+```
+
 ## 包管理器安装
 以下在各个Linux发行版中使用包管理器安装python3.11，你也可以自由的更换版本为python3.12或者python3.13
 
@@ -23,6 +30,30 @@ sudo zypper install python3.11
 
 
 开始编译前需要安装必要的依赖：
+
+🐧 Ubuntu / Debian 系列 (apt)  
+
+```shell
+sudo apt update
+sudo apt install -y 
+  gcc \
+  g++ \
+  make \
+  zlib1g-dev \
+  libbz2-dev \
+  libssl-dev \
+  libncurses-dev \
+  libsqlite3-dev \
+  libreadline-dev \
+  tk-dev \
+  uuid-dev \
+  libffi-dev \
+  liblzma-dev \
+  wget
+```
+
+🐧 RHEL / CentOS / AlmaLinux / Rocky Linux（dnf / yum）  
+
 ```shell
 sudo dnf install -y \
   gcc \
@@ -41,7 +72,9 @@ sudo dnf install -y \
   wget
 ```
 
-依赖作用说明：  
+
+
+依赖作用说明(RHEL系为例)：  
 | 依赖 | 用途 |
 | - | - |
 |gcc, make | 基础编译工具

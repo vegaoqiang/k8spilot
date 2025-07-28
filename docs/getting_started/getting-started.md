@@ -1,27 +1,5 @@
 # 开始
 
-## Requirements
-运行k8spilot的系统需要满足以下条件 
-+ Linux操作系统，Windows不支持（可用wsl）
-+ k8spilot的网络与需要被安装kubernetes集群的服务器保持互通
-+ Ansible >= 10.5.0 (ansible-core >= 2.17.0)
-+ Python >= 3.10
-+ sshpass （可选的）如果k8spilot和需要安装kubernetes集群的服务器是通过ssh密码登录，则需要sshpass
-
-安装kubernetes集群的服务器需要满足以下条件  
-+ Linux操作系统，内核>=5.4
-+ 服务器可使用root用户进行ssh登录
-+ 安装kubernetes集群最少需要3台服务器,且各服务器之间网络互通
-
-
-## 安装Python
-`k8spilot`要求`Python`最低版本为`3.10`，如果你的`Python`刚好大于等于`3.10`可跳过该步骤。否则，你需要升级Python版本，参见：[Python安装方法](install-python.md)  
-
-查看Python版本.
-```shell
-python --version
-```
-
 ## 安装k8spilot
 ```shell
 version=v1.0
