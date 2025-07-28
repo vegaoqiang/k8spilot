@@ -8,10 +8,15 @@ TAINT_EFFECT = "NoSchedule"
 
 
 def get_calico_pod_status_by_node(corev1, node_name) -> bool:
-	pods = corev1.list_pod_for_all_namespaces(
-		field_selector=f"spec.nodeName={node_name}",
-		label_selector="k8s-app=calico-node"
-	)
+	try:
+		pods = corev1.list_pod_for_all_namespaces(
+			field_selector=f"spec.nodeName={node_name}",
+			label_selector="k8s-app=calico-node"
+		)
+	except kubernetes.client.ApiException as e:
+		print(e)
+		return False
+	
 	if not pods.items:
 		return False
     
