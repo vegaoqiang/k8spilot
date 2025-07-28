@@ -56,16 +56,24 @@ def remove_taint(corev1, node) -> None:
 def main():
 	kubernetes.config.load_incluster_config()
 	corev1 = kubernetes.client.CoreV1Api()
-
-	nodes = corev1.list_node().items
-	for node in nodes:
-		if not get_calico_pod_status_by_node(corev1, node.metadata.name):
-			print(f"Calico NotReady on {node.metadata.name}")
-			ensure_taint(corev1, node)
+	try:
+		nodes = corev1.list_node().items
+		for node in nodes:
+			if not get_calico_pod_status_by_node(corev1, node.metadata.name):
+				print(f"Calico NotReady on {node.metadata.name}")
+				ensure_taint(corev1, node)
+	except kubernetes.client.ApiException as e:
+		print(e)
 
 	while True:
 		all_ready = True
-		for node in corev1.list_node().items:
+		try:
+			nodes = corev1.list_node().items
+		except kubernetes.client.ApiException as e:
+			print(e)
+			time.sleep(2)
+			continue
+		for node in nodes:
 			if not get_calico_pod_status_by_node(corev1, node.metadata.name):
 				print(f"Calico NotReady on {node.metadata.name}")
 				all_ready = False

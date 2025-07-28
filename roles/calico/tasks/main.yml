@@ -11,12 +11,12 @@
 #     kubectl apply -f /tmp/tigera-configmap.yaml
 #     rm -f /tmp/tigera-configmap.yaml
 
-- name: Set Architecture Alias
-  set_fact:
-    arch_alias: >-
-      {% if ansible_architecture == 'x86_64' %}amd64{% elif ansible_architecture == 'aarch64' %}arm64{% else %}{{ ansible_architecture }}{% endif %}
+# - name: Set Architecture Alias
+#   set_fact:
+#     arch_alias: >-
+#       {% if ansible_architecture == 'x86_64' %}amd64{% elif ansible_architecture == 'aarch64' %}arm64{% else %}{{ ansible_architecture }}{% endif %}
 
-- name: Downloading k8spilot Image
+- name: Downloading k8spilot Job Image
   amazon.aws.s3_object:
     endpoint_url: "{{ s3_endpoint_url }}"
     access_key: "{{ s3_access_key }}"
@@ -39,7 +39,7 @@
     - { src: "{{ playbook_dir }}/.ansible_temp/pilot-job-v1.1-{{ arch_alias }}.tar", dest:  "/tmp/pilot-job-v1.1-{{ arch_alias }}.tar" }
     - { src: "pilot-job.yaml", dest: "{{ kubernetes_home}}/etc/pilot-job.yaml" }
 
-- name: Import k8spilot Image To Containerd
+- name: Import k8spilot Job Image To Containerd
   ansible.builtin.shell: ctr -n k8s.io i import /tmp/pilot-job-v1.1-{{ arch_alias }}.tar
 
 - name: Deploy k8spilot Job

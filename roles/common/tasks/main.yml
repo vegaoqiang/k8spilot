@@ -1,16 +1,5 @@
 ---
 
-# - name: Print all facts
-#   ansible.builtin.debug:
-#     var: ansible_facts
-
-
-# - name: Clear Fact Cache
-#   delegate_to: localhost
-#   file:
-#     path: .cache
-#     state: absent
-#   run_once: true
 
 - name: Check System Kernel Version
   ansible.builtin.shell: |
@@ -41,34 +30,6 @@
   ansible.builtin.meta: end_play
   when: glibc_version_raw.stdout is version('2.17', '<')
 
-# - name: Delete Repo Default
-#   shell: rm -rf /etc/yum.repos.d/*
-#   args:
-#       chdir: /etc/yum.repos.d/
-#   when: 
-#     - ansible_distribution == 'CentOS'
-#     - ansible_distribution_release == "Stream"
-#     - ansible_distribution_major_version == "9"
-
- 
-# - name: Change CN Mirror Centos/RHEL 9
-#   template:
-#     src: centos.repo
-#     dest: /etc/yum.repos.d/centos.repo
-#   when: 
-#     - ansible_distribution == 'CentOS'
-#     - ansible_distribution_release == "Stream"
-#     - ansible_distribution_major_version == "9"
-
-# - name: Install EPEL Repo - Centos/RHEL 9
-#   template:
-#     src: epel-9.repo
-#     dest: /etc/yum.repos.d/epel.repo
-#   when: 
-#     - ansible_distribution == 'CentOS'
-#     - ansible_distribution_release == "Stream"
-#     - ansible_distribution_major_version == "9"
-    
     
 - name: Disable SELINUX
   ansible.builtin.shell: |
@@ -80,22 +41,19 @@
       fi
     fi
 
-- name: Install {{ update_package | join(',') }} In Remote Host
+- name: Install {{ dnf_package | join(',') }} In Remote Host
   ansible.builtin.package:
     name: "{{ item }}"
     state: present
-  loop: "{{ update_package }}"
-  when: 
-    - ansible_distribution != 'Debian'
-    - ansible_distribution != 'Ubuntu'
+  loop: "{{ dnf_package }}"
+  when: ansible_distribution in dnf_system
 
 - name: Install {{ apt_package | join(',') }} In Remote Host
   ansible.builtin.package:
     name: "{{ item }}"
     state: present
   loop: "{{ apt_package }}"
-  when: 
-    - ansible_distribution in ['Debian','Ubuntu']
+  when: ansible_architecture in apt_system
 
 - name: Update Timezone
   shell: timedatectl set-timezone Asia/Shanghai
@@ -146,36 +104,11 @@
     sysctl --system
 
 
-- name: Set Architecture Alias
-  set_fact:
-    arch_alias: >-
-      {% if ansible_architecture == 'x86_64' %}amd64{% elif ansible_architecture == 'aarch64' %}arm64{% else %}{{ ansible_architecture }}{% endif %}
+# - name: Set Architecture Alias
+#   set_fact:
+#     arch_alias: >-
+#       {% if ansible_architecture == 'x86_64' %}amd64{% elif ansible_architecture == 'aarch64' %}arm64{% else %}{{ ansible_architecture }}{% endif %}
 
-
-# - name: Enable PIP Package Manager
-#   ansible.builtin.shell: |
-#     if ! python3 -m ensurepip; then
-#       exit 0
-#     fi
-
-
-# - name: Install Python Module Use PIP
-#   ansible.builtin.pip:
-#     name: "{{ item }}"
-#     extra_args: -i https://mirrors.tuna.tsinghua.edu.cn/pypi/web/simple
-#   loop: "{{ pip_module }}"
-#   when: 
-#     - ansible_distribution != 'Debian'
-#     - ansible_distribution != 'Ubuntu'
-
-
-# - name: Install Python Module Use PackageManager
-#   ansible.builtin.package:
-#     name: "{{ item }}"
-#     state: present
-#   loop: "{{ python_module }}"
-#   when: 
-#     - ansible_distribution in ['Debian','Ubuntu']
 
 - name: Create Temp Directory In localhost
   ansible.builtin.file:
@@ -205,8 +138,6 @@
     - cfssljson
   delegate_to: localhost
   run_once: true
-  # async: 6000
-  # poll: 100
   retries: 5
   delay: 10
 
@@ -219,13 +150,6 @@
     - cfssl
     - cfssljson
 
-# - name: Install Cfssl Tool
-#   ansible.builtin.shell: |
-#     mv /tmp/{{ item }}_{{ cfssl_version }}_linux_{{ arch_alias }} /usr/local/bin/{{ item }}
-#     chmod +x /usr/local/bin/{{ item }}
-#   loop:
-#     - cfssl
-#     - cfssljson
 
 - name: Create CA CSR File
   ansible.builtin.copy:
