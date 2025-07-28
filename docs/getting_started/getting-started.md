@@ -20,12 +20,23 @@ source .venv/bin/active
 pip3 -r deps/requirments -i https://mirrors.tuna.tsinghua.edu.cn/pypi/web/simple
 ```
 
+> :warning: 在你的环境中，如果主控端是通过SSH密码登录被控端，主控端需要额外安装sshpass
+>```shell
+># apt仓库（Debian/Ubuntu系）
+>apt install -y sshpass
+>
+># rpm仓库（Fedore/CentOS系）
+>dnf install -y sshpass
+>```
+
 ## 开始安装
 一切准备就绪后，可以开始安装Kubernetes集群了
 ```shell
 # 执行以下命令进入交互式配置安装
 ./pilot deploy
 ```
+
+## example
 
 
 
