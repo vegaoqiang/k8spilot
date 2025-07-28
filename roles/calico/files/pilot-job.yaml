@@ -58,7 +58,7 @@ spec:
           effect: "NoSchedule"
       containers:
       - name: pilot-job
-        image: quay.io/k8spilot/pilot-job:v1.0
+        image: quay.io/k8spilot/pilot-job:v1.1
         imagePullPolicy: IfNotPresent
         env:
         - name: KUBERNETES_SERVICE_HOST
