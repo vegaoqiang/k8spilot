@@ -36,11 +36,11 @@
     src: "{{ item.src }}"
     dest: "{{ item.dest }}"
   loop:
-    - { src: "{{ playbook_dir }}/.ansible_temp/pilot-job-{{ arch_alias }}.tar", dest:  "/tmp/pilot-job-{{ arch_alias }}.tar" }
+    - { src: "{{ playbook_dir }}/.ansible_temp/pilot-job-v1.1-{{ arch_alias }}.tar", dest:  "/tmp/pilot-job-v1.1-{{ arch_alias }}.tar" }
     - { src: "pilot-job.yaml", dest: "{{ kubernetes_home}}/etc/pilot-job.yaml" }
 
 - name: Import k8spilot Image To Containerd
-  ansible.builtin.shell: ctr -n k8s.io i import /tmp/pilot-job-{{ arch_alias }}.tar
+  ansible.builtin.shell: ctr -n k8s.io i import /tmp/pilot-job-v1.1-{{ arch_alias }}.tar
 
 - name: Deploy k8spilot Job
   ansible.builtin.shell: kubectl apply -f "{{ kubernetes_home}}/etc/pilot-job.yaml"
