@@ -22,8 +22,8 @@
     access_key: "{{ s3_access_key }}"
     secret_key: "{{ s3_secret_key }}"
     bucket: "{{ s3_bucket_name }}"
-    object: "pilot/pilot-job-{{ arch_alias }}.tar"
-    dest: "{{ playbook_dir }}/.ansible_temp/pilot-job-{{ arch_alias }}.tar"
+    object: "pilot/pilot-job-v1.1-{{ arch_alias }}.tar"
+    dest: "{{ playbook_dir }}/.ansible_temp/pilot-job-v1.1-{{ arch_alias }}.tar"
     mode: get
     overwrite: different
   delegate_to: localhost
