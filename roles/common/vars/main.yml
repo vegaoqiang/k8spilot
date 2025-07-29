@@ -3,7 +3,7 @@ disable_service: [ 'firewalld', 'atd', 'irqbalance', 'smartd', 'dnsmasq' ]
 # debian系的衍生系统
 apt_system: [ 'Debian', 'Ubuntu' ]
 # RHEL系衍生系统
-dnf_system: [ 'CentOS Stream', 'Rocky', 'openEuler', 'Oracle Linux', 'Alibaba' ]
+dnf_system: [ 'CentOS Stream', 'Rocky', 'openEuler', 'Oracle Linux' ]
 
 dnf_package: [ 'chrony', 'tar', 'python3-yaml' ]
 # 部分REHL系依赖包的名称在debian系统中有所区别

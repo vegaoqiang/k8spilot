@@ -55,6 +55,12 @@
   loop: "{{ apt_package }}"
   when: ansible_architecture in apt_system
 
+- name: Install Python Module
+  ansible.builtin.shell: |
+    python3 -m ensurepip
+    pip3 install pyyaml -i https://mirrors.tuna.tsinghua.edu.cn/pypi/web/simple
+  when: ansible_distribution == 'Alibaba'
+
 - name: Update Timezone
   shell: timedatectl set-timezone Asia/Shanghai
 
