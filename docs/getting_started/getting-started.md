@@ -29,8 +29,8 @@ pip3 -r deps/requirments -i https://mirrors.tuna.tsinghua.edu.cn/pypi/web/simple
 >dnf install -y sshpass
 >```
 
-## 开始安装
-一切准备就绪后，可以开始安装Kubernetes集群了
+## 开始安装Kubernetes
+一切准备就绪后，只需执行一下操作，即可开始安装Kubernetes集群了
 ```shell
 # 执行以下命令进入交互式配置安装
 ./pilot deploy
