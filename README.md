@@ -32,16 +32,13 @@ k8spilot可以简单、快速的搭建一个生产级别，纯净的Kuebrnetes�
 
 
 ### 安装k8spilot
-如果主控端安装有Docker服务，推荐使用k8spilot的Docker镜像，因为k8spilot和所需要的依赖都已经在镜像中准备就绪，你无需操心主控端的环境和依赖问题。  
+如果主控端安装有Docker服务，推荐使用k8spilot的Docker镜像，可避免主控端复杂的环境和依赖问题。  
 没有Docker也不必担心，只需简单几步就能安装k8spilot，见
 
 [Getting started](docs/getting_started/getting-started.md)
 
 ### 示例
 如使用k8spilot安装Kubernetes时有疑问，可以参考：[example](docs/getting_started/example.md)
-
-### 高级选项
-k8spilot支持自定义安装配置，选择/关闭部分插件和调整插件版本，请查看配置文件说明，文档待补充
 
 ## 支持的Linux发行版本
 以下Linux发行版支持作为被控端安装Kubernetes集群  
@@ -85,3 +82,6 @@ k8spilot支持自定义安装配置，选择/关闭部分插件和调整插件�
 ## Ingress Plugins
 + **cilium ingress** 安装cilium网络时，默认开启cilium ingress功能作为默认ingress
 + **ingress-nginx** 可选安装ingress-nginx作为默认ingress
+
+## 高级选项
+k8spilot支持自定义安装配置，选择/关闭部分插件和调整插件版本，请查看配置文件说明，文档待补充
