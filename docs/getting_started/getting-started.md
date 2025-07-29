@@ -36,8 +36,5 @@ pip3 -r deps/requirments -i https://mirrors.tuna.tsinghua.edu.cn/pypi/web/simple
 ./pilot deploy
 ```
 
-## example
-
-
 
 
