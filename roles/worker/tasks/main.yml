@@ -109,6 +109,7 @@
   with_items:
   - overlay
   - br_netfilter
+  - ip_tables
 
 - name: CRI Kernel Tuning
   ansible.posix.sysctl: 
