@@ -2,7 +2,7 @@
   "CN": "kube-apiserver",
   "hosts": [
     {% for host in groups['control'] %}
-    "{{ hostvars[host]['ansible_ssh_host'] }}",
+    "{{ hostvars[host].ansible_facts.default_ipv4.address }}",
     {% endfor %}
     "{{ kube_cluster_apiserver }}",
     "127.0.0.1",

@@ -2,7 +2,7 @@
   "CN": "system:kube-controller-manager",
   "hosts": [
     {% for host in groups['control'] %}
-    "{{ hostvars[host]['ansible_ssh_host'] }}",
+    "{{ hostvars[host].ansible_facts.default_ipv4.address }}",
     {% endfor %}
     "127.0.0.1",
     "kubernetes",
