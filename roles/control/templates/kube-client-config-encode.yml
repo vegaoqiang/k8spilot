@@ -12,7 +12,7 @@ contexts:
 clusters:
 - name: kubernetes
   cluster:
-    server: "https://{{ ansible_default_ipv4.address }}:6443"
+    server: "https://{{ hostvars[groups['control'][0]]['ansible_ssh_host'] }}:6443"
     certificate-authority-data: "{{ ca_encode }}"
 
 users:
