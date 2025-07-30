@@ -22,13 +22,13 @@ def validation_inventory(config_path) -> None:
   parser = configparser.ConfigParser()
   parser.read(config_path)
   if not parser.has_section('control'): 
-    print("inventory file has not section control")
+    print("inventory file has no section control")
     sys.exit(1)
   if not parser.has_section('worker'):
-    print("inventory file has not section worker")
+    print("inventory file has no section worker")
     sys.exit(1)
   if not parser.has_section('etcd'):
-    print("inventory file has not section etcd")
+    print("inventory file has no section etcd")
     sys.exit(1)
   if len(parser['control']) != 1:
     print("control section must be configured 1 hosts to install the cluster control")

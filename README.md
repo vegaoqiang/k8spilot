@@ -15,16 +15,18 @@ k8spilot可以简单、快速的搭建一个生产级别，纯净的Kuebrnetes�
 + 可选ingress-nginx作为集群默认IngressClass
 
 
-## requirements
+## Requirements
 
 **主控端**  
 主控端是运行k8spilot的机器，可以是你的笔记本电脑，可以是一台独立服务器，也可以是被控端机器中的任意一台。主控端需要满足以下要求  
+
 + 主控端要求能连接互联网，能使用root通过ssh登录所有被控端(如果主控端不能连接互联网，请参见离线方案: k8spilot-offline)
 + 主控端必须是Linux/MacOS，不支持Windows（Windows使用docker或者wsl方案替代）
 + 主控端必须安装了Python 3.10及以上版本，否则，需要升级Python版本，参见：[Python安装方法](docs/getting_started/install-python.md)    
 
 **被控端**  
 被控端用于安装Kubernetes集群的虚拟机或者服务器，被控端需要满足以下要求  
+
 + 被控端只能是Linux，且内核版本>=5.4,受支持的Linux发现版本见：[支持的Linux发行版本](#支持的Linux发行版本)
 + 被控端至少要3台虚拟机或服务器，其中一台作为控制平面（master），也可同时作为调度节点（node）
 + 所有被控端CPU架构（x86_64/aarch64）必须一致；为了避免异常问题，建议操作系统以及系统版本也保持一致
@@ -35,14 +37,10 @@ k8spilot可以简单、快速的搭建一个生产级别，纯净的Kuebrnetes�
 
 ## 快速开始
 
-### 安装k8spilot
 如果主控端安装有Docker服务，推荐使用k8spilot的Docker镜像，可避免主控端复杂的环境和依赖问题。  
 没有Docker也不必担心，只需简单几步就能安装k8spilot，见
 
 [Getting started](docs/getting_started/getting-started.md)
-
-### 示例
-如使用k8spilot安装Kubernetes时有疑问，可以参考：[example](docs/getting_started/example.md)
 
 ## 支持的Linux发行版本
 以下Linux发行版支持作为被控端安装Kubernetes集群  

@@ -25,11 +25,12 @@ pip3 -r requirments -i https://mirrors.tuna.tsinghua.edu.cn/pypi/web/simple
 ```
 
 > :warning: 在你的环境中，如果主控端是通过SSH密码登录被控端，主控端需要额外安装`sshpass`
+>apt仓库（Debian/Ubuntu系）
 >```shell
-># apt仓库（Debian/Ubuntu系）
 >apt install -y sshpass
 >
-># rpm仓库（Fedore/REHL系）
+>rpm仓库（Fedore/REHL系）
+>```shell
 >dnf install -y sshpass
 >```
 
@@ -39,8 +40,11 @@ pip3 -r requirments -i https://mirrors.tuna.tsinghua.edu.cn/pypi/web/simple
 ## 开始安装Kubernetes
 如果你已经准备好了用于安装Kubernetes的虚拟机，只需执行以下操作，即可开始安装Kubernetes集群了
 ```shell
-# 执行以下命令进入交互式配置安装
 ./pilot deploy
 ```
 
+`pilot deploy`将开始交互式录入被控端信息，包含IP地址、ssh端口、ssh密码，录入完成后安装 `Ctrl + C` 结束录入，并开始安装Kubernetes
+![example](/docs/images/getting-started.gif)
+
+如果被控端实例数量庞大，交互式手动输入容易出错且效率低下，此时可以手动构建被控端清单，见: [被控端清单](docs/getting_started/inventory.md)
 
