@@ -8,7 +8,7 @@ k8spilot可以简单、快速的搭建一个生产级别，纯净的Kuebrnetes�
 + 无docker，采用更现代的containerd作为容器运行时
 + 自签集群证书，有效期100年，解决集群证书过期困扰
 + 高性能网络插件cilium，默认开启BPF模式（网络插件可选calico）
-+ 支持x86_64和aarch64架构服务器，自适应部署对应架构Kubernetes
++ 支持ARM架构服务器，自适应部署对应架构Kubernetes
 + 安装CoreDNS为集群内部DNS
 + 安装helm工具，helm安装在master节点上
 + 可选安装csi-driver-nfs作为集群默认StorageClass
@@ -38,7 +38,7 @@ k8spilot可以简单、快速的搭建一个生产级别，纯净的Kuebrnetes�
 ## 快速开始
 
 如果主控端安装有Docker服务，推荐使用k8spilot的Docker镜像，可避免主控端复杂的环境和依赖问题。
-  
+
 [Docker方式使用k8spilot](docs/getting_started/getting-started.md#docker方式使用k8spilot)
 
 没有Docker也不必担心，只需简单几步就能安装k8spilot，见
