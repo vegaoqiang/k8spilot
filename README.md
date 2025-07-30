@@ -37,10 +37,14 @@ k8spilot可以简单、快速的搭建一个生产级别，纯净的Kuebrnetes�
 
 ## 快速开始
 
-如果主控端安装有Docker服务，推荐使用k8spilot的Docker镜像，可避免主控端复杂的环境和依赖问题。  
+如果主控端安装有Docker服务，推荐使用k8spilot的Docker镜像，可避免主控端复杂的环境和依赖问题。
+  
+[Docker方式使用k8spilot](docs/getting_started/getting-started.md#docker方式使用k8spilot)
+
 没有Docker也不必担心，只需简单几步就能安装k8spilot，见
 
 [Getting started](docs/getting_started/getting-started.md)
+
 
 ## 支持的Linux发行版本
 以下Linux发行版支持作为被控端安装Kubernetes集群  
