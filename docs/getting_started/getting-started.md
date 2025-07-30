@@ -24,10 +24,11 @@ source .venv/bin/active
 pip3 -r requirments -i https://mirrors.tuna.tsinghua.edu.cn/pypi/web/simple
 ```
 
-> :warning: 在你的环境中，如果主控端是通过SSH密码登录被控端，主控端需要额外安装`sshpass`
+> :warning: 在你的环境中，如果主控端是通过SSH密码登录被控端，主控端需要额外安装`sshpass`  
 >apt仓库（Debian/Ubuntu系）
 >```shell
 >apt install -y sshpass
+>```
 >
 >rpm仓库（Fedore/REHL系）
 >```shell
@@ -45,7 +46,7 @@ pip3 -r requirments -i https://mirrors.tuna.tsinghua.edu.cn/pypi/web/simple
 `pilot deploy`将开始交互式录入被控端信息，包含IP地址、ssh端口、ssh密码，录入完成后安装 `Ctrl + C` 结束录入，并开始安装Kubernetes
 ![example](/docs/images/getting-started.gif)
 
-如果被控端实例数量庞大，交互式手动输入容易出错且效率低下，此时可以手动构建被控端清单，见: [被控端清单](docs/getting_started/inventory.md)
+如果被控端实例数量庞大，交互式手动输入容易出错且效率低下，此时可以手动构建被控端清单，见: [被控端清单](inventory.md)
 
 ##  Docker方式使用k8spilot
 :todo:
