@@ -16,24 +16,32 @@
 
 - name: Taint Control To NoSchedule
   shell: |
-    kubectl taint nodes "{{ inventory_hostname }}" node-role.kubernetes.io/master=:NoSchedule
+    if if kubectl get nodes "{{ inventory_hostname }}" >/dev/null 2>&1; then
+      kubectl taint nodes "{{ inventory_hostname }}" node-role.kubernetes.io/master=:NoSchedule
+    fi
   when: allow_master_schedule != true
 
 - name: Taint All Nodes To NoSchedule
   ansible.builtin.shell: |
-    kubectl taint nodes "{{ item }}" node.cilium.io/agent-not-ready=:NoSchedule
+    if if kubectl get nodes "{{ item }}" >/dev/null 2>&1; then
+      kubectl taint nodes "{{ item }}" node.cilium.io/agent-not-ready=:NoSchedule
+    fi
   loop: "{{ groups['worker'] }}"
   when: cni_plugin == 'cilium'
 
 - name: Taint All Nodes To NoSchedule
   ansible.builtin.shell: |
-    kubectl taint nodes "{{ item }}"  --overwrite=true node.k8spilot.io/network-not-ready=:NoSchedule
+    if if kubectl get nodes "{{ item }}" >/dev/null 2>&1; then
+      kubectl taint nodes "{{ item }}"  --overwrite=true node.k8spilot.io/network-not-ready=:NoSchedule
+    fi
   loop: "{{ groups['worker'] }}"
   when: cni_plugin == 'calico'
 
 - name: Label Control Plane
   shell: |
-    kubectl label nodes "{{ inventory_hostname }}" node-role.kubernetes.io/control-plane=
+    if if kubectl get nodes "{{ inventory_hostname }}" >/dev/null 2>&1; then
+      kubectl label nodes "{{ inventory_hostname }}" node-role.kubernetes.io/control-plane=
+    fi
 
 - name: Install CNI Plugin
   ansible.builtin.include_role:
