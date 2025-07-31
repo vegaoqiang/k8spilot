@@ -37,7 +37,7 @@ coredns_version: 1.12.2
 coredns_ip: 223.5.5.5
 
 # cilium版本
-cilium_version: v1.16.1
+cilium_version: v1.17.6
 cilium_cli_version: v0.18.4
 
 # calico版本
