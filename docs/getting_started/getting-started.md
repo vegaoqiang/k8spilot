@@ -50,6 +50,7 @@ pip3 -r requirments -i https://mirrors.tuna.tsinghua.edu.cn/pypi/web/simple
 
 ##  Docker方式使用k8spilot
 ```shell
+# 创建空的inventory.ini文件并挂载到容器中
 touch $(pwd)/inventory.ini
 sudo docker run --rm -it \
  -v $(pwd)/inventory.ini:/k8spilot/inventory/inventory.ini \
