@@ -51,5 +51,9 @@ pip3 -r requirments -i https://mirrors.tuna.tsinghua.edu.cn/pypi/web/simple
 ##  Docker方式使用k8spilot
 ```shell
 touch $(pwd)/inventory.ini
-sudo docker run --rm -it -v $(pwd)/inventory.ini:/k8spilot/inventory/inventory.ini -v "${HOME}"/.ssh/id_rsa:/root/.ssh/id_rsa -v /tmp/.ansible_temp:/k8spilot/.ansible_temp quay.io/k8spilot/k8spilot:v1.0.3 bash ./pilot deploy
+sudo docker run --rm -it \
+ -v $(pwd)/inventory.ini:/k8spilot/inventory/inventory.ini \
+ -v "${HOME}"/.ssh/id_rsa:/root/.ssh/id_rsa \
+ -v /tmp/.ansible_temp:/k8spilot/.ansible_temp \
+ quay.io/k8spilot/k8spilot:v1.0.3 bash ./pilot deploy
 ```
