@@ -6,10 +6,10 @@
 ### 下载k8spilot
 
 ```shell
-version=v1.0
-wget https://github.com/vegaoqiang/k8spilot/releases/${version}.tar.gz
-tar xf ${version}.tar.gz
-cd ${version}
+tag=v1.0.3
+wget https://github.com/vegaoqiang/k8spilot/archive/refs/tags/${tag}$.tar.gz
+tar xf ${tag}.tar.gz
+cd ${tag}
 ```
 
 ### 安装依赖
