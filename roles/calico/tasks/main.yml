@@ -46,57 +46,12 @@
     src: "{{ playbook_dir }}/.ansible_temp/tigera-operator-{{ calico_version }}.tgz"
     dest: "/tmp/tigera-operator-{{ calico_version }}.tgz"
 
-- name: Install Calico
-  kubernetes.core.helm:
-    chart_ref: "/tmp/tigera-operator-{{ calico_version }}.tgz"
-    name: calico
-    chart_version: "{{ calico_version }}"
-    wait: false
-    # state: absent
-    release_namespace: tigera-operator
-    create_namespace: true
-    values:
-      installation:
-        calicoNetwork:
-          linuxDataplane: BPF
-          bgp: Disabled
-          ipPools:
-            - encapsulation: VXLANCrossSubnet
-              cidr: "{{ kube_pod_ip_range }}"
-        registry: "{{ calico_installation_registry }}"
-        controlPlaneReplicas: 1
-        # calicoNodeDaemonSet:
-        #   properties:
-        #     spec:
-        #       properties:
-        #         tolerations:
-        #           items:
-        #             properties:
-        #               - effect: NoSchedule
-        #                 operator: Exists
-        #                 key: node.k8spilot.io/network-not-ready
-      apiServer:
-        enabled: false
-      goldmane:
-        enabled: false
-      whisker:
-        enabled: false
-      kubernetesServiceEndpoint:
-        host: "{{ ansible_default_ipv4.address }}"
-        port: "6443"
-      kubeletVolumePluginPath: None
-      tolerations:
-        - effect: NoSchedule
-          operator: Exists
-          key: node.k8spilot.io/network-not-ready
+- name: Copy tigera-operator Values Override File
+  ansible.builtin.template:
+    src: "tigera-operator-values-override.yaml.j2"
+    dest: "/tmp/tigera-operator-values-override.yaml"
+    mode: '0644'
 
-# - name: Wait k8spilot pod Running
-#   ansible.builtin.shell: kubectl get pod -n kube-system -l job-name=pilot-job -o json
-#   register: pod_result
-  # until: pod_result.output|from_json|get('items', None)
-  # retries: 60
-  # delay: 5
-
-# - name: debug
-#   ansible.builtin.debug:
-#     msg: "{{ pod_result.stdout | from_json }}"
+- name: Install tigera-operator
+  ansible.builtin.shell: |
+    helm upgrade --install tigera-operator /tmp/tigera-operator-{{ calico_version }}.tgz --namespace tigera-operator --create-namespace --values /tmp/tigera-operator-values-override.yaml

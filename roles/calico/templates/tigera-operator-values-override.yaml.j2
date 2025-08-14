@@ -1,0 +1,23 @@
+installation:
+  calicoNetwork:
+    linuxDataplane: BPF
+    bgp: Disabled
+    ipPools:
+      - encapsulation: VXLANCrossSubnet
+        cidr: "{{ kube_pod_ip_range }}"
+  registry: "{{ calico_installation_registry }}"
+  controlPlaneReplicas: 1
+apiServer:
+  enabled: false
+goldmane:
+  enabled: false
+whisker:
+  enabled: false
+kubernetesServiceEndpoint:
+  host: "{{ ansible_default_ipv4.address }}"
+  port: "6443"
+kubeletVolumePluginPath: None
+tolerations:
+  - effect: NoSchedule
+    operator: Exists
+    key: node.k8spilot.io/network-not-ready
