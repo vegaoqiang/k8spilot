@@ -24,7 +24,7 @@
 - name: Taint All Nodes To NoSchedule
   ansible.builtin.shell: |
     if kubectl get nodes "{{ item }}" >/dev/null 2>&1; then
-      kubectl taint nodes "{{ item }}"--overwrite=true node.cilium.io/agent-not-ready=:NoSchedule
+      kubectl taint nodes "{{ item }}" --overwrite=true node.cilium.io/agent-not-ready=:NoSchedule
     fi
   loop: "{{ groups['worker'] }}"
   when: cni_plugin == 'cilium'

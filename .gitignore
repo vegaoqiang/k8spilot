@@ -15,3 +15,4 @@ config-encode
 .ansible_facts_cache
 .ansible_temp
 .DS_Store
+.kubeconfig
