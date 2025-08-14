@@ -50,6 +50,8 @@ containerd_root: /var/lib/containerd
 # cni版本: https://github.com/containernetworking/plugins
 cni_version: v1.7.1
 
+runc_version: v1.3.0
+
 # 根证书证书名称，根证书用于签发集群证书
 root_cert: ca.pem
 root_key: ca-key.pem
