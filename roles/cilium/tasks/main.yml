@@ -44,49 +44,16 @@
     src: "{{ playbook_dir }}/.ansible_temp/cilium-{{ cilium_version| replace('v', '') }}.tgz"
     dest: "/tmp/cilium-{{ cilium_version| replace('v', '') }}.tgz"
 
+- name: Copy Cilium Values Override File
+  ansible.builtin.template:
+    src: "value.override.yaml.j2"
+    dest: "/tmp/cilium-values-override.yaml"
+    mode: '0644'
+
 - name: Install Cilium
-  kubernetes.core.helm:
-    chart_ref: "/tmp/cilium-{{ cilium_version| replace('v', '') }}.tgz"
-    name: cilium
-    chart_version: "{{cilium_version}}"
-    wait: false
-    # state: absent
-    release_namespace: kube-system
-    values:
-      nodePort:
-        enabled: true
-      k8sServiceHost: "{{ansible_default_ipv4.address}}"
-      k8sServicePort: "6443"
-      kubeProxyReplacement: "true"
-      bpf:
-        lbExternalClusterIP: true
-      operator:
-        image:
-          tag: "{{ cilium_version }}"
-          repository: quay.io/cilium/operator
-          useDigest: false
-          suffix: ""
-        replicas: 1
-      image:
-        repository: quay.io/cilium/cilium
-        tag: "{{ cilium_version }}"
-        useDigest: false
-      ingressController:
-        enabled: "{{ true if ingress_controller == 'cilium' else false }}"
-        default: "{{ true if ingress_controller == 'cilium' else false }}"
-        loadbalancerMode: shared
-        service:
-          type: NodePort
-          # -- Configure a specific nodePort for insecure HTTP traffic on the shared LB service
-          insecureNodePort: 30080
-          # -- Configure a specific nodePort for secure HTTPS traffic on the shared LB service
-          secureNodePort : 30443
-      envoy:
-        enabled: true
-        # image: 
-        #   tag: "{{ cilium_envoy_version }}"
-        #   repository: "quay.io/cilium/cilium-envoy"
-        #   useDigest: false
+  ansible.builtin.shell: |
+    helm upgrade --install cilium /tmp/cilium-{{ cilium_version| replace('v', '') }}.tgz --namespace kube-system --values /tmp/cilium-values-override.yaml
+
 
 
 
