@@ -13,7 +13,7 @@
     fi
   register: kernel_check
 
-- name: Fail If Kernel < 5.4
+- name: Not Support If Kernel < 5.4
   ansible.builtin.meta: end_play
   when: kernel_check.rc != 0
 
@@ -26,7 +26,7 @@
     fi
   register: glibc_version_raw
 
-- name: Fail If GLIBC Version < 2.17
+- name: Not Support If GLIBC Version < 2.17
   ansible.builtin.meta: end_play
   when: glibc_version_raw.stdout is version('2.17', '<')
 
