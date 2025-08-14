@@ -41,25 +41,25 @@
       fi
     fi
 
-- name: Install {{ dnf_package | join(',') }} In Remote Host
-  ansible.builtin.package:
-    name: "{{ item }}"
-    state: present
-  loop: "{{ dnf_package }}"
-  when: ansible_distribution in dnf_system
+# - name: Install {{ dnf_package | join(',') }} In Remote Host
+#   ansible.builtin.package:
+#     name: "{{ item }}"
+#     state: present
+#   loop: "{{ dnf_package }}"
+#   when: ansible_distribution in dnf_system
 
-- name: Install {{ apt_package | join(',') }} In Remote Host
-  ansible.builtin.package:
-    name: "{{ item }}"
-    state: present
-  loop: "{{ apt_package }}"
-  when: ansible_architecture in apt_system
+# - name: Install {{ apt_package | join(',') }} In Remote Host
+#   ansible.builtin.package:
+#     name: "{{ item }}"
+#     state: present
+#   loop: "{{ apt_package }}"
+#   when: ansible_architecture in apt_system
 
-- name: Install Python Module
-  ansible.builtin.shell: |
-    python3 -m ensurepip
-    pip3 install pyyaml -i https://mirrors.tuna.tsinghua.edu.cn/pypi/web/simple
-  when: ansible_distribution == 'Alibaba'
+# - name: Install Python Module
+#   ansible.builtin.shell: |
+#     python3 -m ensurepip
+#     pip3 install pyyaml -i https://mirrors.tuna.tsinghua.edu.cn/pypi/web/simple
+#   when: ansible_distribution == 'Alibaba'
 
 - name: Update Timezone
   shell: timedatectl set-timezone Asia/Shanghai
