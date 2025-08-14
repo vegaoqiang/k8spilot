@@ -127,7 +127,7 @@
 - name: Downloading Encode Client Config
   ansible.builtin.fetch:
     src: /root/.kube/config-encode
-    dest: "{{ playbook_dir }}/"
+    dest: "{{ playbook_dir }}/.kubeconfig"
     flat: true
 
 - name: Enable Kubernetes Master Service
@@ -166,9 +166,11 @@
     src:  "{{ playbook_dir }}/.ansible_temp/helm-{{ helm_version }}-linux-{{ arch_alias }}.tar.gz"
     dest: "/tmp/helm-{{ helm_version }}-linux-{{ arch_alias }}.tar.gz"
 
-- name: Install Helm {{ helm_version }}
-  ansible.builtin.shell: | 
-    tar --strip-components=1  -xf /tmp/helm-{{ helm_version }}-linux-{{ arch_alias }}.tar.gz -C /usr/local/bin/
-    rm -f /usr/local/README.md /usr/local/LICENSE
-    rm -f /tmp/helm-{{ helm_version }}-linux-{{ arch_alias }}.tar.gz
-    chmod +x /usr/local/bin/helm
+- name: Install Helm Binary On Remote Host
+  uncompress:
+    src:  "/tmp/helm-{{ helm_version }}-linux-{{ arch_alias }}.tar.gz"
+    dest: /usr/local/bin/
+    mode: '0755'
+    strip_components: 1
+    include:
+      - helm
