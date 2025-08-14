@@ -1,17 +1,6 @@
 ---
 
-# - name: Set Architecture Alias
-#   set_fact:
-#     arch_alias: >-
-#       {% if ansible_architecture == 'x86_64' %}amd64{% elif ansible_architecture == 'aarch64' %}arm64{% else %}{{ ansible_architecture }}{% endif %}
-
-
 - name: Downloading Etcd {{ etcd_version }}
-  # ansible.builtin.get_url:
-  #   url: "{{ download_location }}/etcd/{{ etcd_version }}/linux/{{ arch_alias }}/etcd-{{ etcd_version }}-linux-{{ arch_alias }}.tar.gz"
-  #   dest: /tmp/
-  #   mode: '0755'
-  #   timeout: 60
   amazon.aws.s3_object:
     endpoint_url: "{{ s3_endpoint_url }}"
     access_key: "{{ s3_access_key }}"
@@ -79,16 +68,24 @@
   - { src: "ca-config.json", dest: "{{ etcd_home }}/ssl/ca-config.json" }
 
 
-- name: Install Etcd Binary
-  shell: |
-    tar --strip-components=1 -xf /tmp/etcd-{{ etcd_version }}-linux-{{ arch_alias }}.tar.gz -C {{ etcd_home }}/bin/
-    rm -fr {{ etcd_home }}/bin/README* {{ etcd_home }}/bin/Documentation*
-    export PATH=$PATH:/usr/local/bin
-    cd {{ etcd_home }}/ssl/
+- name:  Install Etcd Binary On Remote Host
+  uncompress:
+    src: "/tmp/etcd-{{ etcd_version }}-linux-{{ arch_alias }}.tar.gz"
+    dest: "{{ etcd_home }}/bin"
+    strip_components: 1
+    owner: "{{ etcd_user }}"
+    group: "{{ etcd_user }}"
+    mode: "0755"
+    include:
+      - etcd
+      - etcdctl
+
+- name: Create Etcd Cluster Certificates
+  ansible.builtin.shell: |
     cfssl gencert -ca=ca.pem -ca-key=key.pem -config=ca-config.json etcd-csr.json  | cfssljson -bare etcd
-    rm -rf key.pem
-    ln -sfT {{ etcd_home }}/bin/etcdctl /usr/local/bin/etcdctl
-    chown -R {{ etcd_user }}.{{ etcd_user }}  {{ etcd_home }}
+    chown -R {{ etcd_user }}.{{ etcd_user }}  {{ etcd_home }}/ssl
+  args:
+    chdir: "{{ etcd_home }}/ssl"
   notify:
   - Start And Enable Etcd Service
   - Wait Etcd Service Started

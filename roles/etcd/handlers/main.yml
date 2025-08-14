@@ -15,6 +15,7 @@
 
 - name: Check Etcd Cluster Healthly 
   shell: |
+    ln -sfT {{ etcd_home }}/bin/etcdctl /usr/local/bin/etcdctl
     export ENDPOINT='--endpoints={% for host in groups['etcd'] %}{{ hostvars[host]['ansible_default_ipv4']['address'] }}:2379{% if not loop.last %},{% endif %}{% endfor %}'
     export ETCD_ARGS='--cacert={{ etcd_home }}/ssl/ca.pem --cert={{ etcd_home }}/ssl/etcd.pem --key={{ etcd_home }}/ssl/etcd-key.pem --write-out=table'
     etcdctl $ETCD_ARGS member list

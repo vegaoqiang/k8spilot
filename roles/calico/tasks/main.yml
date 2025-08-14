@@ -1,21 +1,4 @@
 
-# - name: Transfor ConfigMap To Control Plane
-#   ansible.builtin.template:
-#     src: tigera-configmap.yaml.j2
-#     dest: /tmp/tigera-configmap.yaml
-
-
-# - name: Apply Tigera ConfigMap
-#   ansible.builtin.shell: |
-#     kubectl create namespace tigera-operator
-#     kubectl apply -f /tmp/tigera-configmap.yaml
-#     rm -f /tmp/tigera-configmap.yaml
-
-# - name: Set Architecture Alias
-#   set_fact:
-#     arch_alias: >-
-#       {% if ansible_architecture == 'x86_64' %}amd64{% elif ansible_architecture == 'aarch64' %}arm64{% else %}{{ ansible_architecture }}{% endif %}
-
 - name: Downloading k8spilot Job Image
   amazon.aws.s3_object:
     endpoint_url: "{{ s3_endpoint_url }}"
