@@ -37,47 +37,16 @@
     src: "{{ playbook_dir }}/.ansible_temp/csi-driver-nfs-{{ csi_nfs_version }}.tgz"
     dest: "/tmp/csi-driver-nfs-{{ csi_nfs_version }}.tgz"
 
-- name: Install CSI Driver NFS v{{ csi_nfs_version }}
-  kubernetes.core.helm:
-    chart_ref: "/tmp/csi-driver-nfs-{{ csi_nfs_version }}.tgz"
-    name: csi-driver-nfs
-    chart_version: "{{ csi_nfs_version }}"
-    wait: false
-    # state: absent
-    release_namespace: kube-system
-    create_namespace: true
-    values:
-      driver:
-        name: nfs.csi.k8s.io
-      image: 
-        nfs: 
-          repository: "{{ csi_registry_prefix }}/registry.k8s.io/sig-storage/nfsplugin"
-          tag: "{{ nfsplugin_tag }}"
-        csiProvisioner:
-          repository: "{{ csi_registry_prefix }}/registry.k8s.io/sig-storage/csi-provisioner"
-          tag: "{{ csiprovisioner_tag }}"
-        livenessProbe:
-          repository: "{{ csi_registry_prefix }}/registry.k8s.io/sig-storage/livenessprobe"
-          tag: "{{ livenessprobe_tag }}"
-        nodeDriverRegistrar:
-          repository: "{{ csi_registry_prefix }}/registry.k8s.io/sig-storage/csi-node-driver-registrar"
-          tag: "{{ nodedriverregistrar_tag }}"
-        csiResizer:
-          repository: "{{ csi_registry_prefix }}/registry.k8s.io/sig-storage/csi-resizer"
-        csiSnapshotter:
-          repository: "{{ csi_registry_prefix }}/registry.k8s.io/sig-storage/csi-snapshotter"
-        externalSnapshotter:
-          repository: "{{ csi_registry_prefix }}/registry.k8s.io/sig-storage/snapshot-controller"
-      storageClass:
-        create: true
-        name: nfs-csi
-        annotations:
-          storageclass.kubernetes.io/is-default-class: "true"
-        parameters:
-          server: "{{ custom_nfs_server_address if custom_nfs_server_address else 'nfs-server.kube-system.svc.cluster.local' }}"
-          share: /
-      # feature: 
-      #   propagateHostMountOptions: true
+- name: Copy CSI Driver NFS Values Override File
+  ansible.builtin.template:
+    src: "csi-driver-nfs-values-override.yaml.j2"
+    dest: "/tmp/csi-driver-nfs-values-override.yaml"
+    mode: '0644'
+
+- name: Install CSI Driver NFS
+  ansible.builtin.shell: |
+    helm upgrade --install csi-driver-nfs /tmp/csi-driver-nfs-{{ csi_nfs_version }}.tgz --namespace kube-system --values /tmp/csi-driver-nfs-values-override.yaml
+
       
 - name: Transfor NFS YAML To Control
   ansible.builtin.template:

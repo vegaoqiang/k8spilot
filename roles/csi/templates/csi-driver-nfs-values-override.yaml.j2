@@ -1,0 +1,29 @@
+driver:
+  name: nfs.csi.k8s.io
+image: 
+  nfs: 
+    repository: "{{ csi_registry_prefix }}/registry.k8s.io/sig-storage/nfsplugin"
+    tag: "{{ nfsplugin_tag }}"
+  csiProvisioner:
+    repository: "{{ csi_registry_prefix }}/registry.k8s.io/sig-storage/csi-provisioner"
+    tag: "{{ csiprovisioner_tag }}"
+  livenessProbe:
+    repository: "{{ csi_registry_prefix }}/registry.k8s.io/sig-storage/livenessprobe"
+    tag: "{{ livenessprobe_tag }}"
+  nodeDriverRegistrar:
+    repository: "{{ csi_registry_prefix }}/registry.k8s.io/sig-storage/csi-node-driver-registrar"
+    tag: "{{ nodedriverregistrar_tag }}"
+  csiResizer:
+    repository: "{{ csi_registry_prefix }}/registry.k8s.io/sig-storage/csi-resizer"
+  csiSnapshotter:
+    repository: "{{ csi_registry_prefix }}/registry.k8s.io/sig-storage/csi-snapshotter"
+  externalSnapshotter:
+    repository: "{{ csi_registry_prefix }}/registry.k8s.io/sig-storage/snapshot-controller"
+storageClass:
+  create: true
+  name: nfs-csi
+  annotations:
+    storageclass.kubernetes.io/is-default-class: "true"
+  parameters:
+    server: "{{ custom_nfs_server_address if custom_nfs_server_address else 'nfs-server.kube-system.svc.cluster.local' }}"
+    share: /
