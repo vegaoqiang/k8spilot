@@ -73,6 +73,13 @@ deploy_kube(){
     inventory_file="local.ini"
   fi
   ansible-playbook -i $(dirname ${BASH_SOURCE[0]})/inventory/${inventory_file} pilot.yml
+  if [ "$?" -eq 0 ]; then
+    printf "\e[32mKubernetes ${kube_version}安装完成. 请登录到Kubernetes集群control-plane节点，执行以下命令查看集群状态:\e[0m\n\n"
+    printf "\e[32mkubectl get nodes -o wide \e[0m\n"
+    printf "\e[32mkubectl get pods -A\e[0m\n\n"
+    printf "\e[32m也可以使用lens等工具连接到Kubernetes进行集群管理。复制以下文件或将其内容添加到lens的kubeconfig中: \e[0m\n\n"
+    printf "\e[32mcat .kubeconfig \e[0m\n\n"
+  fi
 }
 
 case $1 in
