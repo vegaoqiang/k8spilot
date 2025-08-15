@@ -71,7 +71,6 @@ sudo docker run --rm -it \
 
 **开始安装`mycluster`集群**
 ```shell
-# 创建空的inventory.ini文件并挂载到容器中
 sudo docker run --rm -it \
  -v $(pwd):/k8spilot/inventories \
  -v "${HOME}"/.ssh/id_rsa:/root/.ssh/id_rsa \
