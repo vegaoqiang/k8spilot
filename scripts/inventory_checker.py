@@ -7,18 +7,19 @@ import configparser
 import yaml
 
 
-inventory_name = 'inventory.ini'
+inventory_name = 'production.ini'
+env = 'production'
 if os.environ.get('K8SPILOT', None):
   inventory_name = 'local.ini'
+  env = 'local'
 
-inventory_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), os.pardir, 'inventory', inventory_name)
-
-if not os.path.isfile(inventory_path):
-  print("inventory file: %s not exist!" %inventory_path)
-  sys.exit(1)
+inventory_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), os.pardir, 'inventories', env, inventory_name)
 
 
 def validation_inventory(config_path) -> None:
+  if not os.path.isfile(config_path):
+    print("inventory file: %s not exist!" %config_path)
+    sys.exit(1)
   parser = configparser.ConfigParser()
   parser.read(config_path)
   if not parser.has_section('control'): 
@@ -42,7 +43,7 @@ def validation_inventory(config_path) -> None:
 
 
 def get_hostname_prefix() -> tuple:
-  yaml_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), os.pardir, 'inventory', 'group_vars', 'all.yml')
+  yaml_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), os.pardir, 'inventories', env, 'group_vars', 'all.yml')
   with open(yaml_path, 'r', encoding='utf-8') as f:
     data = yaml.safe_load(f)
   return data.get('control_hostname_prefix', 'control'), data.get('worker_hostname_prefix', 'worker')

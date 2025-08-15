@@ -1,6 +1,14 @@
 #!/bin/bash
 
 
+INVENTORY="production.ini"
+ENV="production"
+if [ ! -z "${K8SPILOT}" ]; then
+  INVENTORY="local.ini"
+  ENV="local"
+fi
+
+
 check_requirements(){
   PY_INTERPRETER=""
   if which python3 >/dev/null 2>&1; then
@@ -34,7 +42,7 @@ select_kube_version(){
   printf "\e[32m正在获取kubernetes版本信息\e[0m\n"
   local version_list=$(curl -s --max-time 10 https://dl.k8spilot.icu/kubernetes/kube-versions)
   if [ "$?" -ne 0 ] || [ -z "${version_list}" ]; then
-    local kube_version=$(grep 'kube_version' $(dirname ${BASH_SOURCE[0]})/inventory/group_vars/all.yml|awk '{print $NF}')
+    local kube_version=$(grep 'kube_version' $(dirname ${BASH_SOURCE[0]})/inventories/${ENV}/group_vars/all.yml|awk '{print $NF}')
     read -p "在线读取kubernetes版本列表失败,将安装默认 ${kube_version} 是否安装？[Y/n]:" confirm
     if [ "$(uname)" == "Darwin" ]; then
       local confirm_lower=$(echo "$confirm" | awk '{print tolower($0)}')
@@ -59,20 +67,16 @@ select_kube_version(){
       version=${default_version}
     fi
     if [ "$(uname)" == "Darwin" ]; then
-      sed -i '' "s#kube_version: .*#kube_version: $version#g" $(dirname ${BASH_SOURCE[0]})/inventory/group_vars/all.yml
+      sed -i '' "s#kube_version: .*#kube_version: $version#g" $(dirname ${BASH_SOURCE[0]})/inventories/${ENV}/group_vars/all.yml
     else
-      sed -i "s#kube_version: .*#kube_version: $version#g" $(dirname ${BASH_SOURCE[0]})/inventory/group_vars/all.yml
+      sed -i "s#kube_version: .*#kube_version: $version#g" $(dirname ${BASH_SOURCE[0]})/inventories/${ENV}/group_vars/all.yml
     fi
   fi
 }
 
 deploy_kube(){
   printf "\e[32m开始安装kubernetes集群\e[0m\n"
-  local inventory_file="inventory.ini"
-  if [ ! -z "${K8SPILOT}" ]; then
-    inventory_file="local.ini"
-  fi
-  ansible-playbook -i $(dirname ${BASH_SOURCE[0]})/inventory/${inventory_file} pilot.yml
+  ansible-playbook -i $(dirname ${BASH_SOURCE[0]})/inventories/${ENV}/${INVENTORY} pilot.yml
   if [ "$?" -eq 0 ]; then
     printf "\e[32mKubernetes ${kube_version}安装完成. 请登录到Kubernetes集群control-plane节点，执行以下命令查看集群状态:\e[0m\n\n"
     printf "\e[32mkubectl get nodes -o wide \e[0m\n"
