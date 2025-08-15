@@ -38,15 +38,26 @@ pip3 -r requirments -i https://mirrors.tuna.tsinghua.edu.cn/pypi/web/simple
 
 ## 开始安装Kubernetes
 
-如果你已经准备好了用于安装Kubernetes的虚拟机，只需执行以下操作，即可开始安装Kubernetes集群了
+### 创建集群环境
+k8spilot支持安装和管理多套k8s集群，在开始安装Kubernetes集群之前，首先需要创建集群环境
+
+**创建一个名为`mycluster`的集群**
 ```shell
-./pilot deploy
+./pilot create mycluster
 ```
 
-`pilot deploy`将开始交互式录入被控端信息，包含IP地址、ssh端口、ssh密码，录入完成后安装 `Ctrl + C` 结束录入，并开始安装Kubernetes
+集群创建成功后，可以根据需求修改 `./inventories/mycluster/group_vars/all.yml` 文件自定义Kubernetes集群安装的配置，如组件、网络插件版本等
+
+### 安装集群
+创建好 `mycluster` 集群环境后，如果你已经准备好了用于安装`mycluster`环境Kubernetes集群的虚拟机，只需执行以下操作，即可开始安装环境为 `mycluster` 的Kubernetes集群了。
+```shell
+./pilot deploy mycluster
+```
+
+`pilot deploy mycluster`将开始交互式录入被控端（用于安装集群的主机）信息，包含IP地址、ssh端口、ssh密码，录入完成后安装 `Ctrl + C` 结束录入，并开始安装Kubernetes
 ![example](/docs/images/getting-started.gif)
 
-如果被控端实例数量庞大，交互式手动输入容易出错且效率低下，此时可以手动构建被控端清单，见: [被控端清单](inventory.md)
+如果被控端（用于安装集群的主机）实例数量庞大，交互式手动输入容易出错且效率低下，此时可以手动构建被控端清单，见: [被控端清单](inventory.md)
 
 ##  Docker方式使用k8spilot
 ```shell
