@@ -67,6 +67,7 @@ sudo docker run --rm -it \
  -v $(pwd):/k8spilot/inventories \
  quay.io/k8spilot/k8spilot:v1.0.3 bash ./pilot create mycluster
 ```
+此时如果需要编辑`mycluster`集群安装配置，可使用编辑器打开 `$(pwd)/mycluster/group_vars/all.yml` 文件进行编辑
 
 **开始安装`mycluster`集群**
 ```shell
