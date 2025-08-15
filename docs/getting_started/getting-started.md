@@ -60,12 +60,21 @@ k8spilot支持安装和管理多套k8s集群，在开始安装Kubernetes集群�
 如果被控端（用于安装集群的主机）实例数量庞大，交互式手动输入容易出错且效率低下，此时可以手动构建被控端清单，见: [被控端清单](inventory.md)
 
 ##  Docker方式使用k8spilot
+
+**创建`mycluster`集群环境**
+```shell
+sudo docker run --rm -it \
+ -v $(pwd):/k8spilot/inventories \
+ quay.io/k8spilot/k8spilot:v1.0.3 bash ./pilot create mycluster
+```
+
+**开始安装`mycluster`集群**
 ```shell
 # 创建空的inventory.ini文件并挂载到容器中
-touch $(pwd)/inventory.ini
 sudo docker run --rm -it \
- -v $(pwd)/inventory.ini:/k8spilot/inventory/inventory.ini \
+ -v $(pwd):/k8spilot/inventories \
  -v "${HOME}"/.ssh/id_rsa:/root/.ssh/id_rsa \
  -v /tmp/.ansible_temp:/k8spilot/.ansible_temp \
- quay.io/k8spilot/k8spilot:v1.0.3 bash ./pilot deploy
+ quay.io/k8spilot/k8spilot:v1.0.3 bash ./pilot deploy mycluster
 ```
+
