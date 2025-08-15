@@ -7,15 +7,6 @@ import configparser
 import yaml
 
 
-inventory_name = 'production.ini'
-env = 'production'
-if os.environ.get('K8SPILOT', None):
-  inventory_name = 'local.ini'
-  env = 'local'
-
-inventory_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), os.pardir, 'inventories', env, inventory_name)
-
-
 def validation_inventory(config_path) -> None:
   if not os.path.isfile(config_path):
     print("inventory file: %s not exist!" %config_path)
@@ -107,8 +98,16 @@ def generate_inventory(control_profile: str, worker_profile: list):
 
 
 if __name__ == '__main__':
-  if len(sys.argv) == 1:
+  if len(sys.argv) != 3:
+    print("Usage: python inventory_checker.py [validation|generate] mycluster_name")
     sys.exit(1)
+  if sys.argv[1] not in ['validation', 'generate']:
+    print("Invalid command: %s, must be one of [validation|generate]" % sys.argv[1])
+    sys.exit(1)
+  inventory_name = 'hosts'
+  env = sys.argv[2]
+  inventory_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), os.pardir, 'inventories', env, inventory_name)
+
   if sys.argv[1] == 'validation':
     validation_inventory(config_path=inventory_path)
   if sys.argv[1] == 'generate':
