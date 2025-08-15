@@ -6,6 +6,7 @@
 *.whl
 hosts
 minio.yaml
+local
 local.ini
 ca
 ca-key.pem
