@@ -6,7 +6,7 @@
 编辑hosts需要注意以下事项
 
 **分组**
-hosts文件中必须包含 **`control`** **`worker`** **`etcd`**三个分组，分组名称包含在`[]`中
+hosts文件中必须包含 **`control`** **`worker`** **`etcd`** 三个分组，分组名称包含在`[]`中
 
 + **[control]**: 用于安装Kubernetes Control-Plane的主机放入该分组下，k8spilot现阶段只支持安装单个Control-Plane节点的Kubernetes，所以`[control]`分组下只能有一台主机信息。  
 + **[worker]**: 用于安装Kubernetes Worker节点的主机信息放入该分组下，注意worker节点中应包含安装用于安装Control-Plane的主机信息  
