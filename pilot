@@ -25,9 +25,13 @@ check_inventory(){
   local culster_name=$1
   if [ -z "${culster_name}" ]; then
     printf "\e[31m请指定需要部署的集群名称: $0 deploy mycluster \e[0m\n"
-    if [ $(ls $(dirname ${BASH_SOURCE[0]})/inventories | grep -v 'cluster_template' | wc -l) -ne 0 ]; then
+    if [ $(find $(dirname ${BASH_SOURCE[0]})/inventories -name "all.yml" -o -name "hosts"|grep -v 'cluster_template' | wc -l) -ne 0 ]; then
       printf "当前k8spilot发现以下已经创建好的集群环境:\n"
-      ls $(dirname ${BASH_SOURCE[0]})/inventories| grep -v "cluster_template" | xargs -n 1
+      for cluster in $(ls $(dirname ${BASH_SOURCE[0]})/inventories| grep -v "cluster_template"); do
+        if [ -f "$(dirname ${BASH_SOURCE[0]})/inventories/${cluster}/hosts" ] && [ -f "$(dirname ${BASH_SOURCE[0]})/inventories/${cluster}/group_vars/all.yml" ]; then
+          printf "\e[32m%s\e[0m\n" "${cluster}"
+        fi
+      done
     else
       printf "当前k8spilot没有发现任何集群环境，请先使用 $0 create <cluster_name> 创建集群环境。\n"
     fi
