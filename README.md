@@ -61,7 +61,7 @@ k8spilot可以简单、快速的搭建一个生产级别，纯净的Kuebrnetes�
 | :penguin: **Debian** | Bullseye/Bookworm | :white_check_mark: |
 | :penguin: **Ubuntu** | 22.04/24.04 | :white_check_mark: |
 | :penguin: **Fedore** | 39/40 | :white_check_mark: |
-| :penguin: **openSUSE** | | :white_check_mark: | 
+| :penguin: **openSUSE** | 15.6 | :white_check_mark: | 
 | :penguin: **openEuler** | 2203/2403 | :white_check_mark: |
 | :penguin: **Alibaba Cloud Linux** | 3 | :white_check_mark: |
 | :penguin: **Kylin Linux Advanced Server V10** | 2403/2503 | :white_check_mark: |
