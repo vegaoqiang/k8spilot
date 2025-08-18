@@ -4,7 +4,7 @@ WORKDIR /k8spilot/
 RUN pip3 install -r requirements --no-cache-dir --disable-pip-version-check && \
     rm -rf /root/.cache/pip && \
     apt update && \
-    apt install -y sshpass && \
+    apt install -y sshpass curl && \
     apt autoremove -y && \
     apt clean && \
     rm -fr /var/lib/apt/lists/* /var/cache/apt/archives/* /var/log/* /tmp/*
