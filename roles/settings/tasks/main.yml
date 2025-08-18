@@ -27,7 +27,7 @@
       kubectl taint nodes "{{ item }}" --overwrite=true node.cilium.io/agent-not-ready=:NoSchedule
     fi
   loop: "{{ groups['worker'] }}"
-  when: cni_plugin == 'cilium'
+  when: cni_provider == 'cilium'
 
 - name: Taint All Nodes To NoSchedule
   ansible.builtin.shell: |
@@ -35,7 +35,7 @@
       kubectl taint nodes "{{ item }}" --overwrite=true node.k8spilot.io/network-not-ready=:NoSchedule
     fi
   loop: "{{ groups['worker'] }}"
-  when: cni_plugin == 'calico'
+  when: cni_provider == 'calico'
 
 - name: Label Control Plane
   shell: |
@@ -45,7 +45,7 @@
 
 - name: Install CNI Plugin
   ansible.builtin.include_role:
-    name: "{{ cni_plugin }}"
+    name: "{{ cni_provider }}"
 
 - name: Copy CoreDNS YML To Control
   ansible.builtin.template:

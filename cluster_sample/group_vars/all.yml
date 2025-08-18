@@ -63,7 +63,7 @@ cfssl_version: 1.6.5
 download_location: https://dl.k8spilot.icu
 
 # 网络插件类型，推荐使用cilium, 可选calico
-cni_plugin: cilium
+cni_provider: cilium
 
 # 是否安装nfs网络存储
 enable_csi_nfs: false
