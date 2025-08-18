@@ -114,7 +114,7 @@ create_cluster(){
     printf "\e[31m环境 ${cluster_name} 已存在\e[0m\n"
     exit 1
   fi
-  cp -r $(dirname ${BASH_SOURCE[0]})/inventories/cluster_template $(dirname ${BASH_SOURCE[0]})/inventories/${cluster_name}
+  cp -r $(dirname ${BASH_SOURCE[0]})/cluster_sample $(dirname ${BASH_SOURCE[0]})/inventories/${cluster_name}
   printf "\e[32m${cluster_name} 集群环境已经创建成功，请编辑$(dirname ${BASH_SOURCE[0]})/inventories/${cluster_name}/group_vars/all.yml文件，自定义kubernetes集群安装参数。\e[0m\n"
   printf "\e[32m使用 ./pilot deploy -i ${cluster_name} 命令开始部署 ${cluster_name} kubernetes集群。\e[0m\n"
 }
