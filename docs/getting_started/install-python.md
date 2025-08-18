@@ -23,7 +23,7 @@ sudo dnf install -y python3.11
 
 🐧 openSUSE / SUSE Linux Enterprise（zypper）
 ```shell
-sudo zypper install python3.11
+sudo zypper install python311
 ```
 ## 编译安装
 如果你的操作系统版本比较老旧，使用包管理器无法安装>=3.10的python，可下载Python源码进行编译安装。[点击进入Python官网下载](https://www.python.org/downloads/)
