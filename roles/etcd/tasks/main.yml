@@ -20,11 +20,16 @@
     src: "{{ playbook_dir }}/.ansible_temp/etcd-{{ etcd_version }}-linux-{{ arch_alias }}.tar.gz"
     dest: "/tmp/etcd-{{ etcd_version }}-linux-{{ arch_alias }}.tar.gz"
 
-- name: Add Etcd User
+- name: Create Etcd User
   user:
     name: "{{ etcd_user }}"
     home: "{{ etcd_home }}"
     shell: /sbin/nologin
+    system: yes
+
+- name: Create Etcd Group
+  group:
+    name: "{{ etcd_user }}"
     system: yes
 
 - name: Create Etcd Dirctory
