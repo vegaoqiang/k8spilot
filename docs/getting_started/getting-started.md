@@ -6,7 +6,7 @@
 ### 下载k8spilot
 
 ```shell
-tag=v1.0.3
+tag=v1.0.4
 wget https://github.com/vegaoqiang/k8spilot/archive/refs/tags/${tag}$.tar.gz
 tar xf ${tag}.tar.gz
 cd ${tag}
@@ -65,7 +65,7 @@ k8spilot支持安装和管理多套k8s集群，在开始安装Kubernetes集群�
 ```shell
 sudo docker run --rm -it \
  -v $(pwd):/k8spilot/inventories \
- quay.io/k8spilot/k8spilot:v1.0.3 bash ./pilot create mycluster
+ quay.io/k8spilot/k8spilot:v1.0.4 bash ./pilot create mycluster
 ```
 此时如果需要编辑`mycluster`集群安装配置，可使用编辑器打开 `$(pwd)/mycluster/group_vars/all.yml` 文件进行编辑
 
@@ -75,6 +75,6 @@ sudo docker run --rm -it \
  -v $(pwd):/k8spilot/inventories \
  -v "${HOME}"/.ssh/id_rsa:/root/.ssh/id_rsa \
  -v /tmp/.ansible_temp:/k8spilot/.ansible_temp \
- quay.io/k8spilot/k8spilot:v1.0.3 bash ./pilot deploy mycluster
+ quay.io/k8spilot/k8spilot:v1.0.4 bash ./pilot deploy mycluster
 ```
 
