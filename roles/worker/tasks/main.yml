@@ -89,7 +89,7 @@
     dest: "/usr/local/"
     mode: '0755'
 
-- name: Downloading runc 
+- name: Downloading runc {{ runc_version }}
   amazon.aws.s3_object:
     endpoint_url: "{{ s3_endpoint_url }}"
     access_key: "{{ s3_access_key }}"
@@ -110,7 +110,7 @@
     dest: "/usr/local/sbin/runc"
     mode: '0755'
 
-- name: Downloading CNI plugins
+- name: Downloading CNI plugins {{ cni_version }}
   amazon.aws.s3_object:
     endpoint_url: "{{ s3_endpoint_url }}"
     access_key: "{{ s3_access_key }}"
