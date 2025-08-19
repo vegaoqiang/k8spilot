@@ -7,9 +7,9 @@
 
 ```shell
 tag=v1.0.4
-wget https://github.com/vegaoqiang/k8spilot/archive/refs/tags/${tag}$.tar.gz
-tar xf ${tag}.tar.gz
-cd ${tag}
+wget https://github.com/vegaoqiang/k8spilot/archive/refs/tags/${tag}.tar.gz
+tar -xf ${tag}.tar.gz
+cd k8spilot-${tag##*v}
 ```
 
 ### 安装依赖
