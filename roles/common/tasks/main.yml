@@ -120,13 +120,28 @@
 #       {% if ansible_architecture == 'x86_64' %}amd64{% elif ansible_architecture == 'aarch64' %}arm64{% else %}{{ ansible_architecture }}{% endif %}
 
 
-- name: Create Temp Directory In localhost
+- name: Create Artifacts Directory In localhost
   ansible.builtin.file:
-    path: "{{ playbook_dir }}/.ansible_temp"
+    path: "{{ item }}"
     state: directory
     mode: '0755'
+    recurse: true
   run_once: true
   delegate_to: localhost
+  loop:
+    - "{{ kube_path }}"
+    - "{{ image_path }}"
+    - "{{ component_path }}"
+
+- name: Check Cfssl Tools Exist
+  ansible.builtin.stat:
+    path: "{{ component_path }}/{{ item }}_{{ cfssl_version }}_linux_{{ arch_alias }}"
+  loop:
+    - cfssl
+    - cfssljson
+  delegate_to: localhost
+  run_once: true
+  register: cfssl_stat
   
 - name: Downloading Cfssl v{{ cfssl_version }}
   # ansible.builtin.get_url:
@@ -139,13 +154,12 @@
     access_key: "{{ s3_access_key }}"
     secret_key: "{{ s3_secret_key }}"
     bucket: "{{ s3_bucket_name }}"
-    object: "cfssl/v{{ cfssl_version }}/linux/{{ arch_alias }}/{{ item }}_{{ cfssl_version }}_linux_{{ arch_alias }}"
-    dest: "{{ playbook_dir }}/.ansible_temp/{{ item }}_{{ cfssl_version }}_linux_{{ arch_alias }}"
+    object: "cfssl/v{{ cfssl_version }}/linux/{{ arch_alias }}/{{ item.item }}_{{ cfssl_version }}_linux_{{ arch_alias }}"
+    dest: "{{ component_path }}/{{ item.item }}_{{ cfssl_version }}_linux_{{ arch_alias }}"
     mode: get
     overwrite: different
-  loop:
-    - cfssl
-    - cfssljson
+  loop: "{{ cfssl_stat.results }}"
+  when: not item.stat.exists
   delegate_to: localhost
   run_once: true
   retries: 5
@@ -153,7 +167,7 @@
 
 - name: Copy Cfssl Tool To Remote Host
   ansible.builtin.copy:
-    src: "{{ playbook_dir }}/.ansible_temp/{{ item }}_{{ cfssl_version }}_linux_{{ arch_alias }}"
+    src: "{{ component_path }}/{{ item }}_{{ cfssl_version }}_linux_{{ arch_alias }}"
     dest: "/usr/local/bin/{{ item }}"
     mode: '0755'
   loop:
