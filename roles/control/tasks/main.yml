@@ -12,6 +12,7 @@
     path: "{{ kube_path }}/{{ kube_version }}/linux/{{ arch_alias }}"
     state: directory
     mode: '0755'
+    recurse: true
   delegate_to: localhost
   run_once: true
   when: kube_stat.stat.exists == false
