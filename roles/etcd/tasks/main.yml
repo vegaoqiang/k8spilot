@@ -4,6 +4,8 @@
   ansible.builtin.stat:
     path: "{{ component_path }}/etcd-{{ etcd_version }}-linux-{{ arch_alias }}.tar.gz"
   register: etcd_stat
+  delegate_to: localhost
+  run_once: true
 
 - name: Downloading Etcd {{ etcd_version }}
   amazon.aws.s3_object:
