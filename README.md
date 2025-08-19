@@ -7,7 +7,7 @@ k8spilot可以简单、快速的搭建一个生产级别，纯净的Kuebrnetes�
 + 一键化横向扩容Kubernetes集群节点（开发中）
 + 多集群之间配置独立，可安装和管理多套Kubernetes集群
 + 无docker，采用更现代的containerd作为容器运行时
-+ 采用国内镜像源，决绝无法拉取集群组件镜像问题
++ 采用国内镜像源，可拉取镜像在gcr/docker.io的集群组件镜像
 + 自签集群证书，有效期100年，解决集群证书过期困扰
 + 高性能网络插件cilium，默认开启BPF模式（网络插件可选calico）
 + 支持ARM架构服务器，自适应部署对应架构Kubernetes
