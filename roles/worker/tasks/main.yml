@@ -37,6 +37,13 @@
   - /opt/cni/bin
   - /etc/cni/net.d
 
+- name: Check Kubernetes {{ kube_version }} Worker Components Exist
+  ansible.builtin.stat:
+    path: "{{ kube_path }}/{{ kube_version }}/linux/{{ arch_alias }}/kubelet"
+  delegate_to: localhost
+  run_once: true
+  register: kubelet_stat
+
 - name: Downloading Kubernetes {{ kube_version }} Worker Components
   amazon.aws.s3_object:
     endpoint_url: "{{ s3_endpoint_url }}"
@@ -53,15 +60,22 @@
     - kubelet
   retries: 5
   delay: 10
+  when: not kubelet_stat.stat.exists
 
 - name: Copy Kubernetes Worker Components To Remote Host
   ansible.builtin.copy:
-    src: "{{ playbook_dir }}/.ansible_temp/{{ item }}"
+    src: "{{ kube_path }}/{{ kube_version }}/linux/{{ arch_alias }}/{{ item }}"
     dest: "{{ kubernetes_home }}/bin/{{ item }}"
     mode: '0755'
   loop:
     - kubelet
 
+- name: Check Containerd {{ containerd_version }} Exists
+  ansible.builtin.stat:
+    path: "{{ component_path }}/containerd-{{ containerd_version }}-linux-{{ arch_alias }}.tar.gz"
+  delegate_to: localhost
+  run_once: true
+  register: containerd_stat
 
 - name: Downloading Containerd {{ containerd_version }}
   amazon.aws.s3_object:
@@ -70,17 +84,18 @@
     secret_key: "{{ s3_secret_key }}"
     bucket: "{{ s3_bucket_name }}"
     object: "containerd/v{{ containerd_version }}/linux/{{ arch_alias }}/containerd-{{ containerd_version }}-linux-{{ arch_alias }}.tar.gz"
-    dest: "{{ playbook_dir }}/.ansible_temp/containerd-{{ containerd_version }}-linux-{{ arch_alias }}.tar.gz"
+    dest: "{{ component_path }}/containerd-{{ containerd_version }}-linux-{{ arch_alias }}.tar.gz"
     mode: get
     overwrite: different
   delegate_to: localhost
   run_once: true
   retries: 5
   delay: 10
+  when: not containerd_stat.stat.exists
 
 - name: Copy Containerd Binary To Remote Host
   ansible.builtin.copy:
-    src:  "{{ playbook_dir }}/.ansible_temp/containerd-{{ containerd_version }}-linux-{{ arch_alias }}.tar.gz"
+    src:  "{{ component_path }}/containerd-{{ containerd_version }}-linux-{{ arch_alias }}.tar.gz"
     dest: "/tmp/containerd-{{ containerd_version }}-linux-{{ arch_alias }}.tar.gz"
 
 - name: Install Containerd Binary In Remote Host
@@ -89,6 +104,13 @@
     dest: "/usr/local/"
     mode: '0755'
 
+- name: Check runc {{ runc_version }} Exists
+  ansible.builtin.stat:
+    path: "{{ component_path }}/runc.{{ arch_alias }}"
+  delegate_to: localhost
+  run_once: true
+  register: runc_stat
+
 - name: Downloading runc {{ runc_version }}
   amazon.aws.s3_object:
     endpoint_url: "{{ s3_endpoint_url }}"
@@ -96,19 +118,27 @@
     secret_key: "{{ s3_secret_key }}"
     bucket: "{{ s3_bucket_name }}"
     object: "runc/{{ runc_version }}/linux/{{ arch_alias }}/runc.{{ arch_alias }}"
-    dest: "{{ playbook_dir }}/.ansible_temp/runc"
+    dest: "{{ component_path }}/runc.{{ arch_alias }}"
     mode: get
     overwrite: different
   delegate_to: localhost
   run_once: true
   retries: 5
   delay: 10
+  when: not runc_stat.stat.exists
 
 - name: Copy runc Binary To Remote Host
   ansible.builtin.copy:
-    src: "{{ playbook_dir }}/.ansible_temp/runc"
+    src: "{{ component_path }}/runc.{{ arch_alias }}"
     dest: "/usr/local/sbin/runc"
     mode: '0755'
+
+- name: Check CNI plugins {{ cni_version }} Exists
+  ansible.builtin.stat:
+    path: "{{ component_path }}/cni-plugins-linux-{{ arch_alias }}-{{ cni_version }}.tgz"
+  delegate_to: localhost
+  run_once: true
+  register: cni_plugin_stat
 
 - name: Downloading CNI plugins {{ cni_version }}
   amazon.aws.s3_object:
@@ -117,13 +147,14 @@
     secret_key: "{{ s3_secret_key }}"
     bucket: "{{ s3_bucket_name }}"
     object: "cni-plugins/{{ cni_version }}/linux/{{ arch_alias }}/cni-plugins-linux-{{ arch_alias }}-{{ cni_version }}.tgz"
-    dest: "{{ playbook_dir }}/.ansible_temp/cni-plugins-linux-{{ arch_alias }}-{{ cni_version }}.tgz"
+    dest: "{{ component_path }}/cni-plugins-linux-{{ arch_alias }}-{{ cni_version }}.tgz"
     mode: get
     overwrite: different
   delegate_to: localhost
   run_once: true
   retries: 5
   delay: 10
+  when: not cni_plugin_stat.stat.exists
 
 - name: Copy CNI plugins Binary To Remote Host
   ansible.builtin.copy:
