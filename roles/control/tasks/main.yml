@@ -1,10 +1,20 @@
 ---
 
-# - name: Set Architecture Alias
-#   set_fact:
-#     arch_alias: >-
-#       {% if ansible_architecture == 'x86_64' %}amd64{% elif ansible_architecture == 'aarch64' %}arm64{% else %}{{ ansible_architecture }}{% endif %}
+- name: Check Kubernetes {{ kube_version }} Control Components Exist
+  ansible.builtin.stat:
+    path: "{{ kube_path }}/{{ kube_version }}/linux/{{ arch_alias }}"
+  register: kube_stat
+  delegate_to: localhost
+  run_once: true
 
+- name: Create Kubernetes {{ kube_version }} Directory
+  ansible.builtin.file:
+    path: "{{ kube_path }}/{{ kube_version }}/linux/{{ arch_alias }}"
+    state: directory
+    mode: '0755'
+  delegate_to: localhost
+  run_once: true
+  when: kube_stat.stat.exists == false
 
 - name:  Downloading Kubernetes {{ kube_version }} Control Components
   amazon.aws.s3_object:
@@ -12,25 +22,20 @@
     access_key: "{{ s3_access_key }}"
     secret_key: "{{ s3_secret_key }}"
     bucket: "{{ s3_bucket_name }}"
-    object: "kubernetes/{{ kube_version }}/linux/{{ arch_alias }}/{{ item }}"
-    dest: "{{ playbook_dir }}/.ansible_temp/{{ item }}"
+    object: "kubernetes/{{ kube_version }}/linux/{{ arch_alias }}"
+    dest: "{{ kube_path }}/{{ kube_version }}/linux/{{ arch_alias }}"
     mode: get
     overwrite: different
-  # async: 6000
-  # poll: 100
   delegate_to: localhost
   run_once: true
   retries: 5
   delay: 10
-  loop:
-    - kube-apiserver
-    - kube-controller-manager
-    - kube-scheduler
-    - kubectl
+  when: not kube_stat.stat.exists
 
-- name: Copy Kubernetes Control Components To Remote Host
+
+- name: Copy Kubernetes {{ kube_version }} Control Components To Remote Host
   ansible.builtin.copy:
-    src: "{{ playbook_dir }}/.ansible_temp/{{ item }}"
+    src: "{{ kube_path }}/{{ kube_version }}/linux/{{ arch_alias }}/{{ item }}"
     dest: /usr/local/kubernetes/bin/{{ item }}
     mode: '0755'
   loop:
@@ -38,10 +43,6 @@
     - kube-controller-manager
     - kube-scheduler
     - kubectl
-
-
-# - name: Grant Executable Permissions For Components
-#   ansible.builtin.shell: chmod +x {{ kubernetes_home }}/bin/*
 
 
 - name: Install SSL Certificate
@@ -145,6 +146,20 @@
     ln -sfT {{ kubernetes_home }}/bin/kubectl /usr/local/bin/kubectl
     kubectl apply -f {{ kubernetes_home }}/etc/bootstrap.yaml
 
+- name: Check Helm {{ helm_version }} Binary Exist
+  ansible.builtin.stat:
+    path: "{{ component_path }}/helm-{{ helm_version }}-linux-{{ arch_alias }}.tar.gz"
+  register: helm_stat
+  delegate_to: localhost
+  run_once: true
+
+- name: Create Components Directory
+  ansible.builtin.file:
+    path: "{{ component_path }}"
+    state: directory
+    mode: '0755'
+  delegate_to: localhost
+  run_once: true
 
 - name: Downloading Helm {{ helm_version }}
   amazon.aws.s3_object:
@@ -160,10 +175,11 @@
   run_once: true
   retries: 5
   delay: 10
+  when: helm_stat.stat.exists == false
 
 - name: Copy Helm Binary To Remote Host
   ansible.builtin.copy:
-    src:  "{{ playbook_dir }}/.ansible_temp/helm-{{ helm_version }}-linux-{{ arch_alias }}.tar.gz"
+    src:  "{{ component_path }}/helm-{{ helm_version }}-linux-{{ arch_alias }}.tar.gz"
     dest: "/tmp/helm-{{ helm_version }}-linux-{{ arch_alias }}.tar.gz"
 
 - name: Install Helm Binary On Remote Host
