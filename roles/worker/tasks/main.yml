@@ -70,7 +70,7 @@
   loop:
     - kubelet
 
-- name: Check Containerd {{ containerd_version }} Exists
+- name: Check Containerd {{ containerd_version }} Exist
   ansible.builtin.stat:
     path: "{{ component_path }}/containerd-{{ containerd_version }}-linux-{{ arch_alias }}.tar.gz"
   delegate_to: localhost
@@ -104,7 +104,7 @@
     dest: "/usr/local/"
     mode: '0755'
 
-- name: Check runc {{ runc_version }} Exists
+- name: Check runc {{ runc_version }} Exist
   ansible.builtin.stat:
     path: "{{ component_path }}/runc.{{ arch_alias }}"
   delegate_to: localhost
@@ -133,7 +133,7 @@
     dest: "/usr/local/sbin/runc"
     mode: '0755'
 
-- name: Check CNI plugins {{ cni_version }} Exists
+- name: Check CNI plugins {{ cni_version }} Exist
   ansible.builtin.stat:
     path: "{{ component_path }}/cni-plugins-linux-{{ arch_alias }}-{{ cni_version }}.tgz"
   delegate_to: localhost
