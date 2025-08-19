@@ -1,4 +1,11 @@
 
+- name: Check k8spilot image Exist
+  ansible.builtin.stat:
+    path: "{{ image_path }}/pilot-job-v1.1-{{ arch_alias }}.tar"
+  delegate_to: localhost
+  run_once: true
+  register: k8spilot_image_stat
+
 - name: Downloading k8spilot Job Image
   amazon.aws.s3_object:
     endpoint_url: "{{ s3_endpoint_url }}"
@@ -6,20 +13,21 @@
     secret_key: "{{ s3_secret_key }}"
     bucket: "{{ s3_bucket_name }}"
     object: "pilot/pilot-job-v1.1-{{ arch_alias }}.tar"
-    dest: "{{ playbook_dir }}/.ansible_temp/pilot-job-v1.1-{{ arch_alias }}.tar"
+    dest: "{{ image_path }}/pilot-job-v1.1-{{ arch_alias }}.tar"
     mode: get
     overwrite: different
   delegate_to: localhost
   run_once: true
   retries: 5
   delay: 10
+  when: not k8spilot_image_stat.stat.exists
 
 - name: Copy k8spilot Artifact To Remote Host
   ansible.builtin.copy:
     src: "{{ item.src }}"
     dest: "{{ item.dest }}"
   loop:
-    - { src: "{{ playbook_dir }}/.ansible_temp/pilot-job-v1.1-{{ arch_alias }}.tar", dest:  "/tmp/pilot-job-v1.1-{{ arch_alias }}.tar" }
+    - { src: "{{ image_path }}/pilot-job-v1.1-{{ arch_alias }}.tar", dest:  "/tmp/pilot-job-v1.1-{{ arch_alias }}.tar" }
     - { src: "pilot-job.yaml", dest: "{{ kubernetes_home}}/etc/pilot-job.yaml" }
 
 - name: Import k8spilot Job Image To Containerd
@@ -28,22 +36,30 @@
 - name: Deploy k8spilot Job
   ansible.builtin.shell: kubectl apply -f "{{ kubernetes_home}}/etc/pilot-job.yaml"
 
-- name: Downloading tigera-operator Helm Chart
+- name: Check tigera-operator {{ calico_version }} Helm Chart Exist
+  ansible.builtin.stat:
+    path: "{{ component_path }}/tigera-operator-{{ calico_version }}.tgz"
+  delegate_to: localhost
+  run_once: true
+  register: tigera_stat
+
+- name: Downloading tigera-operator {{ calico_version }} Helm Chart
   amazon.aws.s3_object:
     endpoint_url: "{{ s3_endpoint_url }}"
     access_key: "{{ s3_access_key }}"
     secret_key: "{{ s3_secret_key }}"
     bucket: "{{ s3_bucket_name }}"
     object: "tigera-operator/tigera-operator-{{ calico_version }}.tgz"
-    dest: "{{ playbook_dir }}/.ansible_temp/tigera-operator-{{ calico_version }}.tgz"
+    dest: "{{ component_path }}/tigera-operator-{{ calico_version }}.tgz"
     mode: get
     overwrite: different
   delegate_to: localhost
   run_once: true
+  when: not tigera_stat.stat.exists
 
-- name: Copy tigera-operator Helm Chart To Remote Host
+- name: Copy tigera-operator {{ calico_version }}  Helm Chart To Remote Host
   ansible.builtin.copy:
-    src: "{{ playbook_dir }}/.ansible_temp/tigera-operator-{{ calico_version }}.tgz"
+    src: "{{ component_path }}/tigera-operator-{{ calico_version }}.tgz"
     dest: "/tmp/tigera-operator-{{ calico_version }}.tgz"
 
 - name: Copy tigera-operator Values Override File
@@ -52,6 +68,10 @@
     dest: "/tmp/tigera-operator-values-override.yaml"
     mode: '0644'
 
-- name: Install tigera-operator
+- name: Process Offline Images
+  include_tasks: offline.yml
+  when: method == 'offline'
+
+- name: Install tigera-operator {{ calico_version }} 
   ansible.builtin.shell: |
     helm upgrade --install tigera-operator /tmp/tigera-operator-{{ calico_version }}.tgz --namespace tigera-operator --create-namespace --values /tmp/tigera-operator-values-override.yaml
