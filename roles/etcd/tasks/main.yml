@@ -1,23 +1,12 @@
 ---
 
-- name: Downloading Etcd {{ etcd_version }}
-  amazon.aws.s3_object:
-    endpoint_url: "{{ s3_endpoint_url }}"
-    access_key: "{{ s3_access_key }}"
-    secret_key: "{{ s3_secret_key }}"
-    bucket: "{{ s3_bucket_name }}"
-    object: "etcd/{{ etcd_version }}/linux/{{ arch_alias }}/etcd-{{ etcd_version }}-linux-{{ arch_alias }}.tar.gz"
-    dest: "{{ playbook_dir }}/.ansible_temp/etcd-{{ etcd_version }}-linux-{{ arch_alias }}.tar.gz"
-    mode: get
-    overwrite: different
-  delegate_to: localhost
-  run_once: true
-  retries: 5
-  delay: 10
+- name: Online Deploy Method Is Already Selected
+  ansible.builtin.include_tasks: online.yml
+  when: mothod == 'online'
 
-- name: Copy Etcd Binary To Remote Host
+- name: Copy Etcd {{ etcd_version }} Binary To Remote Host
   ansible.builtin.copy:
-    src: "{{ playbook_dir }}/.ansible_temp/etcd-{{ etcd_version }}-linux-{{ arch_alias }}.tar.gz"
+    src: "{{ component_path }}/etcd-{{ etcd_version }}-linux-{{ arch_alias }}.tar.gz"
     dest: "/tmp/etcd-{{ etcd_version }}-linux-{{ arch_alias }}.tar.gz"
 
 - name: Create Etcd User

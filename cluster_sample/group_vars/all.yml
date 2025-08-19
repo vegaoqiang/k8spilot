@@ -89,3 +89,10 @@ control_hostname_prefix: control
 # 定义kubernetes调度（node）节点主机的主机名前缀，示例：worker，则第一个调度节点主机名为: worker01，第二个调度节点主机名为: worker02，依次类推
 worker_hostname_prefix: worker
 
+# 离线文件存放位置，包含在线安装集群时下载的文件
+image_path: "{{ playbook_dir }}/artifacts/images"
+component_path: "{{ playbook_dir }}/artifacts/components"
+kube_path: "{{ playbook_dir }}/artifacts/kubernetes"
+
+# 安装方法，online表示在线安装，offline表示离线安装
+method: online

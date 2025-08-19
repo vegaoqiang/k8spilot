@@ -1,0 +1,16 @@
+---
+
+- name: Downloading Etcd {{ etcd_version }}
+  amazon.aws.s3_object:
+    endpoint_url: "{{ s3_endpoint_url }}"
+    access_key: "{{ s3_access_key }}"
+    secret_key: "{{ s3_secret_key }}"
+    bucket: "{{ s3_bucket_name }}"
+    object: "etcd/{{ etcd_version }}/linux/{{ arch_alias }}/etcd-{{ etcd_version }}-linux-{{ arch_alias }}.tar.gz"
+    dest: "{{ component_path }}/etcd-{{ etcd_version }}-linux-{{ arch_alias }}.tar.gz"
+    mode: get
+    overwrite: different
+  delegate_to: localhost
+  run_once: true
+  retries: 5
+  delay: 10
