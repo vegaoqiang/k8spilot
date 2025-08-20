@@ -7,6 +7,11 @@
   delegate_to: localhost
   run_once: true
 
+- name: Etcd Offline File Not Exist
+  ansible.builtin.fail:
+    msg: "{{ component_path }}/etcd-{{ etcd_version }}-linux-{{ arch_alias }}.tar.gz not exists"
+  when: not etcd_stat.stat.exists and method == 'offline'
+
 - name: Downloading Etcd {{ etcd_version }}
   amazon.aws.s3_object:
     endpoint_url: "{{ s3_endpoint_url }}"
@@ -21,7 +26,7 @@
   run_once: true
   retries: 5
   delay: 10
-  when: etcd_stat.stat.exists == false
+  when: etcd_stat.stat.exists == false and method == 'online'
 
 - name: Copy Etcd {{ etcd_version }} Binary To Remote Host
   ansible.builtin.copy:
