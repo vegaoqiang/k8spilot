@@ -7,6 +7,11 @@
   delegate_to: localhost
   run_once: true
 
+- name: Kubernetes {{ kube_version }} Offline File Not Exist
+  ansible.builtin.fail:
+    msg: "{{ kube_path }}/{{ kube_version }}/linux/{{ arch_alias }} not exists"
+  when: not kube_stat.stat.exists and method == 'offline'
+
 - name: Create Kubernetes {{ kube_version }} Directory
   ansible.builtin.file:
     path: "{{ kube_path }}/{{ kube_version }}/linux/{{ arch_alias }}"
@@ -15,7 +20,7 @@
     recurse: true
   delegate_to: localhost
   run_once: true
-  when: kube_stat.stat.exists == false
+  when: kube_stat.stat.exists == false and method == 'online'
 
 - name:  Downloading Kubernetes {{ kube_version }} Control Components
   amazon.aws.s3_object:
@@ -31,7 +36,7 @@
   run_once: true
   retries: 5
   delay: 10
-  when: not kube_stat.stat.exists
+  when: not kube_stat.stat.exists and method == 'online'
 
 
 - name: Copy Kubernetes {{ kube_version }} Control Components To Remote Host
