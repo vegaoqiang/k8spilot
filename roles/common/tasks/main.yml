@@ -133,7 +133,7 @@
     - "{{ image_path }}"
     - "{{ component_path }}"
 
-- name: Check Cfssl Tools Exist
+- name: Check Cfssl {{ cfssl_version }} Tools Exist
   ansible.builtin.stat:
     path: "{{ component_path }}/{{ item }}_{{ cfssl_version }}_linux_{{ arch_alias }}"
   loop:
@@ -142,6 +142,12 @@
   delegate_to: localhost
   run_once: true
   register: cfssl_stat
+
+- name: Cfssl {{ cfssl_version }} Offline File Not Exist
+  ansible.builtin.fail:
+    msg: "{{ component_path }}/{{ item.item }}_{{ cfssl_version }}_linux_{{ arch_alias }} not exists"
+  when: not item.stat.exists and method == 'offline'
+  loop: "{{ cfssl_stat.results }}"
   
 - name: Downloading Cfssl v{{ cfssl_version }}
   # ansible.builtin.get_url:
@@ -159,7 +165,7 @@
     mode: get
     overwrite: different
   loop: "{{ cfssl_stat.results }}"
-  when: not item.stat.exists
+  when: not item.stat.exists and method == 'online'
   delegate_to: localhost
   run_once: true
   retries: 5
