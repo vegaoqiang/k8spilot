@@ -7,7 +7,7 @@
   delegate_to: localhost
   run_once: true
 
-- name: Kubernetes {{ kube_version }} Offline File Not Exist
+- name: Kubernetes {{ kube_version }} Control Components Offline File Not Exist
   ansible.builtin.fail:
     msg: "{{ kube_path }}/{{ kube_version }}/linux/{{ arch_alias }} not exists"
   when: not kube_stat.stat.exists and method == 'offline'

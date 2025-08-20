@@ -44,6 +44,11 @@
   run_once: true
   register: kubelet_stat
 
+- name: Kubernetes {{ kube_version }} Worker Components Offline File Not Exist
+  ansible.builtin.fail:
+    msg: "{{ kube_path }}/{{ kube_version }}/linux/{{ arch_alias }}/kubelet not exists"
+  when: not kubelet_stat.stat.exists and method == 'offline'
+
 - name: Downloading Kubernetes {{ kube_version }} Worker Components
   amazon.aws.s3_object:
     endpoint_url: "{{ s3_endpoint_url }}"
@@ -60,7 +65,7 @@
     - kubelet
   retries: 5
   delay: 10
-  when: not kubelet_stat.stat.exists
+  when: not kubelet_stat.stat.exists and method == 'online'
 
 - name: Copy Kubernetes Worker Components To Remote Host
   ansible.builtin.copy:
@@ -77,6 +82,11 @@
   run_once: true
   register: containerd_stat
 
+- name: Containerd {{ containerd_version }} Offline File Not Exist
+  ansible.builtin.fail:
+    msg: "{{ component_path }}/containerd-{{ containerd_version }}-linux-{{ arch_alias }}.tar.gz not exists"
+  when: not containerd_stat.stat.exists and method == 'offline'
+
 - name: Downloading Containerd {{ containerd_version }}
   amazon.aws.s3_object:
     endpoint_url: "{{ s3_endpoint_url }}"
@@ -91,7 +101,7 @@
   run_once: true
   retries: 5
   delay: 10
-  when: not containerd_stat.stat.exists
+  when: not containerd_stat.stat.exists and method == 'online'
 
 - name: Copy Containerd Binary To Remote Host
   ansible.builtin.copy:
@@ -111,6 +121,11 @@
   run_once: true
   register: runc_stat
 
+- name: runc {{ runc_version }} Offline File Not Exist
+  ansible.builtin.fail:
+    msg: "{{ component_path }}/runc.{{ arch_alias }} not exists"
+  when: not runc_stat.stat.exists and method == 'offline'
+
 - name: Downloading runc {{ runc_version }}
   amazon.aws.s3_object:
     endpoint_url: "{{ s3_endpoint_url }}"
@@ -125,7 +140,7 @@
   run_once: true
   retries: 5
   delay: 10
-  when: not runc_stat.stat.exists
+  when: not runc_stat.stat.exists and method == 'online'
 
 - name: Copy runc Binary To Remote Host
   ansible.builtin.copy:
@@ -139,6 +154,11 @@
   delegate_to: localhost
   run_once: true
   register: cni_plugin_stat
+
+- name: CNI plugins {{ cni_version }} Offline File Not Exist
+  ansible.builtin.fail:
+    msg: "{{ component_path }}/cni-plugins-linux-{{ arch_alias }}-{{ cni_version }}.tgz not exists"
+  when: not cni_plugin_stat.stat.exists and method == 'offline'
 
 - name: Downloading CNI plugins {{ cni_version }}
   amazon.aws.s3_object:
@@ -154,7 +174,7 @@
   run_once: true
   retries: 5
   delay: 10
-  when: not cni_plugin_stat.stat.exists
+  when: not cni_plugin_stat.stat.exists and method == 'online'
 
 - name: Copy CNI plugins Binary To Remote Host
   ansible.builtin.copy:
