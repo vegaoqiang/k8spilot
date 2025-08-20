@@ -43,6 +43,11 @@
   run_once: true
   register: tigera_stat
 
+- name: tigera-operator {{ calico_version }} Offline File Not Exist
+  ansible.builtin.fail:
+    msg: "{{ component_path }}/tigera-operator-{{ calico_version }}.tgz not exists"
+  when: not tigera_stat.stat.exists and method == 'offline'
+
 - name: Downloading tigera-operator {{ calico_version }} Helm Chart
   amazon.aws.s3_object:
     endpoint_url: "{{ s3_endpoint_url }}"
@@ -55,7 +60,7 @@
     overwrite: different
   delegate_to: localhost
   run_once: true
-  when: not tigera_stat.stat.exists
+  when: not tigera_stat.stat.exists and method == 'online'
 
 - name: Copy tigera-operator {{ calico_version }}  Helm Chart To Remote Host
   ansible.builtin.copy:
