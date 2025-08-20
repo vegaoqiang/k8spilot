@@ -45,6 +45,19 @@
 #             https: "{{ ingress_nodeport_https }}"
 #         ingressClassResource:
 #           default: true
+
+- name: Check Ingress-Nginx {{ ingress_nginx_version }} Manifest Exists
+  ansible.builtin.stat:
+    path: "{{ component_path }}/ingress-nginx-{{ ingress_nginx_version }}.yaml"
+  delegate_to: localhost
+  run_once: true
+  register: ingress_stat
+
+- name: Ingress-Nginx {{ ingress_nginx_version }} Manifest Not Exist
+  ansible.builtin.fail:
+    msg:  "{{ component_path }}/ingress-nginx-{{ ingress_nginx_version }}.yaml not exists"
+  when: not ingress_stat.stat.exists and method == 'offline'
+
         
 - name: Downloading Ingress-Nginx Manifest
   amazon.aws.s3_object:
@@ -53,19 +66,27 @@
     secret_key: "{{ s3_secret_key }}"
     bucket: "{{ s3_bucket_name }}"
     object: "ingress-nginx/{{ ingress_nginx_version }}/deploy.yaml"
-    dest: "{{ playbook_dir }}/.ansible_temp/ingress-nginx.yaml"
+    dest: "{{ component_path }}/ingress-nginx-{{ ingress_nginx_version }}.yaml"
     mode: get
     overwrite: different
   delegate_to: localhost
   run_once: true
+  when: not ingress_stat.stat.exists and method == 'online'
 
 - name: Copy Ingress-Nginx Manifest To Remote Host
   ansible.builtin.copy:
-    src: "{{ playbook_dir }}/.ansible_temp/ingress-nginx.yaml"
+    src: "{{ component_path }}/ingress-nginx.yaml"
     dest: "/tmp/ingress-nginx.yaml"
+  
+- name: Change Ingress-Nginx Image Registry
+  ansible.builtin.shell: sed -i "s#registry.k8s.io#{{ ingress_registry_prefix }}/registry.k8s.io#g" /tmp/ingress-nginx-{{ ingress_nginx_version }}.yaml
+  when: method == 'online'
+
+- name: Process Offline Image
+  include_tasks: offline.yml
+  when: method == 'offline'
 
 - name: Install Ingress-Nginx Use Manifest
   ansible.builtin.shell: |
-    sed -i "s#registry.k8s.io#{{ ingress_registry_prefix }}/registry.k8s.io#g" /tmp/ingress-nginx.yaml
-    kubectl apply -f /tmp/ingress-nginx.yaml
+    kubectl apply -f /tmp/ingress-nginx-{{ ingress_nginx_version }}.yaml
     kubectl patch ingressclass nginx -p '{"metadata":{"annotations":{"ingressclass.kubernetes.io/is-default-class":"true"}}}'
