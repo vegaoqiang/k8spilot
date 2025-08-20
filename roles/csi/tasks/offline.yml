@@ -1,0 +1,15 @@
+- name: Copy CSI Driver NFS Offline Images To Remote Host
+  ansible.builtin.copy:
+    src: "{{ image_path }}/csi-driver-nfs"
+    dest: "/tmp/"
+    mode: '0644'
+  delegate_to: "{{ item }}"
+  loop: "{{ groups['worker'] }}"
+
+- name: Load CSI Driver NFS Images
+  ansible.builtin.shell: |
+    ls /tmp/csi-driver-nfs/*.tar|xargs -n 1 ctr -n k8s.io i import
+  delegate_to: "{{ item }}"
+  loop: "{{ groups['worker'] }}"
+  async: 3600
+  poll: 0

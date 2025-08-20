@@ -1,5 +1,6 @@
 driver:
   name: nfs.csi.k8s.io
+{% if method != 'offline' %}  
 image: 
   nfs: 
     repository: "{{ csi_registry_prefix }}/registry.k8s.io/sig-storage/nfsplugin"
@@ -19,6 +20,7 @@ image:
     repository: "{{ csi_registry_prefix }}/registry.k8s.io/sig-storage/csi-snapshotter"
   externalSnapshotter:
     repository: "{{ csi_registry_prefix }}/registry.k8s.io/sig-storage/snapshot-controller"
+{% endif %}  
 storageClass:
   create: true
   name: nfs-csi

@@ -18,6 +18,18 @@
 #       acdirmin=0
 #       acdirmax=0
 
+- name: Check CSI Driver NFS {{ csi_nfs_version }} Helm Chart Exists
+  ansible.builtin.stat:
+    path: "{{ component_path }}/csi-driver-nfs-{{ csi_nfs_version }}.tgz"
+  delegate_to: localhost
+  run_once: true
+  register: csi_stat
+
+- name:  CSI Driver NFS {{ csi_nfs_version }} Offline File Not Exist
+  ansible.builtin.fail:
+    msg:  "{{ component_path }}/csi-driver-nfs-{{ csi_nfs_version }}.tgz not exists"
+  when: not csi_stat.stat.exists and method == 'offline'
+
 
 - name: Downloading CSI Driver NFS Helm Chart
   amazon.aws.s3_object:
@@ -26,15 +38,16 @@
     secret_key: "{{ s3_secret_key }}"
     bucket: "{{ s3_bucket_name }}"
     object: "csi-driver-nfs/csi-driver-nfs-{{ csi_nfs_version }}.tgz"
-    dest: "{{ playbook_dir }}/.ansible_temp/csi-driver-nfs-{{ csi_nfs_version }}.tgz"
+    dest: "{{ component_path }}/csi-driver-nfs-{{ csi_nfs_version }}.tgz"
     mode: get
     overwrite: different
   delegate_to: localhost
   run_once: true
+  when: not csi_stat.stat.exists and method != 'offline'
 
 - name: Copy CSI Driver NFS Helm Chart To Remote Host
   ansible.builtin.copy:
-    src: "{{ playbook_dir }}/.ansible_temp/csi-driver-nfs-{{ csi_nfs_version }}.tgz"
+    src: "{{ component_path }}/csi-driver-nfs-{{ csi_nfs_version }}.tgz"
     dest: "/tmp/csi-driver-nfs-{{ csi_nfs_version }}.tgz"
 
 - name: Copy CSI Driver NFS Values Override File
@@ -42,6 +55,10 @@
     src: "csi-driver-nfs-values-override.yaml.j2"
     dest: "/tmp/csi-driver-nfs-values-override.yaml"
     mode: '0644'
+
+- name: Process Offline Image
+  include_tasks: offline.yml
+  when: method == 'offline'
 
 - name: Install CSI Driver NFS
   ansible.builtin.shell: |
