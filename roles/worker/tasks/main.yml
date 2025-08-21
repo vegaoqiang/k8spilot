@@ -56,7 +56,7 @@
     secret_key: "{{ s3_secret_key }}"
     bucket: "{{ s3_bucket_name }}"
     object: "kubernetes/{{ kube_version }}/linux/{{ arch_alias }}/{{ item }}"
-    dest: "{{ playbook_dir }}/.ansible_temp/{{ item }}"
+    dest: "{{ kube_path }}/{{ kube_version }}/linux/{{ arch_alias }}/{{ item }}"
     mode: get
     overwrite: different
   delegate_to: localhost

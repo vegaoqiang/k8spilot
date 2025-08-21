@@ -62,7 +62,7 @@
 - name: Copy Kubernetes {{ kube_version }} Control Components To Remote Host
   ansible.builtin.copy:
     src: "{{ kube_path }}/{{ kube_version }}/linux/{{ arch_alias }}/{{ item }}"
-    dest: /usr/local/kubernetes/bin/{{ item }}
+    dest: "{{ kubernetes_home }}/bin/{{ item }}"
     mode: '0755'
   loop:
     - kube-apiserver
