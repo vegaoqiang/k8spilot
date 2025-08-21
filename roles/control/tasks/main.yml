@@ -1,16 +1,16 @@
 ---
 
-- name: Check Kubernetes {{ kube_version }} Control Components Exist
+- name: Check Kubernetes {{ kube_version }} Directory Exists
   ansible.builtin.stat:
     path: "{{ kube_path }}/{{ kube_version }}/linux/{{ arch_alias }}"
-  register: kube_stat
   delegate_to: localhost
   run_once: true
+  register: kube_dir_stat
 
 - name: Kubernetes {{ kube_version }} Control Components Offline File Not Exist
   ansible.builtin.fail:
     msg: "{{ kube_path }}/{{ kube_version }}/linux/{{ arch_alias }} not exists"
-  when: not kube_stat.stat.exists and method == 'offline'
+  when: not kube_dir_stat.stat.exists and method == 'offline'
 
 - name: Create Kubernetes {{ kube_version }} Directory
   ansible.builtin.file:
@@ -20,7 +20,26 @@
     recurse: true
   delegate_to: localhost
   run_once: true
-  when: kube_stat.stat.exists == false and method == 'online'
+  when: not kube_dir_stat.stat.exists and method == 'online'
+
+- name: Check Kubernetes {{ kube_version }} Control Components Exist
+  ansible.builtin.stat:
+    path: "{{ kube_path }}/{{ kube_version }}/linux/{{ arch_alias }}/{{ item }}"
+  register: kube_stat
+  delegate_to: localhost
+  run_once: true
+  loop:
+    - kube-apiserver
+    - kube-controller-manager
+    - kube-scheduler
+    - kubectl
+
+- name: Kubernetes {{ kube_version }} Control Components Offline File Not Exist
+  ansible.builtin.fail:
+    msg: "{{ kube_path }}/{{ kube_version }}/linux/{{ arch_alias }}/{{ item.item }} not exists"
+  loop: "{{ kube_stat.results }}"
+  when: not item.stat.exists and method == 'offline'
+
 
 - name:  Downloading Kubernetes {{ kube_version }} Control Components
   amazon.aws.s3_object:
@@ -28,15 +47,16 @@
     access_key: "{{ s3_access_key }}"
     secret_key: "{{ s3_secret_key }}"
     bucket: "{{ s3_bucket_name }}"
-    object: "kubernetes/{{ kube_version }}/linux/{{ arch_alias }}"
-    dest: "{{ kube_path }}/{{ kube_version }}/linux/{{ arch_alias }}"
+    object: "kubernetes/{{ kube_version }}/linux/{{ arch_alias }}/{{ item.item }}"
+    dest: "{{ kube_path }}/{{ kube_version }}/linux/{{ arch_alias }}/{{ item.item }}"
     mode: get
     overwrite: different
   delegate_to: localhost
   run_once: true
   retries: 5
   delay: 10
-  when: not kube_stat.stat.exists and method == 'online'
+  loop: "{{ kube_stat.results }}"
+  when: not item.stat.exists and method == 'online'
 
 
 - name: Copy Kubernetes {{ kube_version }} Control Components To Remote Host
@@ -174,7 +194,7 @@
     secret_key: "{{ s3_secret_key }}"
     bucket: "{{ s3_bucket_name }}"
     object: "helm/{{ helm_version }}/linux/{{ arch_alias }}/helm-{{ helm_version }}-linux-{{ arch_alias }}.tar.gz"
-    dest: "{{ playbook_dir }}/.ansible_temp/helm-{{ helm_version }}-linux-{{ arch_alias }}.tar.gz"
+    dest: "{{ component_path }}/helm-{{ helm_version }}-linux-{{ arch_alias }}.tar.gz"
     mode: get
     overwrite: different
   delegate_to: localhost
@@ -183,7 +203,7 @@
   delay: 10
   when: helm_stat.stat.exists == false
 
-- name: Copy Helm Binary To Remote Host
+- name: Copy Helm {{ helm_version }} Binary To Remote Host
   ansible.builtin.copy:
     src:  "{{ component_path }}/helm-{{ helm_version }}-linux-{{ arch_alias }}.tar.gz"
     dest: "/tmp/helm-{{ helm_version }}-linux-{{ arch_alias }}.tar.gz"
