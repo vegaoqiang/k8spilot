@@ -1,9 +1,6 @@
 #!/bin/bash
 
 
-INVENTORY="hosts"
-ENV="production"
-
 check_requirements(){
   PY_INTERPRETER=""
   if which python3 >/dev/null 2>&1; then
@@ -53,12 +50,43 @@ check_inventory(){
   fi
 }
 
-select_kube_version(){
+# 部署方式
+select_install_method(){
   local cluster_name=$1
+  printf "\e[32m请选择${cluster_name}环境Kubernetes安装方式 [默认: 1]:\e[0m\n"
+  printf "\e[32m  1) 在线安装\e[0m\n"
+  printf "\e[32m  2) 离线安装\e[0m\n"
+  while true; do
+    read -p "请输入选项 [1/2]: " method_opt
+    if [ "$method_opt" != "1" ] && [ "$method_opt" != "2" ]; then
+      printf "\e[31m输入了无效选项\e[0m\n"
+    else
+      break
+    fi
+  done
+  if [ "${method_opt}" == "2" ]; then
+    if [ ! -d "$(dirname ${BASH_SOURCE[0]})/artifacts" ] || [ ! -d "$(dirname ${BASH_SOURCE[0]})/artifacts/components" ] || \
+    [ ! -d "$(dirname ${BASH_SOURCE[0]})/artifacts/images" ] || [ ! -d "$(dirname ${BASH_SOURCE[0]})/artifacts/kubernetes" ] || \
+    [ -z "$(ls $(dirname ${BASH_SOURCE[0]})/artifacts/images)" ] || [ -z "$(ls $(dirname ${BASH_SOURCE[0]})/artifacts/kubernetes)" ]; then
+      printf "\e[31m你选择了离线安装，但是缺少离线文件，请下载离线文件\e[0m\n"
+      exit 1
+    fi
+    METHOD='offline'
+  elif [ "${method_opt}" == "1" ]; then
+    METHOD='online'
+  else
+    printf "\e[31m输入了无效选项\e[0m\n"
+    exit 1
+  fi
+}
+
+get_kube_version_online(){
+  local cluster_name=$1
+  VERSION=""
   printf "\e[32m正在获取kubernetes版本信息\e[0m\n"
   local version_list=$(curl -s --max-time 10 https://dl.k8spilot.icu/kubernetes/kube-versions)
   if [ "$?" -ne 0 ] || [ -z "${version_list}" ]; then
-    local kube_version=$(grep 'kube_version' $(dirname ${BASH_SOURCE[0]})/inventories/${cluster_name}/group_vars/all.yml|awk '{print $NF}')
+    local kube_version=$(grep 'kube_version' $(dirname ${BASH_SOURCE[0]})/cluster_sample/group_vars/all.yml|awk '{print $NF}')
     read -p "在线读取kubernetes版本列表失败,将安装默认 ${kube_version} 是否安装？[Y/n]:" confirm
     if [ "$(uname)" == "Darwin" ]; then
       local confirm_lower=$(echo "$confirm" | awk '{print tolower($0)}')
@@ -72,27 +100,69 @@ select_kube_version(){
   else
     printf "\e[32m${version_list}\e[0m\n"
     local default_version=$(echo "${version_list}"|sed -n '$p')
-    read -p "请从以上版本列表选择并输入本次安装的kubernetes版本 [默认:${default_version}]:" version
-    if [ ! -z "${version}" ]; then
-      if ! echo "${version_list}"|grep ${version} > /dev/null; then
-        printf "\e[32m你输入kubernetes版本${version}不在支持列表中\e[0m\n"
+    read -p "请从以上版本列表选择并输入${cluster_name}环境安装的kubernetes版本 [默认:${default_version}]:" VERSION
+    if [ ! -z "${VERSION}" ]; then
+      if ! echo "${version_list}"|grep ${VERSION} > /dev/null; then
+        printf "\e[32m你输入kubernetes版本${VERSION}不在支持列表中\e[0m\n"
         exit 1
       fi
-      printf "\e[32m已选择安装kubernetes $version\e[0m\n"
+      printf "\e[32m已选择安装kubernetes $VERSION\e[0m\n"
     else
-      version=${default_version}
+      VERSION=${default_version}
     fi
-    if [ "$(uname)" == "Darwin" ]; then
-      sed -i '' "s#kube_version: .*#kube_version: $version#g" $(dirname ${BASH_SOURCE[0]})/inventories/${cluster_name}/group_vars/all.yml
-    else
-      sed -i "s#kube_version: .*#kube_version: $version#g" $(dirname ${BASH_SOURCE[0]})/inventories/${cluster_name}/group_vars/all.yml
-    fi
+  fi
+}
+
+get_kube_version_offline(){
+  local cluster_name=$1
+  # 如果artifacts/kubernetes目录下只存在一个离线版本，直接修改配置文件为该版本，如果存在多个离线版本，让用户选择
+  local version_list=$(find artifacts/kubernetes -type d -d 1|awk -F/ '{print $NF}')
+  VERSION=""
+  if [ $(echo "${version_list}"|wc -l) -gt 1 ]; then
+    local default_version=$(echo "${version_list}" | awk 'END{print}')
+    printf "\e[32m${version_list}\e[0m\n"
+    while true; do
+      read -p "发现多个离线版本，请选择输入 [默认 $default_version]:" VERSION
+      if [ -z "${VERSION}" ]; then
+        VERSION=${default_version}
+      fi
+      echo "${version_list}"|grep -w "${VERSION}" >/dev/null 2>&1
+      if [ "$?" -eq 0 ]; then
+        break
+      else
+        printf "\e[31m输入了无效版本，请核对后重新输入。\e[0m\n"
+      fi
+    done
+  elif [ $(echo "${version_list}"|wc -l) -eq 1 ]; then
+    printf "\e[32m已选择${cluster_name}环境安装的 Kubernetes版本为 ${version_list}\e[0m\n"
+    VERSION="${version_list}"
+  else
+    printf "\e[31m未找到离线版本\e[0m\n"
+    exit 1
+  fi
+}
+
+select_kube_version(){
+  local cluster_name=$1
+  printf "\e[32m请选择${cluster_name}环境安装的Kubernetes版本\e[0m\n"
+  if [ "${METHOD}" == "offline" ]; then
+    get_kube_version_offline
+  elif [ "${METHOD}" == "online" ]; then
+    get_kube_version_online "${cluster_name}"
+  else
+    printf "\e[31m未知部署方案\e[0m\n"
+    exit 1
   fi
 }
 
 deploy_kube(){
   local culster_name=$1
-  printf "\e[32m开始安装kubernetes集群\e[0m\n"
+  local kube_version=$(grep 'kube_version' $(dirname ${BASH_SOURCE[0]})/${culster_name}/group_vars/all.yml|awk '{print $NF}')
+  read -p "开始为${culster_name}环境安装Kubernetes ${kube_version}集群, 是否确认[Y/n]:" confirm
+  if [ "${confirm,,}" == 'n' ]; then
+    printf "已取消安装"
+    exit 0
+  fi
   ansible-playbook -i $(dirname ${BASH_SOURCE[0]})/inventories/${culster_name} pilot.yml
   if [ "$?" -eq 0 ]; then
     printf "\e[32mKubernetes ${kube_version}安装完成. 请登录到Kubernetes集群control-plane节点，执行以下命令查看集群状态:\e[0m\n\n"
@@ -118,7 +188,20 @@ create_cluster(){
     printf "\e[31m无法找到 cluster_sample 目录，无法创建集群环境\e[0m\n"
     exit 1
   fi
+
+  select_install_method "${cluster_name}"
+  select_kube_version "${cluster_name}"
+
   cp -r $(dirname ${BASH_SOURCE[0]})/cluster_sample $(dirname ${BASH_SOURCE[0]})/inventories/${cluster_name}
+
+  if [ "$(uname)" == "Darwin" ]; then
+    sed -i '' "s#method: .*#method: $METHOD#g" $(dirname ${BASH_SOURCE[0]})/inventories/${cluster_name}/group_vars/all.yml
+    sed -i '' "s#kube_version: .*#kube_version: $VERSION#g" $(dirname ${BASH_SOURCE[0]})/inventories/${cluster_name}/group_vars/all.yml
+  else
+    sed -i "s#method: .*#method: $METHOD#g" $(dirname ${BASH_SOURCE[0]})/inventories/${cluster_name}/group_vars/all.yml
+    sed -i "s#kube_version: .*#kube_version: $VERSION#g" $(dirname ${BASH_SOURCE[0]})/inventories/${cluster_name}/group_vars/all.yml
+  fi
+
   printf "\e[32m${cluster_name} 集群环境已经创建成功，请编辑$(dirname ${BASH_SOURCE[0]})/inventories/${cluster_name}/group_vars/all.yml文件，自定义kubernetes集群安装参数。\e[0m\n"
   printf "\e[32m使用 ./pilot deploy ${cluster_name} 命令开始部署 ${cluster_name} kubernetes集群。\e[0m\n"
 }
@@ -136,7 +219,6 @@ case $1 in
   deploy)
   check_requirements
   check_inventory $2
-  select_kube_version  $2
   deploy_kube $2
   ;;
   create)
