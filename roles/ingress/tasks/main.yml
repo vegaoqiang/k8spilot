@@ -73,10 +73,10 @@
   run_once: true
   when: not ingress_stat.stat.exists and method == 'online'
 
-- name: Copy Ingress-Nginx Manifest To Remote Host
+- name: Copy Ingress-Nginx {{ ingress_nginx_version }} Manifest To Remote Host
   ansible.builtin.copy:
-    src: "{{ component_path }}/ingress-nginx.yaml"
-    dest: "/tmp/ingress-nginx.yaml"
+    src: "{{ component_path }}/ingress-nginx-{{ ingress_nginx_version }}.yaml"
+    dest: "/tmp/ingress-nginx-{{ ingress_nginx_version }}.yaml"
   
 - name: Change Ingress-Nginx Image Registry
   ansible.builtin.shell: sed -i "s#registry.k8s.io#{{ ingress_registry_prefix }}/registry.k8s.io#g" /tmp/ingress-nginx-{{ ingress_nginx_version }}.yaml
