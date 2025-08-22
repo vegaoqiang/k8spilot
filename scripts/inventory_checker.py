@@ -63,6 +63,7 @@ def profile_inventory() -> tuple:
   try:
     control_profile = get_host_profile(hostname_prefix=control_hostname_prefix, hostname_suffix=1)
   except KeyboardInterrupt:
+    print("录入终止")
     sys.exit(1)
   if not control_profile:
     print("\033[31m必须配置控制节点[master]信息才能正常安装集群\033[0m")
