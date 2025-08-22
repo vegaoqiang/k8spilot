@@ -19,8 +19,8 @@ check_requirements(){
 }
 
 check_inventory(){
-  local culster_name=$1
-  if [ -z "${culster_name}" ]; then
+  local cluster_name=$1
+  if [ -z "${cluster_name}" ]; then
     printf "\e[31m请指定需要部署的集群名称: $0 deploy mycluster \e[0m\n"
     if [ $(find $(dirname ${BASH_SOURCE[0]})/inventories -name "all.yml" -o -name "hosts"|grep -v 'cluster_template' | wc -l) -ne 0 ]; then
       printf "当前k8spilot发现以下已经创建好的集群环境:\n"
@@ -34,15 +34,15 @@ check_inventory(){
     fi
     exit 1
   fi
-  if [ ! -d "$(dirname ${BASH_SOURCE[0]})/inventories/${culster_name}" ] || [ ! -f "$(dirname ${BASH_SOURCE[0]})/inventories/${culster_name}/group_vars/all.yml" ]; then
-    printf "\e[31m集群环境 ${culster_name} 不存在，请先使用 $0 create ${culster_name} 创建集群环境\e[0m\n"
+  if [ ! -d "$(dirname ${BASH_SOURCE[0]})/inventories/${cluster_name}" ] || [ ! -f "$(dirname ${BASH_SOURCE[0]})/inventories/${cluster_name}/group_vars/all.yml" ]; then
+    printf "\e[31m集群环境 ${cluster_name} 不存在，请先使用 $0 create ${cluster_name} 创建集群环境\e[0m\n"
     exit 1
   fi
 
-  ${PY_INTERPRETER} $(dirname ${BASH_SOURCE[0]})/scripts/inventory_checker.py validation ${culster_name}
+  ${PY_INTERPRETER} $(dirname ${BASH_SOURCE[0]})/scripts/inventory_checker.py validation ${cluster_name}
   if [ "$?" -ne 0 ]; then
-    echo "开始初始化 ${culster_name} 集群的inventory"
-    ${PY_INTERPRETER} $(dirname ${BASH_SOURCE[0]})/scripts/inventory_checker.py generate ${culster_name}
+    echo "开始初始化 ${cluster_name} 集群的inventory"
+    ${PY_INTERPRETER} $(dirname ${BASH_SOURCE[0]})/scripts/inventory_checker.py generate ${cluster_name}
     if [ "$?" -ne 0 ]; then
       exit 1
     fi 
@@ -124,6 +124,7 @@ get_kube_version_offline(){
     while true; do
       read -p "发现多个离线版本，请选择输入 [默认 $default_version]:" VERSION
       if [ -z "${VERSION}" ]; then
+        printf "\e[32m已选择${default_version}\e[0m\n"
         VERSION=${default_version}
       fi
       echo "${version_list}"|grep -w "${VERSION}" >/dev/null 2>&1
@@ -156,9 +157,9 @@ select_kube_version(){
 }
 
 deploy_kube(){
-  local culster_name=$1
-  local kube_version=$(grep 'kube_version' $(dirname ${BASH_SOURCE[0]})/inventories/${culster_name}/group_vars/all.yml|awk '{print $NF}')
-  read -p "\e[36m开始为${culster_name}环境安装Kubernetes ${kube_version} 集群, 是否确认安装[Y/n]:\e[0m" confirm
+  local cluster_name=$1
+  local kube_version=$(grep 'kube_version' $(dirname ${BASH_SOURCE[0]})/inventories/${cluster_name}/group_vars/all.yml|awk '{print $NF}')
+  read -p "\e[36m开始为${cluster_name}环境安装Kubernetes ${kube_version} 集群, 是否确认安装[Y/n]:\e[0m" confirm
   if [ "$(uname)" == "Darwin" ]; then
       local confirm_lower=$(echo "$confirm" | awk '{print tolower($0)}')
     else
@@ -168,7 +169,7 @@ deploy_kube(){
     printf "已取消安装\n"
     exit 0
   fi
-  ansible-playbook -i $(dirname ${BASH_SOURCE[0]})/inventories/${culster_name} pilot.yml
+  ansible-playbook -i $(dirname ${BASH_SOURCE[0]})/inventories/${cluster_name} pilot.yml
   if [ "$?" -eq 0 ]; then
     printf "\e[32mKubernetes ${kube_version}安装完成. 请登录到Kubernetes集群control-plane节点，执行以下命令查看集群状态:\e[0m\n\n"
     printf "\e[32mkubectl get nodes -o wide \e[0m\n"
@@ -207,7 +208,21 @@ create_cluster(){
     sed -i "s#kube_version: .*#kube_version: $VERSION#g" $(dirname ${BASH_SOURCE[0]})/inventories/${cluster_name}/group_vars/all.yml
   fi
 
-  printf "\e[32m${cluster_name} 集群环境已经创建成功，请编辑$(dirname ${BASH_SOURCE[0]})/inventories/${cluster_name}/group_vars/all.yml文件，自定义kubernetes集群安装参数。\e[0m\n"
+  read -p "是否初始化${cluster_name}环境集群主机清单？[Y/n]: " confirm
+  local confirm="${confirm:-y}"
+  if [ "$(uname)" == "Darwin" ]; then
+      local confirm_lower=$(echo "$confirm" | awk '{print tolower($0)}')
+    else
+      local confirm_lower=${confirm,,}
+    fi
+  if [ "${confirm_lower}" == 'n' ]; then
+    printf "已跳过初始化主机清单\n"
+  else
+    check_requirements
+    ${PY_INTERPRETER} $(dirname ${BASH_SOURCE[0]})/scripts/inventory_checker.py generate ${cluster_name}
+  fi
+
+  printf "\e[32m${cluster_name} 集群环境已经创建成功，可编辑$(dirname ${BASH_SOURCE[0]})/inventories/${cluster_name}/group_vars/all.yml文件，自定义kubernetes集群安装参数。\e[0m\n"
   printf "\e[32m使用 ./pilot deploy ${cluster_name} 命令开始部署 ${cluster_name} kubernetes集群。\e[0m\n"
 }
 
