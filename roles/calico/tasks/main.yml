@@ -17,6 +17,8 @@
     state: directory
     mode: '0755'
     recurse: true
+  delegate_to: localhost
+  run_once: true
   when: not k8spilot_image_stat.stat.exists and method == 'online'
 
 
