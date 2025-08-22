@@ -16,3 +16,4 @@ config-encode
 .ansible_temp
 .DS_Store
 .kubeconfig
+artifacts
