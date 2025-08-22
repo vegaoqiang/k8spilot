@@ -157,10 +157,15 @@ select_kube_version(){
 
 deploy_kube(){
   local culster_name=$1
-  local kube_version=$(grep 'kube_version' $(dirname ${BASH_SOURCE[0]})/${culster_name}/group_vars/all.yml|awk '{print $NF}')
-  read -p "开始为${culster_name}环境安装Kubernetes ${kube_version}集群, 是否确认[Y/n]:" confirm
-  if [ "${confirm,,}" == 'n' ]; then
-    printf "已取消安装"
+  local kube_version=$(grep 'kube_version' $(dirname ${BASH_SOURCE[0]})/inventories/${culster_name}/group_vars/all.yml|awk '{print $NF}')
+  read -p "\e[36m开始为${culster_name}环境安装Kubernetes ${kube_version} 集群, 是否确认安装[Y/n]:\e[0m" confirm
+  if [ "$(uname)" == "Darwin" ]; then
+      local confirm_lower=$(echo "$confirm" | awk '{print tolower($0)}')
+    else
+      local confirm_lower=${confirm,,}
+    fi
+  if [ "${confirm_lower}" == 'n' ]; then
+    printf "已取消安装\n"
     exit 0
   fi
   ansible-playbook -i $(dirname ${BASH_SOURCE[0]})/inventories/${culster_name} pilot.yml
