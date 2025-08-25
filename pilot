@@ -57,7 +57,12 @@ select_install_method(){
   printf "\e[36m  1) 在线安装\e[0m\n"
   printf "\e[36m  2) 离线安装\e[0m\n"
   while true; do
-    read -p "请输入选项 [1/2]: " method_opt
+    if [ "$(uname)" == "Darwin" ]; then
+      printf "\e[36m请输入选项 [1/2]: \e[0m\c"
+      read method_opt
+    else
+      read -p "\e[36m请输入选项 [1/2]: \e[0m" method_opt
+    fi
     if [ "$method_opt" != "1" ] && [ "$method_opt" != "2" ]; then
       printf "\e[31m输入了无效选项\e[0m\n"
     else
@@ -87,7 +92,13 @@ get_kube_version_online(){
   local version_list=$(curl -s --max-time 10 https://dl.k8spilot.icu/kubernetes/kube-versions)
   if [ "$?" -ne 0 ] || [ -z "${version_list}" ]; then
     local kube_version=$(grep 'kube_version' $(dirname ${BASH_SOURCE[0]})/cluster_sample/group_vars/all.yml|awk '{print $NF}')
-    read -p "在线读取kubernetes版本列表失败,将安装默认 ${kube_version} 是否安装？[Y/n]:" confirm
+    if [ "$(uname)" == "Darwin" ]; then
+      printf "\e[36m在线读取kubernetes版本列表失败,将安装默认 ${kube_version} 是否安装？[Y/n]:\e[0m\c"
+      read confirm
+    else
+      read -p "\e[36m在线读取kubernetes版本列表失败,将安装默认 ${kube_version} 是否安装？[Y/n]:\e[0m" confirm
+    fi
+    local confirm="${confirm:-y}"
     if [ "$(uname)" == "Darwin" ]; then
       local confirm_lower=$(echo "$confirm" | awk '{print tolower($0)}')
     else
@@ -100,7 +111,13 @@ get_kube_version_online(){
   else
     printf "\e[36m${version_list}\e[0m\n"
     local default_version=$(echo "${version_list}"|sed -n '$p')
-    read -p "请从以上版本列表选择并输入${cluster_name}环境安装的kubernetes版本 [默认:${default_version}]:" VERSION
+    
+    if [ "$(uname)" == "Darwin" ]; then
+      printf "\e[36m请从以上版本列表选择并输入${cluster_name}环境安装的kubernetes版本 [默认:${default_version}]:\e[0m\c"
+      read VERSION
+    else
+      read -p "\e[36m请从以上版本列表选择并输入${cluster_name}环境安装的kubernetes版本 [默认:${default_version}]:\e[0m" VERSION
+    fi
     if [ ! -z "${VERSION}" ]; then
       if ! echo "${version_list}"|grep ${VERSION} > /dev/null; then
         printf "\e[31m你输入kubernetes版本${VERSION}不在支持列表中\e[0m\n"
@@ -122,7 +139,12 @@ get_kube_version_offline(){
     local default_version=$(echo "${version_list}" | awk 'END{print}')
     printf "\e[36m${version_list}\e[0m\n"
     while true; do
-      read -p "发现多个离线版本，请选择输入 [默认 $default_version]:" VERSION
+      if [ "$(uname)" == "Darwin" ]; then
+        printf "\e[36m发现多个离线版本，请选择输入 [默认 $default_version]:\e[0m\c"
+        read VERSION
+      else
+        read -p "\e[36m发现多个离线版本，请选择输入 [默认 $default_version]:\e[0m" VERSION
+      fi
       if [ -z "${VERSION}" ]; then
         printf "\e[32m已选择${default_version}\e[0m\n"
         VERSION=${default_version}
@@ -159,7 +181,13 @@ select_kube_version(){
 deploy_kube(){
   local cluster_name=$1
   local kube_version=$(grep 'kube_version' $(dirname ${BASH_SOURCE[0]})/inventories/${cluster_name}/group_vars/all.yml|awk '{print $NF}')
-  read -p "\e[36m开始为${cluster_name}环境安装Kubernetes ${kube_version} 集群, 是否确认安装[Y/n]:\e[0m" confirm
+  if [ "$(uname)" == "Darwin" ]; then
+    printf "\e[36m开始为${cluster_name}环境安装Kubernetes ${kube_version} 集群, 是否确认安装[Y/n]:\e[0m\c"
+    read confirm
+  else
+    read -p "\e[36m开始为${cluster_name}环境安装Kubernetes ${kube_version} 集群, 是否确认安装[Y/n]:\e[0m" confirm
+  fi
+  local confirm="${confirm:-y}"
   if [ "$(uname)" == "Darwin" ]; then
       local confirm_lower=$(echo "$confirm" | awk '{print tolower($0)}')
     else
@@ -209,7 +237,12 @@ create_cluster(){
   fi
   
   printf "\e[36m是否初始化${cluster_name}环境集群主机清单？主机清单也可以在稍后开始安装集群后初始化，还可以在开始安装集群之前手动编辑主机清单文件。\e[0m\n"
-  read -p "是否立即初始化${cluster_name}环境集群主机清单？[Y/n]: " confirm
+  if [ "$(uname)" == "Darwin" ]; then
+    printf "\e[36m是否立即初始化${cluster_name}环境集群主机清单？[Y/n]: \e[0m\c"
+    read confirm
+  else
+    read -p "\e[36m是否立即初始化${cluster_name}环境集群主机清单？[Y/n]: \e[0m" confirm
+  fi
   local confirm="${confirm:-y}"
   if [ "$(uname)" == "Darwin" ]; then
     local confirm_lower=$(echo "$confirm" | awk '{print tolower($0)}')
