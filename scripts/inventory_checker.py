@@ -59,11 +59,11 @@ def get_host_profile(hostname_prefix: str, hostname_suffix: int) -> str:
 
 def profile_inventory() -> tuple:
   control_hostname_prefix, worker_hostname_prefix = get_hostname_prefix()
-  print("\033[32m请根据提示录入用于安装集群的主机信息，录入完成后请按: Ctrl + C 退出录入\033[0m")
+  print("\033[36m请根据提示录入用于安装集群的主机信息，录入完成后请按: Ctrl + C 退出录入\033[0m")
   try:
     control_profile = get_host_profile(hostname_prefix=control_hostname_prefix, hostname_suffix=1)
   except KeyboardInterrupt:
-    print("录入终止")
+    print("\033[32m录入终止\033[0m")
     sys.exit(1)
   if not control_profile:
     print("\033[31m必须配置控制节点[master]信息才能正常安装集群\033[0m")
@@ -80,7 +80,7 @@ def profile_inventory() -> tuple:
       if len(worker_profile_bucket) < 2:
         print("\033[31mworker[node]节点数量必须大于等于2才能正常安装集群\033[0m")
         sys.exit(1)
-      print("录入终止")
+      print("\033[32m录入终止\033[0m")
       break
   return control_profile, worker_profile_bucket
 

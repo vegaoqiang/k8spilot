@@ -8,8 +8,8 @@ check_requirements(){
   elif which python >/dev/null 2>&1; then
     PY_INTERPRETER=$(which python)
   else
-    echo "Can not found avaliable python interpreter in system"
-    echo "You may install python >= 3.10 by manual."
+    printf "\e[31mCan not found avaliable python interpreter in system\e[0m\n"
+    printf "\e[31mYou may install python >= 3.10 by manual.\e[0m\n"
     exit 1
   fi
   ${PY_INTERPRETER} $(dirname ${BASH_SOURCE[0]})/scripts/py_checker.py
@@ -23,14 +23,14 @@ check_inventory(){
   if [ -z "${cluster_name}" ]; then
     printf "\e[31m请指定需要部署的集群名称: $0 deploy mycluster \e[0m\n"
     if [ $(find $(dirname ${BASH_SOURCE[0]})/inventories -name "all.yml" -o -name "hosts"|grep -v 'cluster_template' | wc -l) -ne 0 ]; then
-      printf "当前k8spilot发现以下已经创建好的集群环境:\n"
+      printf "\e[36m当前k8spilot发现以下已经创建好的集群环境:\e[0m\n"
       for cluster in $(ls $(dirname ${BASH_SOURCE[0]})/inventories| grep -v "cluster_template"); do
         if [ -f "$(dirname ${BASH_SOURCE[0]})/inventories/${cluster}/hosts" ] && [ -f "$(dirname ${BASH_SOURCE[0]})/inventories/${cluster}/group_vars/all.yml" ]; then
-          printf "\e[32m%s\e[0m\n" "${cluster}"
+          printf "\e[36m%s\e[0m\n" "${cluster}"
         fi
       done
     else
-      printf "当前k8spilot没有发现任何集群环境，请先使用 $0 create <cluster_name> 创建集群环境。\n"
+      printf "\e[31m当前k8spilot没有发现任何集群环境，请先使用 $0 create <cluster_name> 创建集群环境。\e[0m\n"
     fi
     exit 1
   fi
@@ -41,7 +41,7 @@ check_inventory(){
 
   ${PY_INTERPRETER} $(dirname ${BASH_SOURCE[0]})/scripts/inventory_checker.py validation ${cluster_name}
   if [ "$?" -ne 0 ]; then
-    echo "开始初始化 ${cluster_name} 集群的inventory"
+    printf "\e[36m开始初始化 ${cluster_name} 集群的inventory\e[0m\n"
     ${PY_INTERPRETER} $(dirname ${BASH_SOURCE[0]})/scripts/inventory_checker.py generate ${cluster_name}
     if [ "$?" -ne 0 ]; then
       exit 1
@@ -53,9 +53,9 @@ check_inventory(){
 # 部署方式
 select_install_method(){
   local cluster_name=$1
-  printf "\e[32m请选择${cluster_name}环境Kubernetes安装方式 [默认: 1]:\e[0m\n"
-  printf "\e[32m  1) 在线安装\e[0m\n"
-  printf "\e[32m  2) 离线安装\e[0m\n"
+  printf "\e[36m请选择${cluster_name}环境Kubernetes安装方式 [默认: 1]:\e[0m\n"
+  printf "\e[36m  1) 在线安装\e[0m\n"
+  printf "\e[36m  2) 离线安装\e[0m\n"
   while true; do
     read -p "请输入选项 [1/2]: " method_opt
     if [ "$method_opt" != "1" ] && [ "$method_opt" != "2" ]; then
@@ -83,7 +83,7 @@ select_install_method(){
 get_kube_version_online(){
   local cluster_name=$1
   VERSION=""
-  printf "\e[32m正在获取kubernetes版本信息\e[0m\n"
+  printf "\e[36m正在获取kubernetes版本信息\e[0m\n"
   local version_list=$(curl -s --max-time 10 https://dl.k8spilot.icu/kubernetes/kube-versions)
   if [ "$?" -ne 0 ] || [ -z "${version_list}" ]; then
     local kube_version=$(grep 'kube_version' $(dirname ${BASH_SOURCE[0]})/cluster_sample/group_vars/all.yml|awk '{print $NF}')
@@ -94,16 +94,16 @@ get_kube_version_online(){
       local confirm_lower=${confirm,,}
     fi
     if [ "${confirm_lower}" == "n" ]; then
-      echo "已取消安装"
+      printf "\e[32m已取消安装\e[0m\n"
       exit 0
     fi
   else
-    printf "\e[32m${version_list}\e[0m\n"
+    printf "\e[36m${version_list}\e[0m\n"
     local default_version=$(echo "${version_list}"|sed -n '$p')
     read -p "请从以上版本列表选择并输入${cluster_name}环境安装的kubernetes版本 [默认:${default_version}]:" VERSION
     if [ ! -z "${VERSION}" ]; then
       if ! echo "${version_list}"|grep ${VERSION} > /dev/null; then
-        printf "\e[32m你输入kubernetes版本${VERSION}不在支持列表中\e[0m\n"
+        printf "\e[31m你输入kubernetes版本${VERSION}不在支持列表中\e[0m\n"
         exit 1
       fi
       printf "\e[32m已选择安装kubernetes $VERSION\e[0m\n"
@@ -120,7 +120,7 @@ get_kube_version_offline(){
   VERSION=""
   if [ $(echo "${version_list}"|wc -l) -gt 1 ]; then
     local default_version=$(echo "${version_list}" | awk 'END{print}')
-    printf "\e[32m${version_list}\e[0m\n"
+    printf "\e[36m${version_list}\e[0m\n"
     while true; do
       read -p "发现多个离线版本，请选择输入 [默认 $default_version]:" VERSION
       if [ -z "${VERSION}" ]; then
@@ -145,7 +145,7 @@ get_kube_version_offline(){
 
 select_kube_version(){
   local cluster_name=$1
-  printf "\e[32m请选择${cluster_name}环境安装的Kubernetes版本\e[0m\n"
+  printf "\e[36m请选择${cluster_name}环境安装的Kubernetes版本\e[0m\n"
   if [ "${METHOD}" == "offline" ]; then
     get_kube_version_offline
   elif [ "${METHOD}" == "online" ]; then
@@ -166,7 +166,7 @@ deploy_kube(){
       local confirm_lower=${confirm,,}
     fi
   if [ "${confirm_lower}" == 'n' ]; then
-    printf "已取消安装\n"
+    printf "\e[32m已取消安装\e[0m\n"
     exit 0
   fi
   ansible-playbook -i $(dirname ${BASH_SOURCE[0]})/inventories/${cluster_name} pilot.yml
@@ -207,16 +207,17 @@ create_cluster(){
     sed -i "s#method: .*#method: $METHOD#g" $(dirname ${BASH_SOURCE[0]})/inventories/${cluster_name}/group_vars/all.yml
     sed -i "s#kube_version: .*#kube_version: $VERSION#g" $(dirname ${BASH_SOURCE[0]})/inventories/${cluster_name}/group_vars/all.yml
   fi
-
-  read -p "是否初始化${cluster_name}环境集群主机清单？[Y/n]: " confirm
+  
+  printf "\e[36m是否初始化${cluster_name}环境集群主机清单？主机清单也可以在稍后开始安装集群后初始化，还可以在开始安装集群之前手动编辑主机清单文件。\e[0m\n"
+  read -p "是否立即初始化${cluster_name}环境集群主机清单？[Y/n]: " confirm
   local confirm="${confirm:-y}"
   if [ "$(uname)" == "Darwin" ]; then
-      local confirm_lower=$(echo "$confirm" | awk '{print tolower($0)}')
-    else
-      local confirm_lower=${confirm,,}
-    fi
+    local confirm_lower=$(echo "$confirm" | awk '{print tolower($0)}')
+  else
+    local confirm_lower=${confirm,,}
+  fi
   if [ "${confirm_lower}" == 'n' ]; then
-    printf "已跳过初始化主机清单\n"
+    printf "\e[32m已跳过初始化主机清单\e[0m\n"
   else
     check_requirements
     ${PY_INTERPRETER} $(dirname ${BASH_SOURCE[0]})/scripts/inventory_checker.py generate ${cluster_name}
