@@ -50,6 +50,37 @@ check_inventory(){
   fi
 }
 
+get_confirm_text(){
+  local prompt_text=$1
+  local defalut_char=$2
+  if [ "${defalut_char}" == "y" ]; then
+    prompt_text="${prompt_text} [Y/n]: "
+  elif [ "${defalut_char}" == "n" ]; then
+    prompt_text="${prompt_text} [y/N]: "
+  else
+    prompt_text="${prompt_text} ${defalut_char}: "
+  fi
+  if [ "$(uname)" == "Darwin" ]; then
+    printf "\e[36m${prompt_text}\e[0m\c"
+    read confirm
+  else
+    read -p "\e[36m${prompt_text}\e[0m" confirm
+  fi
+  if [ "${defalut_char}" == "y" ]; then
+    local confirm="${confirm:-y}"
+  elif [ "${defalut_char}" == "n" ]; then
+    local confirm="${confirm:-n}"
+  else
+    local confirm=""
+  fi
+  if [ "$(uname)" == "Darwin" ]; then
+    local confirm_lower=$(echo "$confirm" | awk '{print tolower($0)}')
+  else
+    local confirm_lower=${confirm,,}
+  fi
+  printf "confirm_lower"
+}
+
 # 部署方式
 select_install_method(){
   local cluster_name=$1
@@ -92,18 +123,7 @@ get_kube_version_online(){
   local version_list=$(curl -s --max-time 10 https://dl.k8spilot.icu/kubernetes/kube-versions)
   if [ "$?" -ne 0 ] || [ -z "${version_list}" ]; then
     local kube_version=$(grep 'kube_version' $(dirname ${BASH_SOURCE[0]})/cluster_sample/group_vars/all.yml|awk '{print $NF}')
-    if [ "$(uname)" == "Darwin" ]; then
-      printf "\e[36m在线读取kubernetes版本列表失败,将安装默认 ${kube_version} 是否安装？[Y/n]:\e[0m\c"
-      read confirm
-    else
-      read -p "\e[36m在线读取kubernetes版本列表失败,将安装默认 ${kube_version} 是否安装？[Y/n]:\e[0m" confirm
-    fi
-    local confirm="${confirm:-y}"
-    if [ "$(uname)" == "Darwin" ]; then
-      local confirm_lower=$(echo "$confirm" | awk '{print tolower($0)}')
-    else
-      local confirm_lower=${confirm,,}
-    fi
+    local confirm_lower=$(get_confirm_text "在线读取kubernetes版本列表失败,将安装默认 ${kube_version} 是否安装？" "y")
     if [ "${confirm_lower}" == "n" ]; then
       printf "\e[32m已取消安装\e[0m\n"
       exit 0
@@ -181,18 +201,7 @@ select_kube_version(){
 deploy_kube(){
   local cluster_name=$1
   local kube_version=$(grep 'kube_version' $(dirname ${BASH_SOURCE[0]})/inventories/${cluster_name}/group_vars/all.yml|awk '{print $NF}')
-  if [ "$(uname)" == "Darwin" ]; then
-    printf "\e[36m开始为${cluster_name}环境安装Kubernetes ${kube_version} 集群, 是否确认安装[Y/n]:\e[0m\c"
-    read confirm
-  else
-    read -p "\e[36m开始为${cluster_name}环境安装Kubernetes ${kube_version} 集群, 是否确认安装[Y/n]:\e[0m" confirm
-  fi
-  local confirm="${confirm:-y}"
-  if [ "$(uname)" == "Darwin" ]; then
-      local confirm_lower=$(echo "$confirm" | awk '{print tolower($0)}')
-    else
-      local confirm_lower=${confirm,,}
-    fi
+  local confirm_lower=$(get_confirm_text "开始为${cluster_name}环境安装Kubernetes ${kube_version} 集群, 是否确认安装" "y")
   if [ "${confirm_lower}" == 'n' ]; then
     printf "\e[32m已取消安装\e[0m\n"
     exit 0
@@ -237,18 +246,7 @@ create_cluster(){
   fi
   
   printf "\e[36m是否初始化${cluster_name}环境集群主机清单？主机清单也可以在稍后开始安装集群后初始化，还可以在开始安装集群之前手动编辑主机清单文件。\e[0m\n"
-  if [ "$(uname)" == "Darwin" ]; then
-    printf "\e[36m是否立即初始化${cluster_name}环境集群主机清单？[Y/n]: \e[0m\c"
-    read confirm
-  else
-    read -p "\e[36m是否立即初始化${cluster_name}环境集群主机清单？[Y/n]: \e[0m" confirm
-  fi
-  local confirm="${confirm:-y}"
-  if [ "$(uname)" == "Darwin" ]; then
-    local confirm_lower=$(echo "$confirm" | awk '{print tolower($0)}')
-  else
-    local confirm_lower=${confirm,,}
-  fi
+  local confirm_lower=$(get_confirm_text "是否立即初始化${cluster_name}环境集群主机清单？" "y")
   if [ "${confirm_lower}" == 'n' ]; then
     printf "\e[32m已跳过初始化主机清单\e[0m\n"
   else
