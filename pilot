@@ -148,21 +148,20 @@ get_kube_version_offline(){
       if [ -z "${VERSION}" ]; then
         VERSION=${default_version}
       fi
-      echo "${version_list}"|grep -w "${VERSION}" >/dev/null 2>&1
+      echo "${version_list}"|grep -x "${VERSION}" >/dev/null 2>&1
       if [ "$?" -eq 0 ]; then
         break
       else
         printf "\e[31m输入了无效版本，请核对后重新输入。\e[0m\n"
       fi
     done
-    printf "\e[32m已选择${VERSION}\e[0m\n"
   elif [ $(echo "${version_list}"|wc -l) -eq 1 ]; then
-    printf "\e[32m已选择${cluster_name}环境安装的 Kubernetes版本为 ${version_list}\e[0m\n"
     VERSION="${version_list}"
   else
     printf "\e[31m未找到离线版本\e[0m\n"
     exit 1
   fi
+  printf "\e[32m已选择${cluster_name}环境安装的 Kubernetes版本为 ${VERSION}\e[0m\n"
 }
 
 select_kube_version(){
