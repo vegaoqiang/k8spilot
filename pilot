@@ -41,7 +41,7 @@ check_inventory(){
 
   ${PY_INTERPRETER} $(dirname ${BASH_SOURCE[0]})/scripts/inventory_checker.py validation ${cluster_name}
   if [ "$?" -ne 0 ]; then
-    printf "\e[36m开始初始化 ${cluster_name} 集群的inventory\e[0m\n"
+    printf "\e[32m开始初始化 ${cluster_name} 集群的inventory\e[0m\n"
     ${PY_INTERPRETER} $(dirname ${BASH_SOURCE[0]})/scripts/inventory_checker.py generate ${cluster_name}
     if [ "$?" -ne 0 ]; then
       exit 1
@@ -61,7 +61,7 @@ get_confirm_text(){
     prompt_text="${prompt_text} ${defalut_char}: "
   fi
   if [ "$(uname)" == "Darwin" ]; then
-    printf "\e[36m${prompt_text}\e[0m\c"
+    printf "\e[36m${prompt_text}\e[0m"
     read confirm
   else
     read -p "\e[36m${prompt_text}\e[0m" confirm
@@ -89,7 +89,7 @@ select_install_method(){
   printf "\e[36m  2) 离线安装\e[0m\n"
   while true; do
     if [ "$(uname)" == "Darwin" ]; then
-      printf "\e[36m请输入选项 [1/2]: \e[0m\c"
+      printf "\e[36m请输入选项 [1/2]: \e[0m"
       read method_opt
     else
       read -p "\e[36m请输入选项 [1/2]: \e[0m" method_opt
@@ -133,7 +133,7 @@ get_kube_version_online(){
     local default_version=$(echo "${version_list}"|sed -n '$p')
     
     if [ "$(uname)" == "Darwin" ]; then
-      printf "\e[36m请从以上版本列表选择并输入${cluster_name}环境安装的kubernetes版本 [默认:${default_version}]:\e[0m\c"
+      printf "\e[36m请从以上版本列表选择并输入${cluster_name}环境安装的kubernetes版本 [默认:${default_version}]:\e[0m"
       read VERSION
     else
       read -p "\e[36m请从以上版本列表选择并输入${cluster_name}环境安装的kubernetes版本 [默认:${default_version}]:\e[0m" VERSION
@@ -160,13 +160,12 @@ get_kube_version_offline(){
     printf "\e[36m${version_list}\e[0m\n"
     while true; do
       if [ "$(uname)" == "Darwin" ]; then
-        printf "\e[36m发现多个离线版本，请选择输入 [默认 $default_version]:\e[0m\c"
+        printf "\e[36m发现多个离线版本，请手动输入 [默认 $default_version]:\e[0m"
         read VERSION
       else
-        read -p "\e[36m发现多个离线版本，请选择输入 [默认 $default_version]:\e[0m" VERSION
+        read -p "\e[36m发现多个离线版本，请手动输入 [默认 $default_version]:\e[0m" VERSION
       fi
       if [ -z "${VERSION}" ]; then
-        printf "\e[32m已选择${default_version}\e[0m\n"
         VERSION=${default_version}
       fi
       echo "${version_list}"|grep -w "${VERSION}" >/dev/null 2>&1
@@ -176,6 +175,7 @@ get_kube_version_offline(){
         printf "\e[31m输入了无效版本，请核对后重新输入。\e[0m\n"
       fi
     done
+    printf "\e[32m已选择${VERSION}\e[0m\n"
   elif [ $(echo "${version_list}"|wc -l) -eq 1 ]; then
     printf "\e[32m已选择${cluster_name}环境安装的 Kubernetes版本为 ${version_list}\e[0m\n"
     VERSION="${version_list}"

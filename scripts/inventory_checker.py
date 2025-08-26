@@ -59,7 +59,7 @@ def get_host_profile(hostname_prefix: str, hostname_suffix: int) -> str:
 
 def profile_inventory() -> tuple:
   control_hostname_prefix, worker_hostname_prefix = get_hostname_prefix()
-  print("\033[36m请根据提示录入用于安装集群的主机信息，录入完成后请按: Ctrl + C 退出录入\033[0m")
+  print("\033[32m请根据提示录入用于安装集群的主机信息，录入完成后请按: Ctrl + C 退出录入\033[0m")
   try:
     control_profile = get_host_profile(hostname_prefix=control_hostname_prefix, hostname_suffix=1)
   except KeyboardInterrupt:
