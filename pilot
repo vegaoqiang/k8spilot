@@ -1,4 +1,6 @@
 #!/bin/bash
+# Author: vegaoqiang
+# Email: vegaoqiang@gmail.com
 
 
 check_requirements(){
