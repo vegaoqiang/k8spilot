@@ -160,6 +160,7 @@ inventory初始化完成
 完整的交互信息如下图
 ![example](/docs/images/online_deploy.png)
 
+>如果在创建`mycluster`集群环境时已经初始化了主机清单，执行`./pilot deploy mycluster`命令安装集群时将无需在录入主机清单，直接进入[确认安装](#确认安装)提示
 
 ##  Docker方式使用k8spilot
 
