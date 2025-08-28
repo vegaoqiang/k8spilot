@@ -155,7 +155,7 @@ inventory初始化完成
 ```shell
 开始为mycluster环境安装Kubernetes v1.31.11 集群, 是否确认安装[Y/n]:
 ```
-此时输入`Y`后按`enter`键按或直接按`enter`键开始集群安装
+此时输入`y`后按`enter`键按或直接按`enter`键开始集群安装
 
 完整的交互信息如下图
 ![example](/docs/images/online_deploy.png)
