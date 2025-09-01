@@ -72,9 +72,9 @@ select_install_method(){
     fi
   done
   if [ "${method_opt}" == "2" ]; then
-    if [ ! -d "$(dirname ${BASH_SOURCE[0]})/artifacts" ] || [ ! -d "$(dirname ${BASH_SOURCE[0]})/artifacts/components" ] || \
-    [ ! -d "$(dirname ${BASH_SOURCE[0]})/artifacts/images" ] || [ ! -d "$(dirname ${BASH_SOURCE[0]})/artifacts/kubernetes" ] || \
-    [ -z "$(ls $(dirname ${BASH_SOURCE[0]})/artifacts/images)" ] || [ -z "$(ls $(dirname ${BASH_SOURCE[0]})/artifacts/kubernetes)" ]; then
+    if [ ! -d "$(dirname ${BASH_SOURCE[0]})/resources" ] || [ ! -d "$(dirname ${BASH_SOURCE[0]})/resources/components" ] || \
+    [ ! -d "$(dirname ${BASH_SOURCE[0]})/resources/images" ] || [ ! -d "$(dirname ${BASH_SOURCE[0]})/resources/kubernetes" ] || \
+    [ -z "$(ls $(dirname ${BASH_SOURCE[0]})/resources/images)" ] || [ -z "$(ls $(dirname ${BASH_SOURCE[0]})/resources/kubernetes)" ]; then
       printf "\e[31m你选择了离线安装，但是缺少离线文件，请下载离线文件\e[0m\n"
       exit 1
     fi
@@ -134,8 +134,8 @@ get_kube_version_online(){
 
 get_kube_version_offline(){
   local cluster_name=$1
-  # 如果artifacts/kubernetes目录下只存在一个离线版本，直接修改配置文件为该版本，如果存在多个离线版本，让用户选择
-  local version_list=$(find artifacts/kubernetes -type d -d 1|awk -F/ '{print $NF}')
+  # 如果resources/kubernetes目录下只存在一个离线版本，直接修改配置文件为该版本，如果存在多个离线版本，让用户选择
+  local version_list=$(find resources/kubernetes -type d -d 1|awk -F/ '{print $NF}')
   VERSION=""
   if [ $(echo "${version_list}"|wc -l) -gt 1 ]; then
     local default_version=$(echo "${version_list}" | awk 'END{print}')
