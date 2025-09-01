@@ -1,13 +1,11 @@
-# 使用k8spilot docker镜像
-本文档将介绍如何使用k8spilot docker镜像在线安装Kubernetes集群, 如果您没有docker，请手动安装k8spilot安装并参见：[使用k8spilot](getting-started-online.md)
-
-如果您使用k8spilot docker镜像离线方式安装Kubernetes集群，见
+# 使用k8spilot在线安装和管理Kubernetes
+本文档将介绍和演示使用k8spilot的在线安装方式安装一个Kubernetes集群，如果您的环境不能访问互联网，请使用离线方式安装Kubernetes集群，参见: [离线方式安装Kubernetes](getting-started-offline.md)
 
 ## Requirements
 继续阅读该文档前，请查看您的环境是否已经满足在线安装Kubernetes的要求。
 
-+ 控制端（运行`k8spilot`的电脑/服务器）能访问互联网
-+ 控制端必须安装了docker [install docker](https://docs.docker.com/engine/install/)
++ 控制端（运行`k8spilot`的电脑/服务器）能访问互联网，不能访问互联网请使用离线方案
++ 控制端不支持Windows，Windows用户可使用docker或者wsl方案替代：[Install WSL](https://learn.microsoft.com/en-us/windows/wsl/install), [k8spilot docker](getting-started-docker.md)
 + 被控端（用于安装`Kubernetes`的服务器）数量应该>=3
 + 所有被控端能访问互联网，被控端之间网络互通（通过内网或者互联网连接）
 + 控制端能使用`root`账号登录所有被控端
@@ -18,9 +16,7 @@ k8spilot支持安装和管理多套k8s集群，在开始安装Kubernetes集群�
 
 执行以下命令开始创建`mycluster`环境：
 ```shell
-sudo docker run --rm -it \
- -v $(pwd):/k8spilot/inventories \
- quay.io/k8spilot/k8spilot:v1.0.4 bash ./pilot create mycluster
+./pilot create mycluster
 ```
 系统会进入交互式引导，步骤如下：
 
@@ -74,7 +70,7 @@ mycluster 集群环境已经创建成功，可编辑 ./inventories/mycluster/gro
 自定义 kubernetes 集群安装参数。
 使用 ./pilot deploy mycluster 命令开始部署 mycluster kubernetes 集群。
 ```
-至此`mycluster`集群环境已经创建好了，集群环境创建成功后，可以根据需求修改 `$(pwd)/inventories/mycluster/group_vars/all.yml` 文件自定义Kubernetes集群安装的配置，如组件、网络插件版本等。
+至此`mycluster`集群环境已经创建好了，集群环境创建成功后，可以根据需求修改 `./inventories/mycluster/group_vars/all.yml` 文件自定义Kubernetes集群安装的配置，如组件、网络插件版本等。
 
 完整的交互信息如下图
 
@@ -86,11 +82,7 @@ mycluster 集群环境已经创建成功，可编辑 ./inventories/mycluster/gro
 
 执行以下命令开始安装`mycluster`环境Kubernetes：
 ```shell
-sudo docker run --rm -it \
- -v $(pwd):/k8spilot/inventories \
- -v "${HOME}"/.ssh/id_rsa:/root/.ssh/id_rsa \
- -v /tmp/resources:/k8spilot/resources \
- quay.io/k8spilot/k8spilot:v1.0.4 bash ./pilot deploy mycluster
+./pilot deploy mycluster
 ```
 
 如果前面创建`mycluster`集群环境时跳过了初始化主机清单，此时将开始进入交互式引导创建主机清单
@@ -149,3 +141,4 @@ inventory初始化完成
 ![example](/docs/images/online_deploy.png)
 
 >如果在创建`mycluster`集群环境时已经初始化了主机清单，执行`./pilot deploy mycluster`命令安装集群时将无需在录入主机清单，直接进入[确认安装](#确认安装)提示
+

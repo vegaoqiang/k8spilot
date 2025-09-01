@@ -4,18 +4,18 @@ k8spilot可以简单、快速的搭建一个生产级别，纯净的Kuebrnetes�
 ## 功能概述
 + Kubernetes安装版本可选择，可选的版本见: [版本列表](https://dl.k8spilot.icu/kubernetes/kube-versions)
 + Kubernetes所有组件裸运行在系统中，而不是容器化部署，更稳定和易维护
-+ 支持在线和离线两种方式部署Kubernetes集群
++ 支持在线和离线两种方式部署Kubernetes集群，见: [安装方式介绍](#安装方式介绍)
 + 支持ARM架构服务器，自适应部署对应架构Kubernetes
 + 一键化横向扩容Kubernetes集群节点（开发中）
 + 多集群之间配置独立，可安装和管理多套Kubernetes集群
 + 无docker，采用更现代的containerd作为容器运行时
 + 采用国内镜像源，可拉取镜像在gcr/docker.io的集群组件镜像
 + 自签集群证书，有效期100年，解决集群证书过期困扰
-+ 安装高性能网络插件cilium，默认开启BPF模式（网络插件可选calico）
++ 安装高性能网络插件cilium，默认开启BPF模式（网络插件可选calico），见: [修改网络插件](#)
 + 安装CoreDNS为集群内部DNS
 + 安装helm工具，helm安装在master节点上
-+ 可选安装csi-driver-nfs作为集群默认StorageClass
-+ 可选安装ingress-nginx作为集群默认IngressClass
++ 可选安装csi-driver-nfs作为集群默认StorageClass,见:[csi-driver-nfs](#csi-driver-nfs)
++ 可选安装ingress-nginx作为集群默认IngressClass,见:[ingress-nginx](#ingress-nginx)
 
 
 ## Requirements
@@ -40,16 +40,22 @@ k8spilot可以简单、快速的搭建一个生产级别，纯净的Kuebrnetes�
 
 > **Tips**: 请根据你的服务要求，合理的选择被控端服务器/虚拟机的硬件配置，避免过小配置影响容器在节点上的正常运行
 
-## 快速开始
+## Getting Started
 
+### 安装k8spilot
 如果主控端安装有Docker服务，推荐使用k8spilot的Docker镜像，可避免主控端复杂的环境和依赖问题。
 
-[Docker方式使用k8spilot](docs/getting_started/getting-started.md#docker方式使用k8spilot)
+[Docker方式使用k8spilot](docs/getting_started/getting-started-docker.md)
 
 没有Docker也不必担心，只需简单几步就能安装k8spilot，见
 
-[Getting started](docs/getting_started/getting-started.md)
+[Install k8spilot](docs/getting_started/install-k8spilot.md)
 
+### 使用k8spilot
+
+[在线方式安装Kubernetes](docs/getting_started/getting-started-online.md)
+
+[离线方式安装Kubernetes](docs/getting_started/getting-started-offline.md)
 
 ## 支持的Linux发行版本
 以下Linux发行版支持作为被控端安装Kubernetes集群  
