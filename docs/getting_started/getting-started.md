@@ -95,6 +95,7 @@ mycluster 集群环境已经创建成功，可编辑 ./inventories/mycluster/gro
 至此`mycluster`集群环境已经创建好了，集群环境创建成功后，可以根据需求修改 `./inventories/mycluster/group_vars/all.yml` 文件自定义Kubernetes集群安装的配置，如组件、网络插件版本等。
 
 完整的交互信息如下图
+
 ![example](/docs/images/online_create.png)
 
 
@@ -158,6 +159,7 @@ inventory初始化完成
 此时输入`y`后按`enter`键按或直接按`enter`键开始集群安装
 
 完整的交互信息如下图
+
 ![example](/docs/images/online_deploy.png)
 
 >如果在创建`mycluster`集群环境时已经初始化了主机清单，执行`./pilot deploy mycluster`命令安装集群时将无需在录入主机清单，直接进入[确认安装](#确认安装)提示
