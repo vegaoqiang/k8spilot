@@ -120,7 +120,7 @@
 #       {% if ansible_architecture == 'x86_64' %}amd64{% elif ansible_architecture == 'aarch64' %}arm64{% else %}{{ ansible_architecture }}{% endif %}
 
 
-- name: Create Artifacts Directory In localhost
+- name: Create Resource Directory In localhost
   ansible.builtin.file:
     path: "{{ item }}"
     state: directory
