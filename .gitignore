@@ -17,3 +17,4 @@ config-encode
 .DS_Store
 .kubeconfig
 artifacts
+resources
