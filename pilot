@@ -163,7 +163,7 @@ get_kube_version_offline(){
     printf "\e[31m未找到离线版本\e[0m\n"
     exit 1
   fi
-  printf "\e[32m已为${cluster_name}环境设置 Kubernetes版本为 ${VERSION}\e[0m\n"
+  printf "\e[32m已选择安装 kubernetes ${VERSION}\e[0m\n"
 }
 
 select_kube_version(){
