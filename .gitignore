@@ -19,3 +19,4 @@ config-encode
 artifacts
 resources
 inventories/*
+!inventories/.gitkeep
