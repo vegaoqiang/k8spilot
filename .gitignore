@@ -18,3 +18,4 @@ config-encode
 .kubeconfig
 artifacts
 resources
+inventories/*
