@@ -22,6 +22,8 @@ sudo docker run --rm -it \
  -v $(pwd):/k8spilot/inventories \
  quay.io/k8spilot/k8spilot:v1.0.4 bash ./pilot create mycluster
 ```
+>$(pwd)为当前目录，映射到容器中，用于存放k8spilot多环境配置文件，可以制定其他目录，如/tmp/
+
 系统会进入交互式引导，步骤如下：
 
 ### 1. 选择安装方式
