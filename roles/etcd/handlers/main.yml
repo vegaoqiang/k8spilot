@@ -12,6 +12,7 @@
     port: 2379
     state: started
     timeout: 60
+  any_errors_fatal: true
 
 - name: Check Etcd Cluster Healthly 
   shell: |
@@ -24,6 +25,7 @@
     etcdctl $ENDPOINT $ETCD_ARGS endpoint status
   when: inventory_hostname == groups['etcd'][0]
   register: shell_output
+  any_errors_fatal: true
 
 - name: Print Etcd Cluster Status
   ansible.builtin.debug:
