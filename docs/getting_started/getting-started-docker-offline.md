@@ -1,17 +1,19 @@
 # 使用k8spilot docker镜像
-本文档将介绍如何使用k8spilot docker镜像在线安装Kubernetes集群, 如果您没有docker，请手动安装k8spilot安装并参见：[使用k8spilot](getting-started-online.md)
+本文档将介绍如何使用k8spilot docker镜像离线安装Kubernetes集群, 如果您没有docker，请手动安装k8spilot安装并参见：[使用k8spilot](getting-started-online.md)
 
-如果您使用k8spilot docker镜像离线方式安装Kubernetes集群，见
+如果您使用k8spilot docker镜像在线方式安装Kubernetes集群，见: [在线安装](getting-started-docker-online.md)
 
 ## Requirements
 继续阅读该文档前，请查看您的环境是否已经满足在线安装Kubernetes的要求。
 
-+ 控制端（运行`k8spilot`的电脑/服务器）能访问互联网
 + 控制端必须安装了docker [install docker](https://docs.docker.com/engine/install/)
 + 被控端（用于安装`Kubernetes`的服务器）数量应该>=3
-+ 所有被控端能访问互联网，被控端之间网络互通（通过内网或者互联网连接）
++ 所有被控端之间网络互通（通过内网）
 + 控制端能使用`root`账号登录所有被控端
 + 所有被控端均为`Linux`，且内核版本`>=5.4`
+
+## 下载离线资源
+请访问[]()，根据自己需要安装的Kubernetes版本，下载对应的离线资源，离线资源包下载完成后解压备用，开始安装集群时需要将离线资源目录映射到容器中。
 
 ## 创建集群环境
 k8spilot支持安装和管理多套k8s集群，在开始安装Kubernetes集群之前，首先需要创建集群环境，以下是创建集群环境的几个步骤
@@ -20,9 +22,11 @@ k8spilot支持安装和管理多套k8s集群，在开始安装Kubernetes集群�
 ```shell
 sudo docker run --rm -it \
  -v $(pwd):/k8spilot/inventories \
+ -v /tmp/resources:/k8spilot/resources \
  quay.io/k8spilot/k8spilot:v1.0.4 bash ./pilot create mycluster
 ```
->$(pwd)为当前目录，映射到容器中，用于存放k8spilot多环境配置文件，可以制定其他目录，如/tmp/
+>`$(pwd)`为当前目录，映射到容器中，用于存放k8spilot多环境配置文件，可以制定其他目录，如/tmp/
+>`/tmp/resources`前面已经下载好的离线资源目录([下载离线资源](#下载离线资源))，将其映射到容器中的`/k8spilot/resources`目录
 
 系统会进入交互式引导，步骤如下：
 
@@ -35,18 +39,15 @@ sudo docker run --rm -it \
   2) 离线安装
 请输入选项 [1/2]:
 ```
-此处输入 1 表示在线安装（如果直接回车，则默认选择 1）。
+此处输入 2 表示离线安装（如果直接回车，则默认选择 1）。
 
 ### 2. 选择Kubernetes版本
-系统会自动获取可安装的版本，例如：
+系统会自动查找本地已经下载好的离线包版本，例如：
 ```shell
-正在获取 kubernetes 版本信息
-v1.30.4
-v1.30.14
+请选择mycluster环境安装的Kubernetes版本
+v1.33.33
 v1.31.11
-v1.32.6
-v1.33.2
-请从以上版本列表选择并输入 mycluster 环境安装的 kubernetes 版本 [默认:v1.33.2]:
+发现多个离线版本，请手动输入 [默认 v1.31.11]:
 ```
 在这里输入 v1.31.11
 ```
@@ -80,7 +81,7 @@ mycluster 集群环境已经创建成功，可编辑 ./inventories/mycluster/gro
 
 完整的交互信息如下图
 
-![example](/docs/images/online_create.png)
+![example](/docs/images/offline_create.png)
 
 
 ## 安装集群
@@ -96,9 +97,9 @@ sudo docker run --rm -it \
 ```
 
 如果前面创建`mycluster`集群环境时跳过了初始化主机清单，此时将开始进入交互式引导创建主机清单
->1. $(pwd)为当前目录，映射到容器中，用于存放k8spilot多环境配置文件，可以制定其他目录，如/tmp/
->2. ${HOME}行指定了将当前系统用户下的私钥映射到容器中，为了能使k8spilot免密登录被控端，请指定实际可用私钥
->3. /tmp/resources行的映射关系将容器中的k8spilot下载的文件映射到宿主机上，起到缓存文件作用，安装多环境集群时可重复使用，k8spilot将使用缓存文件从而条过在线下载，加快部署Kubernetes速度。
+>1. `$(pwd)`为当前目录，映射到容器中，用于存放k8spilot多环境配置文件，可以制定其他目录，如/tmp/
+>2. `${HOME}`行指定了将当前系统用户下的私钥映射到容器中，为了能使k8spilot免密登录被控端，请指定实际可用私钥
+>3. `/tmp/resources`前面已经下载好的离线资源目录([下载离线资源](#下载离线资源))，将其映射到容器中的`/k8spilot/resources`目录
 
 ### 创建主机清单
 系统提示：
