@@ -178,7 +178,7 @@
 
 - name: Copy CNI plugins Binary To Remote Host
   ansible.builtin.copy:
-    src: "{{ playbook_dir }}/.ansible_temp/cni-plugins-linux-{{ arch_alias }}-{{ cni_version }}.tgz"
+    src: "{{ component_path }}/cni-plugins-linux-{{ arch_alias }}-{{ cni_version }}.tgz"
     dest: "/tmp/cni-plugins-linux-{{ arch_alias }}-{{ cni_version }}.tgz"
 
 - name: Install CNI plugins Binary In Remote Host
