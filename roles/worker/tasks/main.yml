@@ -50,15 +50,20 @@
   when: not kubelet_stat.stat.exists and method == 'offline'
 
 - name: Downloading Kubernetes {{ kube_version }} Worker Components
-  amazon.aws.s3_object:
-    endpoint_url: "{{ s3_endpoint_url }}"
-    access_key: "{{ s3_access_key }}"
-    secret_key: "{{ s3_secret_key }}"
-    bucket: "{{ s3_bucket_name }}"
-    object: "kubernetes/{{ kube_version }}/linux/{{ arch_alias }}/{{ item }}"
+  ansible.builtin.get_url:
+    url: "{{ kube_download_url_prefix }}/{{ kube_version }}/bin/linux/{{ arch_alias }}/{{ item }}"
     dest: "{{ kube_path }}/{{ kube_version }}/linux/{{ arch_alias }}/{{ item }}"
-    mode: get
-    overwrite: different
+    mode: '0755'
+    timeout: 60
+  # amazon.aws.s3_object:
+  #   endpoint_url: "{{ s3_endpoint_url }}"
+  #   access_key: "{{ s3_access_key }}"
+  #   secret_key: "{{ s3_secret_key }}"
+  #   bucket: "{{ s3_bucket_name }}"
+  #   object: "kubernetes/{{ kube_version }}/linux/{{ arch_alias }}/{{ item }}"
+  #   dest: "{{ kube_path }}/{{ kube_version }}/linux/{{ arch_alias }}/{{ item }}"
+  #   mode: get
+  #   overwrite: different
   delegate_to: localhost
   run_once: true
   loop:
@@ -88,15 +93,20 @@
   when: not containerd_stat.stat.exists and method == 'offline'
 
 - name: Downloading Containerd {{ containerd_version }}
-  amazon.aws.s3_object:
-    endpoint_url: "{{ s3_endpoint_url }}"
-    access_key: "{{ s3_access_key }}"
-    secret_key: "{{ s3_secret_key }}"
-    bucket: "{{ s3_bucket_name }}"
-    object: "containerd/v{{ containerd_version }}/linux/{{ arch_alias }}/containerd-{{ containerd_version }}-linux-{{ arch_alias }}.tar.gz"
+  ansible.builtin.get_url:
+    url: "{{ containerd_download_url_prefix }}/v{{ containerd_version }}/containerd-{{ containerd_version }}-linux-{{ arch_alias }}.tar.gz"
     dest: "{{ component_path }}/containerd-{{ containerd_version }}-linux-{{ arch_alias }}.tar.gz"
-    mode: get
-    overwrite: different
+    mode: '0755'
+    timeout: 60
+  # amazon.aws.s3_object:
+  #   endpoint_url: "{{ s3_endpoint_url }}"
+  #   access_key: "{{ s3_access_key }}"
+  #   secret_key: "{{ s3_secret_key }}"
+  #   bucket: "{{ s3_bucket_name }}"
+  #   object: "containerd/v{{ containerd_version }}/linux/{{ arch_alias }}/containerd-{{ containerd_version }}-linux-{{ arch_alias }}.tar.gz"
+  #   dest: "{{ component_path }}/containerd-{{ containerd_version }}-linux-{{ arch_alias }}.tar.gz"
+  #   mode: get
+  #   overwrite: different
   delegate_to: localhost
   run_once: true
   retries: 5
