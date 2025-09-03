@@ -23,15 +23,20 @@
 
 
 - name: Downloading k8spilot Job Image
-  amazon.aws.s3_object:
-    endpoint_url: "{{ s3_endpoint_url }}"
-    access_key: "{{ s3_access_key }}"
-    secret_key: "{{ s3_secret_key }}"
-    bucket: "{{ s3_bucket_name }}"
-    object: "pilot/pilot-job-v1.1-{{ arch_alias }}.tar"
+  ansible.builtin.get_url:
+    url: "{{ pilot_download_url_prefix }}/pilot/pilot-job-v1.1-{{ arch_alias }}.tar"
     dest: "{{ image_path }}/k8spilot/pilot-job-v1.1-{{ arch_alias }}.tar"
-    mode: get
-    overwrite: different
+    mode: '0755'
+    timeout: 60
+  # amazon.aws.s3_object:
+  #   endpoint_url: "{{ s3_endpoint_url }}"
+  #   access_key: "{{ s3_access_key }}"
+  #   secret_key: "{{ s3_secret_key }}"
+  #   bucket: "{{ s3_bucket_name }}"
+  #   object: "pilot/pilot-job-v1.1-{{ arch_alias }}.tar"
+  #   dest: "{{ image_path }}/k8spilot/pilot-job-v1.1-{{ arch_alias }}.tar"
+  #   mode: get
+  #   overwrite: different
   delegate_to: localhost
   run_once: true
   retries: 5
@@ -65,15 +70,20 @@
   when: not tigera_stat.stat.exists and method == 'offline'
 
 - name: Downloading tigera-operator {{ calico_version }} Helm Chart
-  amazon.aws.s3_object:
-    endpoint_url: "{{ s3_endpoint_url }}"
-    access_key: "{{ s3_access_key }}"
-    secret_key: "{{ s3_secret_key }}"
-    bucket: "{{ s3_bucket_name }}"
-    object: "tigera-operator/tigera-operator-{{ calico_version }}.tgz"
+  ansible.builtin.get_url:
+    url: "{{ tigera_download_url_prefix }}/{{ calico_version }}/tigera-operator-{{ calico_version }}.tgz"
     dest: "{{ component_path }}/tigera-operator-{{ calico_version }}.tgz"
-    mode: get
-    overwrite: different
+    mode: '0755'
+    timeout: 60
+  # amazon.aws.s3_object:
+  #   endpoint_url: "{{ s3_endpoint_url }}"
+  #   access_key: "{{ s3_access_key }}"
+  #   secret_key: "{{ s3_secret_key }}"
+  #   bucket: "{{ s3_bucket_name }}"
+  #   object: "tigera-operator/tigera-operator-{{ calico_version }}.tgz"
+  #   dest: "{{ component_path }}/tigera-operator-{{ calico_version }}.tgz"
+  #   mode: get
+  #   overwrite: different
   delegate_to: localhost
   run_once: true
   when: not tigera_stat.stat.exists and method == 'online'

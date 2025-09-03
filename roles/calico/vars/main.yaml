@@ -1,1 +1,4 @@
 calico_installation_registry: docker.m.daocloud.io
+
+pilot_download_url_prefix: 'https://dl.k8spilot.icu'
+tigera_download_url_prefix: 'https://github.com/projectcalico/calico/releases/download'
