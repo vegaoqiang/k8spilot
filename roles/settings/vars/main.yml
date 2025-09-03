@@ -1,1 +1,2 @@
 coredns_registry: docker.m.daocloud.io
+helm_download_url_prefix: 'https://get.helm.sh'
