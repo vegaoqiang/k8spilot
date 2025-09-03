@@ -11,7 +11,7 @@
     msg: "{{ component_path }}/cilium-{{ cilium_version| replace('v', '') }}.tgz not exists"
   when: not cilium_stat.stat.exists and method == 'offline'
 
-- name: Downloading Cilium Helm Chart
+- name: Downloading Cilium {{ cilium_version }} Helm Chart
   ansible.builtin.get_url:
     url: "{{ cilium_download_url_prefix }}/cilium-{{ cilium_version| replace('v', '') }}.tgz"
     dest: "{{ component_path }}/cilium-{{ cilium_version| replace('v', '') }}.tgz"
@@ -30,7 +30,7 @@
   run_once: true
   when: not cilium_stat.stat.exists and method == 'online'
 
-- name: Copy  Cilium Helm Chart To Remote Host
+- name: Copy Cilium {{ cilium_version }} Helm Chart To Remote Host
   ansible.builtin.copy:
     src: "{{ component_path }}/cilium-{{ cilium_version| replace('v', '') }}.tgz"
     dest: "/tmp/cilium-{{ cilium_version| replace('v', '') }}.tgz"
