@@ -4,7 +4,7 @@
 如果您使用k8spilot docker镜像在线方式安装Kubernetes集群，见: [在线安装](getting-started-docker-online.md)
 
 ## Requirements
-继续阅读该文档前，请查看您的环境是否已经满足在线安装Kubernetes的要求。
+继续阅读该文档前，请查看您的环境是否已经满足离线安装Kubernetes的要求。
 
 + 控制端必须安装了docker [install docker](https://docs.docker.com/engine/install/)
 + 被控端（用于安装`Kubernetes`的服务器）数量应该>=3
