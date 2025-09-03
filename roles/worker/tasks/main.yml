@@ -258,3 +258,8 @@
   - 'containerd'
   - 'kubelet'
 
+- name: Kubernetes Worker Install Complete
+  ansible.builtin.debug:
+    msg: "Kubernetes Worker Install Complete"
+  delegate_to: localhost
+  run_once: true
