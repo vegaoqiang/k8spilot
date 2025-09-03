@@ -116,7 +116,7 @@
 - name: Downloading Cfssl v{{ cfssl_version }}
   ansible.builtin.get_url:
     url: "{{ cfssl_download_url_prefix }}/v{{ cfssl_version }}/{{ item.item }}_{{ cfssl_version }}_linux_{{ arch_alias }}"
-    dest: "{ component_path }}/{{ item.item }}_{{ cfssl_version }}_linux_{{ arch_alias }}"
+    dest: "{{ component_path }}/{{ item.item }}_{{ cfssl_version }}_linux_{{ arch_alias }}"
     mode: '0755'
     timeout: 60
   # amazon.aws.s3_object:

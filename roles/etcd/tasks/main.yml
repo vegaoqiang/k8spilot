@@ -15,7 +15,7 @@
 - name: Downloading Etcd {{ etcd_version }}
   ansible.builtin.get_url:
     url: "{{ etcd_download_url_prefix }}/{{ etcd_version }}/etcd-{{ etcd_version }}-linux-{{ arch_alias }}.tar.gz"
-    dest: "{ component_path }}/etcd-{{ etcd_version }}-linux-{{ arch_alias }}.tar.gz"
+    dest: "{{ component_path }}/etcd-{{ etcd_version }}-linux-{{ arch_alias }}.tar.gz"
     mode: '0755'
     timeout: 60
   # amazon.aws.s3_object:
