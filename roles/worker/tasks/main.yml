@@ -92,7 +92,7 @@
     msg: "{{ component_path }}/containerd-{{ containerd_version }}-linux-{{ arch_alias }}.tar.gz not exists"
   when: not containerd_stat.stat.exists and method == 'offline'
 
-- name: Downloading Containerd {{ containerd_version }}
+- name: Downloading Containerd v{{ containerd_version }}
   ansible.builtin.get_url:
     url: "{{ containerd_download_url_prefix }}/v{{ containerd_version }}/containerd-{{ containerd_version }}-linux-{{ arch_alias }}.tar.gz"
     dest: "{{ component_path }}/containerd-{{ containerd_version }}-linux-{{ arch_alias }}.tar.gz"
@@ -137,15 +137,20 @@
   when: not runc_stat.stat.exists and method == 'offline'
 
 - name: Downloading runc {{ runc_version }}
-  amazon.aws.s3_object:
-    endpoint_url: "{{ s3_endpoint_url }}"
-    access_key: "{{ s3_access_key }}"
-    secret_key: "{{ s3_secret_key }}"
-    bucket: "{{ s3_bucket_name }}"
-    object: "runc/{{ runc_version }}/linux/{{ arch_alias }}/runc.{{ arch_alias }}"
+  ansible.builtin.get_url:
+    url: "{{ runc_download_url_prefix }}/{{ runc_version }}/runc.{{ arch_alias }}"
     dest: "{{ component_path }}/runc.{{ arch_alias }}"
-    mode: get
-    overwrite: different
+    mode: '0755'
+    timeout: 60
+  # amazon.aws.s3_object:
+  #   endpoint_url: "{{ s3_endpoint_url }}"
+  #   access_key: "{{ s3_access_key }}"
+  #   secret_key: "{{ s3_secret_key }}"
+  #   bucket: "{{ s3_bucket_name }}"
+  #   object: "runc/{{ runc_version }}/linux/{{ arch_alias }}/runc.{{ arch_alias }}"
+  #   dest: "{{ component_path }}/runc.{{ arch_alias }}"
+  #   mode: get
+  #   overwrite: different
   delegate_to: localhost
   run_once: true
   retries: 5
@@ -171,15 +176,20 @@
   when: not cni_plugin_stat.stat.exists and method == 'offline'
 
 - name: Downloading CNI plugins {{ cni_version }}
-  amazon.aws.s3_object:
-    endpoint_url: "{{ s3_endpoint_url }}"
-    access_key: "{{ s3_access_key }}"
-    secret_key: "{{ s3_secret_key }}"
-    bucket: "{{ s3_bucket_name }}"
-    object: "cni-plugins/{{ cni_version }}/linux/{{ arch_alias }}/cni-plugins-linux-{{ arch_alias }}-{{ cni_version }}.tgz"
+  ansible.builtin.get_url:
+    url: "{{ cni_plugin_download_url_prefix }}/{{ cni_version }}/cni-plugins-linux-{{ arch_alias }}-{{ cni_version }}.tgz"
     dest: "{{ component_path }}/cni-plugins-linux-{{ arch_alias }}-{{ cni_version }}.tgz"
-    mode: get
-    overwrite: different
+    mode: '0755'
+    timeout: 60
+  # amazon.aws.s3_object:
+  #   endpoint_url: "{{ s3_endpoint_url }}"
+  #   access_key: "{{ s3_access_key }}"
+  #   secret_key: "{{ s3_secret_key }}"
+  #   bucket: "{{ s3_bucket_name }}"
+  #   object: "cni-plugins/{{ cni_version }}/linux/{{ arch_alias }}/cni-plugins-linux-{{ arch_alias }}-{{ cni_version }}.tgz"
+  #   dest: "{{ component_path }}/cni-plugins-linux-{{ arch_alias }}-{{ cni_version }}.tgz"
+  #   mode: get
+  #   overwrite: different
   delegate_to: localhost
   run_once: true
   retries: 5

@@ -10,3 +10,5 @@ cri_kernel_params:
 
 kube_download_url_prefix: 'https://dl.k8s.io'
 considered_download_url_prefix: 'https://github.com/containerd/containerd/releases/download'
+runc_download_url_prefix: 'https://github.com/opencontainers/runc/releases/download'
+cni_plugin_download_url_prefix: 'https://github.com/containernetworking/plugins/releases/download'
