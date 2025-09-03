@@ -1,51 +1,4 @@
 
-# - name: Downloading Ingress-Nginx Helm Chart
-#   amazon.aws.s3_object:
-#     endpoint_url: "{{ s3_endpoint_url }}"
-#     access_key: "{{ s3_access_key }}"
-#     secret_key: "{{ s3_secret_key }}"
-#     bucket: "{{ s3_bucket_name }}"
-#     object: "ingress-nginx/ingress-nginx-{{ ingress_helm_version }}.tgz"
-#     dest: "{{ playbook_dir }}/.ansible_temp/ingress-nginx-{{ ingress_helm_version }}.tgz"
-#     mode: get
-#     overwrite: different
-#   delegate_to: localhost
-#   run_once: true
-
-# - name: Copy Ingress-Nginx Helm Chart To Remote Host
-#   ansible.builtin.copy:
-#     src: "{{ playbook_dir }}/.ansible_temp/ingress-nginx-{{ ingress_helm_version }}.tgz"
-#     dest: "/tmp/ingress-nginx-{{ ingress_helm_version }}.tgz"
-
-# - name: Wait Cluster Network Ready
-#   ansible.builtin.wait_for:
-#     host: "{{ kube_cluster_apiserver }}"
-#     port: 443
-#     state: started
-#     timeout: 600
-
-# - name: Install Ingress-Nginx
-#   kubernetes.core.helm:
-#     chart_ref: "/tmp/ingress-nginx-{{ ingress_helm_version }}.tgz"
-#     name: ingress-nginx
-#     chart_version: "{{ ingress_helm_version }}"
-#     wait: false
-#     # state: absent
-#     release_namespace: ingress-nginx
-#     create_namespace: true
-#     values:
-#       global:
-#         image:
-#           registry: "{{ ingress_registry_prefix }}/registry.k8s.io"
-#       controller:
-#         tag: "{{ ingress_nginx_version }}"
-#         service:
-#           nodePorts:
-#             http: "{{ ingress_nodeport_http }}"
-#             https: "{{ ingress_nodeport_https }}"
-#         ingressClassResource:
-#           default: true
-
 - name: Check Ingress-Nginx {{ ingress_nginx_version }} Manifest Exists
   ansible.builtin.stat:
     path: "{{ component_path }}/ingress-nginx-{{ ingress_nginx_version }}.yaml"
@@ -60,15 +13,20 @@
 
         
 - name: Downloading Ingress-Nginx Manifest
-  amazon.aws.s3_object:
-    endpoint_url: "{{ s3_endpoint_url }}"
-    access_key: "{{ s3_access_key }}"
-    secret_key: "{{ s3_secret_key }}"
-    bucket: "{{ s3_bucket_name }}"
-    object: "ingress-nginx/{{ ingress_nginx_version }}/deploy.yaml"
+  ansible.builtin.get_url:
+    url: "{{ ingress_download_url_prefix }}"
     dest: "{{ component_path }}/ingress-nginx-{{ ingress_nginx_version }}.yaml"
-    mode: get
-    overwrite: different
+    mode: '0755'
+    timeout: 60
+  # amazon.aws.s3_object:
+  #   endpoint_url: "{{ s3_endpoint_url }}"
+  #   access_key: "{{ s3_access_key }}"
+  #   secret_key: "{{ s3_secret_key }}"
+  #   bucket: "{{ s3_bucket_name }}"
+  #   object: "ingress-nginx/{{ ingress_nginx_version }}/deploy.yaml"
+  #   dest: "{{ component_path }}/ingress-nginx-{{ ingress_nginx_version }}.yaml"
+  #   mode: get
+  #   overwrite: different
   delegate_to: localhost
   run_once: true
   when: not ingress_stat.stat.exists and method == 'online'
