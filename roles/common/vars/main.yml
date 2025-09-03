@@ -49,6 +49,5 @@ kernel_params:
   - { name: net.ipv4.tcp_keepalive_intvl, value: 30}
   - { name: net.ipv4.tcp_keepalive_probes, value: 5}
 
-
-
+cfssl_download_url_prefix: 'https://github.com/cloudflare/cfssl/releases/download'
 

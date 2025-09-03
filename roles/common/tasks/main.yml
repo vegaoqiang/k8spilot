@@ -41,26 +41,6 @@
       fi
     fi
 
-# - name: Install {{ dnf_package | join(',') }} In Remote Host
-#   ansible.builtin.package:
-#     name: "{{ item }}"
-#     state: present
-#   loop: "{{ dnf_package }}"
-#   when: ansible_distribution in dnf_system
-
-# - name: Install {{ apt_package | join(',') }} In Remote Host
-#   ansible.builtin.package:
-#     name: "{{ item }}"
-#     state: present
-#   loop: "{{ apt_package }}"
-#   when: ansible_architecture in apt_system
-
-# - name: Install Python Module
-#   ansible.builtin.shell: |
-#     python3 -m ensurepip
-#     pip3 install pyyaml -i https://mirrors.tuna.tsinghua.edu.cn/pypi/web/simple
-#   when: ansible_distribution == 'Alibaba'
-
 - name: Update Timezone
   shell: timedatectl set-timezone Asia/Shanghai
 
@@ -94,15 +74,6 @@
   with_items: '{{ kernel_params }}'
   ignore_errors: yes
 
-
-# - name: Update chrony.conf
-#   template:
-#     src: chrony.conf 
-#     dest: /etc/chrony.conf
-
-# - name: Restart Chronyd Service
-#   shell: systemctl restart chronyd
-
 - name: Sync System Time
   ansible.builtin.shell: |
     date -s "{{ now(fmt='%Y-%m-%d %H:%M:%S') }}"
@@ -112,13 +83,6 @@
     swapoff -a
     sed -i "/#.*swap/! s/.*swap.*/#&/" /etc/fstab
     sysctl --system
-
-
-# - name: Set Architecture Alias
-#   set_fact:
-#     arch_alias: >-
-#       {% if ansible_architecture == 'x86_64' %}amd64{% elif ansible_architecture == 'aarch64' %}arm64{% else %}{{ ansible_architecture }}{% endif %}
-
 
 - name: Create Resource Directory In localhost
   ansible.builtin.file:
@@ -150,20 +114,20 @@
   loop: "{{ cfssl_stat.results }}"
   
 - name: Downloading Cfssl v{{ cfssl_version }}
-  # ansible.builtin.get_url:
-  #   url: "{{ download_location }}/cfssl/v{{ cfssl_version }}/linux/{{ arch_alias }}/{{ item }}_{{ cfssl_version }}_linux_{{ arch_alias }}"
-  #   dest: "/tmp/{{ item }}_{{ cfssl_version }}_linux_{{ arch_alias }}"
-  #   mode: '0755'
-  #   timeout: 60
-  amazon.aws.s3_object:
-    endpoint_url: "{{ s3_endpoint_url }}"
-    access_key: "{{ s3_access_key }}"
-    secret_key: "{{ s3_secret_key }}"
-    bucket: "{{ s3_bucket_name }}"
-    object: "cfssl/v{{ cfssl_version }}/linux/{{ arch_alias }}/{{ item.item }}_{{ cfssl_version }}_linux_{{ arch_alias }}"
-    dest: "{{ component_path }}/{{ item.item }}_{{ cfssl_version }}_linux_{{ arch_alias }}"
-    mode: get
-    overwrite: different
+  ansible.builtin.get_url:
+    url: "{{ cfssl_download_url_prefix }}/v{{ cfssl_version }}/{{ item.item }}_{{ cfssl_version }}_linux_{{ arch_alias }}"
+    dest: "{ component_path }}/{{ item.item }}_{{ cfssl_version }}_linux_{{ arch_alias }}"
+    mode: '0755'
+    timeout: 60
+  # amazon.aws.s3_object:
+  #   endpoint_url: "{{ s3_endpoint_url }}"
+  #   access_key: "{{ s3_access_key }}"
+  #   secret_key: "{{ s3_secret_key }}"
+  #   bucket: "{{ s3_bucket_name }}"
+  #   object: "cfssl/v{{ cfssl_version }}/linux/{{ arch_alias }}/{{ item.item }}_{{ cfssl_version }}_linux_{{ arch_alias }}"
+  #   dest: "{{ component_path }}/{{ item.item }}_{{ cfssl_version }}_linux_{{ arch_alias }}"
+  #   mode: get
+  #   overwrite: different
   loop: "{{ cfssl_stat.results }}"
   when: not item.stat.exists and method == 'online'
   delegate_to: localhost
