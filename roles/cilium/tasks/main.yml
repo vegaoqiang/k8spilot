@@ -12,15 +12,20 @@
   when: not cilium_stat.stat.exists and method == 'offline'
 
 - name: Downloading Cilium Helm Chart
-  amazon.aws.s3_object:
-    endpoint_url: "{{ s3_endpoint_url }}"
-    access_key: "{{ s3_access_key }}"
-    secret_key: "{{ s3_secret_key }}"
-    bucket: "{{ s3_bucket_name }}"
-    object: "cilium/cilium/cilium-{{ cilium_version| replace('v', '') }}.tgz"
+  ansible.builtin.get_url:
+    url: "{{ cilium_download_url_prefix }}/cilium-{{ cilium_version| replace('v', '') }}.tgz"
     dest: "{{ component_path }}/cilium-{{ cilium_version| replace('v', '') }}.tgz"
-    mode: get
-    overwrite: different
+    mode: '0755'
+    timeout: 60
+  # amazon.aws.s3_object:
+  #   endpoint_url: "{{ s3_endpoint_url }}"
+  #   access_key: "{{ s3_access_key }}"
+  #   secret_key: "{{ s3_secret_key }}"
+  #   bucket: "{{ s3_bucket_name }}"
+  #   object: "cilium/cilium/cilium-{{ cilium_version| replace('v', '') }}.tgz"
+  #   dest: "{{ component_path }}/cilium-{{ cilium_version| replace('v', '') }}.tgz"
+  #   mode: get
+  #   overwrite: different
   delegate_to: localhost
   run_once: true
   when: not cilium_stat.stat.exists and method == 'online'
