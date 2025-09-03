@@ -74,7 +74,7 @@ k8spilot可以简单、快速的搭建一个生产级别，纯净的Kuebrnetes�
 | :penguin: **Kylin Linux Advanced Server V10** | 2403/2503 | :white_check_mark: |
 
 ## 集群组件版本矩阵
-|component name | version |
+| Component | Version |
 | - | - |
 | **kubernetes** | v1.30.4+ |
 | **etcd** | v3.6.2 |
