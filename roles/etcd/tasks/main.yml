@@ -13,15 +13,20 @@
   when: not etcd_stat.stat.exists and method == 'offline'
 
 - name: Downloading Etcd {{ etcd_version }}
-  amazon.aws.s3_object:
-    endpoint_url: "{{ s3_endpoint_url }}"
-    access_key: "{{ s3_access_key }}"
-    secret_key: "{{ s3_secret_key }}"
-    bucket: "{{ s3_bucket_name }}"
-    object: "etcd/{{ etcd_version }}/linux/{{ arch_alias }}/etcd-{{ etcd_version }}-linux-{{ arch_alias }}.tar.gz"
-    dest: "{{ component_path }}/etcd-{{ etcd_version }}-linux-{{ arch_alias }}.tar.gz"
-    mode: get
-    overwrite: different
+  ansible.builtin.get_url:
+    url: "{{ etcd_download_url_prefix }}/{{ etcd_version }}/etcd-{{ etcd_version }}-linux-{{ arch_alias }}.tar.gz"
+    dest: "{ component_path }}/etcd-{{ etcd_version }}-linux-{{ arch_alias }}.tar.gz"
+    mode: '0755'
+    timeout: 60
+  # amazon.aws.s3_object:
+  #   endpoint_url: "{{ s3_endpoint_url }}"
+  #   access_key: "{{ s3_access_key }}"
+  #   secret_key: "{{ s3_secret_key }}"
+  #   bucket: "{{ s3_bucket_name }}"
+  #   object: "etcd/{{ etcd_version }}/linux/{{ arch_alias }}/etcd-{{ etcd_version }}-linux-{{ arch_alias }}.tar.gz"
+  #   dest: "{{ component_path }}/etcd-{{ etcd_version }}-linux-{{ arch_alias }}.tar.gz"
+  #   mode: get
+  #   overwrite: different
   delegate_to: localhost
   run_once: true
   retries: 5

@@ -1,2 +1,4 @@
 etcd_user: etcd
 etcd_home: /usr/local/etcd
+
+etcd_download_url_prefix: 'https://github.com/etcd-io/etcd/releases/download'
