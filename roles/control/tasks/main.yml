@@ -177,3 +177,7 @@
     ln -sfT {{ kubernetes_home }}/bin/kubectl /usr/local/bin/kubectl
     kubectl apply -f {{ kubernetes_home }}/etc/bootstrap.yaml
 
+- name: Kubernetes Control-Plane install complete
+  ansible.builtin.debug:
+    msg: "Kubernetes Control-Plane install complete"
+
