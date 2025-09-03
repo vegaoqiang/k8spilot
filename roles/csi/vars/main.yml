@@ -4,3 +4,5 @@ csiprovisioner_tag: v5.3.0
 livenessprobe_tag: v2.16.0
 nodedriverregistrar_tag: v2.14.0
 csiresizer_tag: v1.13.1
+
+csi_nfs_download_prefix: 'https://raw.githubusercontent.com/kubernetes-csi/csi-driver-nfs/refs/heads/master/charts'
