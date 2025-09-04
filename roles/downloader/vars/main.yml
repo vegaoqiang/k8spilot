@@ -1,0 +1,43 @@
+calico:
+  v3.30.2:
+    operator: quay.io/tigera/operator:v1.38.3
+    kube-controllers: m.daocloud.io/docker.io/calico/kube-controllers:v3.30.2
+    pod2daemon-flexvol: m.daocloud.io/docker.io/calico/pod2daemon-flexvol:v3.30.2
+    node: m.daocloud.io/docker.io/calico/node:v3.30.2
+    cni: m.daocloud.io/docker.io/calico/cni:v3.30.2
+    typha: m.daocloud.io/docker.io/calico/typha:v3.30.2
+    pilot-job: quay.io/k8spilot/pilot-job:v1.1
+
+cilium:
+  v1.17.6:
+    cilium: quay.io/cilium/cilium:v1.17.6
+    cilium-envoy: quay.io/cilium/cilium-envoy:v1.33.4-1752151664-7c2edb0b44cf95f326d628b837fcdd845102ba68@sha256:318eff387835ca2717baab42a84f35a83a5f9e7d519253df87269f80b9ff0171
+    operator-generic: quay.io/cilium/operator-generic:v1.17.6
+
+coredns:
+  v1.12.2:
+    coredns: m.daocloud.io/docker.io/coredns/coredns:1.12.2
+
+csi_driver_nfs:
+  v4.11.0:
+    nfsplugin: m.daocloud.io/registry.k8s.io/sig-storage/nfsplugin:v4.11.0
+    csi-provisioner: m.daocloud.io/registry.k8s.io/sig-storage/csi-provisioner:v5.3.0
+    livenessprobe: m.daocloud.io/registry.k8s.io/sig-storage/livenessprobe:v2.16.0
+    csi-node-driver-registrar: m.daocloud.io/registry.k8s.io/sig-storage/csi-node-driver-registrar:v2.14.0
+    csi-resizer: m.daocloud.io/registry.k8s.io/sig-storage/csi-resizer:v1.13.1
+    csi-snapshotter: m.daocloud.io/registry.k8s.io/sig-storage/csi-snapshotter:v8.2.0
+    snapshot-controller: m.daocloud.io/registry.k8s.io/sig-storage/snapshot-controller:v8.2.0
+    nfs-server-alpine: quay.io/k8spilot/nfs-server-alpine:v1.0
+
+ingress_nginx:
+  v1.13.0:
+    controller: m.daocloud.io/registry.k8s.io/ingress-nginx/controller:v1.13.0
+    kube-webhook-certgen: m.daocloud.io/registry.k8s.io/ingress-nginx/kube-webhook-certgen:v1.6.0
+
+k8spilot:
+  v1.1:
+    pilot-job: quay.io/k8spilot/pilot-job:v1.1
+
+pause:
+  '3.9':
+    pause: m.daocloud.io/registry.k8s.io/pause:3.9

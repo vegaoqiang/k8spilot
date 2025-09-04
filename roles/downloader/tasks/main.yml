@@ -1,0 +1,83 @@
+---
+
+- name: Create resource Dirctory
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    mode: '0755'
+    recurse: true
+  loop:
+    - "{{ image_path }}"
+    - "{{ component_path }}"
+    - "{{ kube_path }}"
+
+- name: debug
+  ansible.builtin.debug:
+    msg: "{{ item.key }}"
+  loop: "{{ calico[calico_version] | dict2items }}"
+
+- name: Downloading Crane tool
+  ansible.builtin.get_url:
+    url: "https://github.com/google/go-containerregistry/releases/download/v0.20.6/go-containerregistry_{{ ansible_system }}_{{ arch_alias}}.tar.gz"
+    dest: "{{ component_path }}/go-containerregistry_{{ ansible_system }}_{{ arch_alias}}.tar.gz"
+    mode: '0755'
+    timeout: 60
+
+- name: Install Crane tool
+  uncompress:
+    src: "{{ component_path }}/go-containerregistry_{{ ansible_system }}_{{ arch_alias}}.tar.gz"
+    dest: "{{ playbook_dir }}"
+    include:
+      - crane
+    mode: '0755'
+
+- name: Downloading calico {{ calico_version }} component images
+  ansible.builtin.shell: |
+    mkdir -p "{{ image_path }}/calico/{{ calico_version }}/{{ platform }}"
+    if ! ./crane validate --tarball {{ image_path }}/calico/{{ calico_version }}/{{ platform }}/{{ item.key }}.tar; then
+      ./crane pull --platform linux/{{ platform }} {{ item.value  }} {{ image_path }}/calico/{{ calico_version }}/{{ platform }}/{{ item.key }}.tar
+    fi
+  loop: "{{ calico[calico_version] | dict2items }}"
+
+- name: Downloading cilium {{ cilium_version }} component images
+  ansible.builtin.shell: |
+    mkdir -p "{{ image_path }}/cilium/{{ cilium_version }}/{{ platform }}"
+    if ! ./crane validate --tarball {{ image_path }}/cilium/{{ cilium_version }}/{{ platform }}/{{ item.key }}.tar; then
+      ./crane pull --platform linux/{{ platform }} {{ item.value  }} {{ image_path }}/cilium/{{ cilium_version }}/{{ platform }}/{{ item.key }}.tar
+    fi
+  loop: "{{ cilium[cilium_version] | dict2items }}"
+
+- name: Downloading coredns {{ coredns_version }} image
+  ansible.builtin.shell: |
+    mkdir -p "{{ image_path }}/coredns/{{ coredns_version }}/{{ platform }}"
+    if ! ./crane validate --tarball {{ image_path }}/coredns/{{ coredns_version }}/{{ platform }}/{{ item.key }}.tar; then
+      ./crane pull --platform linux/{{ platform }} {{ item.value  }} {{ image_path }}/coredns/{{ coredns_version }}/{{ platform }}/{{ item.key }}.tar
+    fi
+  loop: "{{ coredns[coredns_version] | dict2items }}"
+
+- name: Downloading csi-driver-nfs {{ csi_nfs_version }} component images
+  ansible.builtin.shell: |
+    mkdir -p "{{ image_path }}/csi-nfs/{{ csi_nfs_version }}/{{ platform }}"
+    if ! ./crane validate --tarball {{ image_path }}/csi-nfs/{{ csi_nfs_version }}/{{ platform }}/{{ item.key }}.tar; then
+      ./crane pull --platform linux/{{ platform }} {{ item.value  }} {{ image_path }}/csi-nfs/{{ csi_nfs_version }}/{{ platform }}/{{ item.key }}.tar
+    fi
+  loop: "{{ csi_driver_nfs[csi_nfs_version] | dict2items }}"
+
+- name: Downloading ingress-nginx {{ ingress_nginx_version }} component images
+  ansible.builtin.shell: |
+    mkdir -p "{{ image_path }}/ingress-nginx/{{ ingress_nginx_version }}/{{ platform }}"
+    if ! ./crane validate --tarball {{ image_path }}/ingress-nginx/{{ ingress_nginx_version }}/{{ platform }}/{{ item.key }}.tar; then
+      ./crane pull --platform linux/{{ platform }} {{ item.value  }} {{ image_path }}/ingress-nginx/{{ ingress_nginx_version }}/{{ platform }}/{{ item.key }}.tar
+    fi
+  loop: "{{ ingress_nginx[ingress_nginx_version] | dict2items }}"
+
+# pause固定版本
+- name: Downloading pause {{ pause_version }} image
+  ansible.builtin.shell: |
+    mkdir -p "{{ image_path }}/pause/{{ pause_version }}/{{ platform }}"
+    if ! ./crane validate --tarball {{ image_path }}/pause/{{ pause_version }}/{{ platform }}/{{ item.key }}.tar; then
+      ./crane pull --platform linux/{{ platform }} {{ item.value  }} {{ image_path }}/pause/{{ pause_version }}/{{ platform }}/{{ item.key }}.tar
+    fi
+  loop: "{{ pause[pause_version] | dict2items }}"
+  vars:
+    pause_version: "3.9"

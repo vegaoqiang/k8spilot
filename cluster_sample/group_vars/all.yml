@@ -28,7 +28,7 @@ etcd_version: v3.6.2
 helm_version: v3.17.4
 
 # coreDNS版本
-coredns_version: 1.12.2
+coredns_version: v1.12.2
 # coreDNS版本上游DNS地址
 coredns_ip: 223.5.5.5
 
@@ -63,7 +63,7 @@ cni_provider: cilium
 
 # 是否安装nfs网络存储
 enable_csi_nfs: false
-csi_nfs_version: 4.11.0
+csi_nfs_version: v4.11.0
 # 指定nfs服务端的地址, 指定的nfs服务端必须支持NFSv4
 custom_nfs_server_address: 
 # 如果没有指定自定义nfs-server地址，将在集群中自动安装nfs-server
@@ -76,6 +76,8 @@ nfs_server_host: control
 enable_ingress: true
 # 选择ingress类型，默认使用ingress-nginx, 可选cilium, 当设置为cilium时，cni_plugin必须同时为cilium，否则k8spilot不会安装ingress
 ingress_controller: cilium
+# ingress-nginx版本，当ingress_controller为ingress-nginx时生效
+ingress_nginx_version: v1.13.0
 # ingress入口，将在所有节点上通过nodeport暴露ingress入口
 ingress_nodeport_http: 30080
 ingress_nodeport_https: 30443
@@ -92,3 +94,8 @@ kube_path: "{{ playbook_dir }}/resources/kubernetes"
 
 # 安装方法，online表示在线安装，offline表示离线安装
 method: online
+
+# 镜像仓库的自定义地址，适合国内网络无法访问的情况，将对应仓库地址换成国内地址或私有仓库地址
+registry_mirror:
+  - registry.k8s.io: ""
+  - docker.io: ""
