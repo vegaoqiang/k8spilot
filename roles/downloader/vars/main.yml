@@ -33,11 +33,7 @@ ingress_nginx:
   v1.13.0:
     controller: m.daocloud.io/registry.k8s.io/ingress-nginx/controller:v1.13.0
     kube-webhook-certgen: m.daocloud.io/registry.k8s.io/ingress-nginx/kube-webhook-certgen:v1.6.0
-
-k8spilot:
-  v1.1:
-    pilot-job: quay.io/k8spilot/pilot-job:v1.1
-
+    
 pause:
   '3.9':
     pause: m.daocloud.io/registry.k8s.io/pause:3.9
