@@ -73,7 +73,7 @@ k8spilot可以简单、快速的搭建一个生产级别，纯净的Kuebrnetes�
 | :penguin: **Alibaba Cloud Linux** | 3 | :white_check_mark: |
 | :penguin: **Kylin Linux Advanced Server V10** | 2403/2503 | :white_check_mark: |
 
-## 集群组件版本矩阵
+## 默认安装的组件矩阵
 | Component | Version |
 | - | - |
 | **kubernetes** | v1.30.4+ |
@@ -83,16 +83,15 @@ k8spilot可以简单、快速的搭建一个生产级别，纯净的Kuebrnetes�
 | **cni-plugins** | v1.7.1 |
 | **pause** | v3.9 |
 | **CoreDNS** | v1.12.2 |
+| **clilum** | v1.16.12 |
+| **helm** | v3.17.4 |
 
-## 工具
-+ **helm** v3.17.4
-
-## 存储插件
-+ **csi-driver-nfs** v4.11.0
-
-## 网络插件
-+ **clilum** v1.16.12
-+ **calico** v3.30.2
+## 可选安装的组件矩阵
+| Component | Version |
+| - | - |
+| **csi-driver-nfs** | v4.11.0 |
+| **calico** | v3.30.2 |
+| **ingress-nginx** | v1.13.0 |
 
 > 网络插件安装时默认开启BPF模式，kube-proxy将被忽略安装
 
