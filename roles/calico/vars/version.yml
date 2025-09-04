@@ -1,9 +1,0 @@
-calico:
-  v3.30.2:
-    operator: quay.io/tigera/operator:v1.38.3
-    kube-controllers: docker.io/calico/kube-controllers:v3.30.2
-    pod2daemon-flexvol: docker.io/calico/pod2daemon-flexvol:v3.30.2
-    node: docker.io/calico/node:v3.30.2
-    cni: docker.io/calico/cni:v3.30.2
-    typha: docker.io/calico/typha:v3.30.2
-    pilot-job: quay.io/k8spilot/pilot-job:v1.1
