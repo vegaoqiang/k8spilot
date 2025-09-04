@@ -20,21 +20,21 @@
 
 - name: Check CSI Driver NFS {{ csi_nfs_version }} Helm Chart Exists
   ansible.builtin.stat:
-    path: "{{ component_path }}/csi-driver-nfs-{{ csi_nfs_version }}.tgz"
+    path: "{{ component_path }}/csi-driver-nfs-{{ csi_nfs_version | replace('v', '') }}.tgz"
   delegate_to: localhost
   run_once: true
   register: csi_stat
 
 - name:  CSI Driver NFS {{ csi_nfs_version }} Offline File Not Exist
   ansible.builtin.fail:
-    msg:  "{{ component_path }}/csi-driver-nfs-{{ csi_nfs_version }}.tgz not exists"
+    msg:  "{{ component_path }}/csi-driver-nfs-{{ csi_nfs_version | replace('v', '') }}.tgz not exists"
   when: not csi_stat.stat.exists and method == 'offline'
 
 
 - name: Downloading CSI Driver NFS Helm Chart
   ansible.builtin.get_url:
-    url: "{{ csi_nfs_download_prefix }}/v{{ csi_nfs_version }}/csi-driver-nfs-{{ csi_nfs_version }}.tgz"
-    dest: "{{ component_path }}/csi-driver-nfs-{{ csi_nfs_version }}.tgz"
+    url: "{{ csi_nfs_download_prefix }}/{{ csi_nfs_version }}/csi-driver-nfs-{{ csi_nfs_version | replace('v', '') }}.tgz"
+    dest: "{{ component_path }}/csi-driver-nfs-{{ csi_nfs_version | replace('v', '') }}.tgz"
     mode: '0755'
     timeout: 60
   # amazon.aws.s3_object:
@@ -52,8 +52,8 @@
 
 - name: Copy CSI Driver NFS Helm Chart To Remote Host
   ansible.builtin.copy:
-    src: "{{ component_path }}/csi-driver-nfs-{{ csi_nfs_version }}.tgz"
-    dest: "/tmp/csi-driver-nfs-{{ csi_nfs_version }}.tgz"
+    src: "{{ component_path }}/csi-driver-nfs-{{ csi_nfs_version | replace('v', '') }}.tgz"
+    dest: "/tmp/csi-driver-nfs-{{ csi_nfs_version | replace('v', '') }}.tgz"
 
 - name: Copy CSI Driver NFS Values Override File
   ansible.builtin.template:
@@ -67,9 +67,8 @@
 
 - name: Install CSI Driver NFS
   ansible.builtin.shell: |
-    helm upgrade --install csi-driver-nfs /tmp/csi-driver-nfs-{{ csi_nfs_version }}.tgz --namespace kube-system --values /tmp/csi-driver-nfs-values-override.yaml
+    helm upgrade --install csi-driver-nfs /tmp/csi-driver-nfs-{{ csi_nfs_version | replace('v', '') }}.tgz --namespace kube-system --values /tmp/csi-driver-nfs-values-override.yaml
 
-      
 - name: Transfor NFS YAML To Control
   ansible.builtin.template:
     src: nfs-server.yaml.j2
