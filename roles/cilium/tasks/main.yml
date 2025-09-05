@@ -1,20 +1,20 @@
 
 - name: Check Cilium {{ cilium_version }} Helm Chart Exists
   ansible.builtin.stat:
-    path: "{{ component_path }}/cilium-{{ cilium_version| replace('v', '') }}.tgz"
+    path: "{{ chart_path }}/cilium-{{ cilium_version| replace('v', '') }}.tgz"
   delegate_to: localhost
   run_once: true
   register: cilium_stat
 
 - name: Cilium {{ cilium_version }} Offline File Not Exist
   ansible.builtin.fail:
-    msg: "{{ component_path }}/cilium-{{ cilium_version| replace('v', '') }}.tgz not exists"
+    msg: "{{ chart_path }}/cilium-{{ cilium_version| replace('v', '') }}.tgz not exists"
   when: not cilium_stat.stat.exists and method == 'offline'
 
 - name: Downloading Cilium {{ cilium_version }} Helm Chart
   ansible.builtin.get_url:
     url: "{{ cilium_download_url_prefix }}/cilium-{{ cilium_version| replace('v', '') }}.tgz"
-    dest: "{{ component_path }}/cilium-{{ cilium_version| replace('v', '') }}.tgz"
+    dest: "{{ chart_path }}/cilium-{{ cilium_version| replace('v', '') }}.tgz"
     mode: '0755'
     timeout: 60
   # amazon.aws.s3_object:
@@ -23,7 +23,7 @@
   #   secret_key: "{{ s3_secret_key }}"
   #   bucket: "{{ s3_bucket_name }}"
   #   object: "cilium/cilium/cilium-{{ cilium_version| replace('v', '') }}.tgz"
-  #   dest: "{{ component_path }}/cilium-{{ cilium_version| replace('v', '') }}.tgz"
+  #   dest: "{{ chart_path }}/cilium-{{ cilium_version| replace('v', '') }}.tgz"
   #   mode: get
   #   overwrite: different
   delegate_to: localhost
@@ -32,7 +32,7 @@
 
 - name: Copy Cilium {{ cilium_version }} Helm Chart To Remote Host
   ansible.builtin.copy:
-    src: "{{ component_path }}/cilium-{{ cilium_version| replace('v', '') }}.tgz"
+    src: "{{ chart_path }}/cilium-{{ cilium_version| replace('v', '') }}.tgz"
     dest: "/tmp/cilium-{{ cilium_version| replace('v', '') }}.tgz"
 
 - name: Copy Cilium Values Override File
