@@ -1,5 +1,6 @@
 ingress_nginx_version: v1.13.0
 ingress_helm_version: 4.13.0
 ingress_registry_prefix: m.daocloud.io
+ingress_registry: "{{ registry_mirror.get('registry.k8s.io', 'registry.k8s.io') }}"
 
 ingress_nginx_download_prefix: 'https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-{{ ingress_nginx_version }}/deploy/static/provider/cloud/deploy.yaml'

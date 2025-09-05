@@ -5,9 +5,7 @@ installation:
     ipPools:
       - encapsulation: VXLANCrossSubnet
         cidr: "{{ kube_pod_ip_range }}"
-{% if method != 'offline' %}
   registry: "{{ calico_installation_registry }}"
-{% endif %}  
   controlPlaneReplicas: 1
 apiServer:
   enabled: false

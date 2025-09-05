@@ -37,8 +37,7 @@
     dest: "/tmp/ingress-nginx-{{ ingress_nginx_version }}.yaml"
   
 - name: Change Ingress-Nginx Image Registry
-  ansible.builtin.shell: sed -i "s#registry.k8s.io#{{ ingress_registry_prefix }}/registry.k8s.io#g" /tmp/ingress-nginx-{{ ingress_nginx_version }}.yaml
-  when: method == 'online'
+  ansible.builtin.shell: sed -i "s#registry.k8s.io#{{ ingress_registry }}#g" /tmp/ingress-nginx-{{ ingress_nginx_version }}.yaml
 
 - name: Process Offline Image
   include_tasks: offline.yml

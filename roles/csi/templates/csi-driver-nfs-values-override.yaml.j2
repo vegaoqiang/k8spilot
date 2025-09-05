@@ -3,23 +3,23 @@ driver:
 {% if method != 'offline' %}  
 image: 
   nfs: 
-    repository: "{{ csi_registry_prefix }}/registry.k8s.io/sig-storage/nfsplugin"
+    repository: "{{ csi_registry }}/sig-storage/nfsplugin"
     tag: "{{ nfsplugin_tag }}"
   csiProvisioner:
-    repository: "{{ csi_registry_prefix }}/registry.k8s.io/sig-storage/csi-provisioner"
+    repository: "{{ csi_registry }}/sig-storage/csi-provisioner"
     tag: "{{ csiprovisioner_tag }}"
   livenessProbe:
-    repository: "{{ csi_registry_prefix }}/registry.k8s.io/sig-storage/livenessprobe"
+    repository: "{{ csi_registry }}/sig-storage/livenessprobe"
     tag: "{{ livenessprobe_tag }}"
   nodeDriverRegistrar:
-    repository: "{{ csi_registry_prefix }}/registry.k8s.io/sig-storage/csi-node-driver-registrar"
+    repository: "{{ csi_registry }}/sig-storage/csi-node-driver-registrar"
     tag: "{{ nodedriverregistrar_tag }}"
   csiResizer:
-    repository: "{{ csi_registry_prefix }}/registry.k8s.io/sig-storage/csi-resizer"
+    repository: "{{ csi_registry }}/sig-storage/csi-resizer"
   csiSnapshotter:
-    repository: "{{ csi_registry_prefix }}/registry.k8s.io/sig-storage/csi-snapshotter"
+    repository: "{{ csi_registry }}/sig-storage/csi-snapshotter"
   externalSnapshotter:
-    repository: "{{ csi_registry_prefix }}/registry.k8s.io/sig-storage/snapshot-controller"
+    repository: "{{ csi_registry }}/sig-storage/snapshot-controller"
 {% endif %}  
 storageClass:
   create: true

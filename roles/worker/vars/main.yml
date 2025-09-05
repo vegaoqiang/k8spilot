@@ -1,6 +1,6 @@
 
 kube_pod_infra_image: 'registry.cn-hangzhou.aliyuncs.com/google_containers/pause:3.9'
-kube_pause_image: 'm.daocloud.io/registry.k8s.io/pause:3.9'
+kube_pause_image: "{{ registry_mirror.get('registry.k8s.io', 'registry.k8s.io') }}/pause:3.9"
 containerd_image_mirror: 'https://253dmx7q.mirror.aliyuncs.com'
 
 cri_kernel_params:
