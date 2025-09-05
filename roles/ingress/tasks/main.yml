@@ -1,21 +1,21 @@
 
 - name: Check Ingress-Nginx {{ ingress_nginx_version }} Manifest Exists
   ansible.builtin.stat:
-    path: "{{ component_path }}/ingress-nginx-{{ ingress_nginx_version }}.yaml"
+    path: "{{ chart_path }}/ingress-nginx-{{ ingress_nginx_version }}.yaml"
   delegate_to: localhost
   run_once: true
   register: ingress_stat
 
 - name: Ingress-Nginx {{ ingress_nginx_version }} Manifest Not Exist
   ansible.builtin.fail:
-    msg:  "{{ component_path }}/ingress-nginx-{{ ingress_nginx_version }}.yaml not exists"
+    msg:  "{{ chart_path }}/ingress-nginx-{{ ingress_nginx_version }}.yaml not exists"
   when: not ingress_stat.stat.exists and method == 'offline'
 
         
 - name: Downloading Ingress-Nginx Manifest
   ansible.builtin.get_url:
     url: "{{ ingress_download_url_prefix }}"
-    dest: "{{ component_path }}/ingress-nginx-{{ ingress_nginx_version }}.yaml"
+    dest: "{{ chart_path }}/ingress-nginx-{{ ingress_nginx_version }}.yaml"
     mode: '0755'
     timeout: 60
   # amazon.aws.s3_object:
@@ -24,7 +24,7 @@
   #   secret_key: "{{ s3_secret_key }}"
   #   bucket: "{{ s3_bucket_name }}"
   #   object: "ingress-nginx/{{ ingress_nginx_version }}/deploy.yaml"
-  #   dest: "{{ component_path }}/ingress-nginx-{{ ingress_nginx_version }}.yaml"
+  #   dest: "{{ chart_path }}/ingress-nginx-{{ ingress_nginx_version }}.yaml"
   #   mode: get
   #   overwrite: different
   delegate_to: localhost
@@ -33,7 +33,7 @@
 
 - name: Copy Ingress-Nginx {{ ingress_nginx_version }} Manifest To Remote Host
   ansible.builtin.copy:
-    src: "{{ component_path }}/ingress-nginx-{{ ingress_nginx_version }}.yaml"
+    src: "{{ chart_path }}/ingress-nginx-{{ ingress_nginx_version }}.yaml"
     dest: "/tmp/ingress-nginx-{{ ingress_nginx_version }}.yaml"
   
 - name: Change Ingress-Nginx Image Registry
