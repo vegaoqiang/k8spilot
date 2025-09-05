@@ -8,7 +8,7 @@
 
 - name: Load CSI Driver NFS Images
   ansible.builtin.shell: |
-    ls /tmp/csi-nfs/*.tar|xargs -n 1 ctr -n k8s.io i import
+    find /tmp/csi-nfs/ -name "*.tar"|xargs -n 1 ctr -n k8s.io i import
   delegate_to: "{{ item }}"
   loop: "{{ groups['worker'] }}"
   async: 3600

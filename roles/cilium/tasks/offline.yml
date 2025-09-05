@@ -10,7 +10,7 @@
 
 - name: Load Cilium Images
   ansible.builtin.shell: |
-    ls /tmp/cilium/*.tar|xargs -n 1 ctr -n k8s.io i import
+    find /tmp/cilium/ -name "*.tar"|xargs -n 1 ctr -n k8s.io i import
   delegate_to: "{{ item }}"
   loop: "{{ groups['worker'] }}"
   async: 3600
