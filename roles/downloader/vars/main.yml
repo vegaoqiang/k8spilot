@@ -37,3 +37,19 @@ ingress_nginx:
 pause:
   '3.9':
     pause: m.daocloud.io/registry.k8s.io/pause:3.9
+
+download_location_prefix: 
+  kubernetes: 'https://dl.k8s.io'
+  etcd: 'https://github.com/etcd-io/etcd/releases/download'
+  cfssl: 'https://github.com/cloudflare/cfssl/releases/download'
+  tigera: 'https://github.com/projectcalico/calico/releases/download'
+  cilium: 'https://raw.githubusercontent.com/cilium/charts/refs/heads/master'
+  cni-plugins: 'https://github.com/containernetworking/plugins/releases/download'
+  runc: 'https://github.com/opencontainers/runc/releases/download'
+  containerd: 'https://github.com/containerd/containerd/releases/download'
+  csi-driver-nfs: 'https://raw.githubusercontent.com/kubernetes-csi/csi-driver-nfs/refs/heads/master/charts'
+  helm: 'https://get.helm.sh'
+  ingress-nginx: 'https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-{{ ingress_nginx_version }}/deploy/static/provider/cloud/deploy.yaml'
+  
+
+    

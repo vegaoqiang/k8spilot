@@ -1,0 +1,23 @@
+---
+
+- name: Create kube {{ kube_version }} Dirctory
+  ansible.builtin.file:
+    path: "{{ kube_path }}/{{ kube_version }}/{{ arch_alias }}"
+    state: directory
+    mode: '0755'
+    recurse: true
+
+- name: Downloading Kubernetes {{ kube_version }} Components Binary
+  ansible.builtin.get_url:
+    url: "{{ download_location_prefix['kubernetes'] }}/{{ kube_version }}/bin/linux/{{ arch_alias }}/{{ item }}"
+    dest: "{{ kube_path }}/{{ kube_version }}/{{ arch_alias }}/{{ item }}"
+    mode: '0755'
+    timeout: 60
+  loop:
+    - kube-apiserver
+    - kube-controller-manager
+    - kube-scheduler
+    - kubectl
+    - kubelet
+  retries: 5
+  delay: 10

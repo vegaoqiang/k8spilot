@@ -40,7 +40,7 @@ cilium_cli_version: v0.18.4
 calico_version: v3.30.2
 
 # containerd版本
-containerd_version: 1.7.28
+containerd_version: v1.7.28
 # containerd根目录
 containerd_root: /var/lib/containerd
 # cni版本: https://github.com/containernetworking/plugins
@@ -52,7 +52,7 @@ runc_version: v1.3.0
 root_cert: ca.pem
 root_key: ca-key.pem
 # 证书工具版本
-cfssl_version: 1.6.5
+cfssl_version: v1.6.5
 
 # 集群安装文件下载地址
 # download_location: https://pub-86cf087c79b64b9a8e73f0431cdf4f0d.r2.dev
@@ -96,6 +96,9 @@ kube_path: "{{ playbook_dir }}/resources/kubernetes"
 method: online
 
 # 镜像仓库的自定义地址，适合国内网络无法访问的情况，将对应仓库地址换成国内地址或私有仓库地址
+# 示例：registry.k8s.io: "m.daocloud.io/registry.k8s.io"，将镜像地址为registry.k8s.io的镜像换成m.daocloud.io/registry.k8s.io
+# 如：registry.k8s.io/pause:3.9 替换成 m.daocloud.io/registry.k8s.io/pause:3.9
 registry_mirror:
-  - registry.k8s.io: ""
-  - docker.io: ""
+  registry.k8s.io: "m.daocloud.io/registry.k8s.io"
+  docker.io: "m.daocloud.io/docker.io"
+  quay.io: ""
