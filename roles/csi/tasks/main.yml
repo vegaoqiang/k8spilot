@@ -68,6 +68,8 @@
 - name: Install CSI Driver NFS
   ansible.builtin.shell: |
     helm upgrade --install csi-driver-nfs /tmp/csi-driver-nfs-{{ csi_nfs_version | replace('v', '') }}.tgz --namespace kube-system --values /tmp/csi-driver-nfs-values-override.yaml
+  retries: 3
+  delay: 10
 
 - name: Transfor NFS YAML To Control
   ansible.builtin.template:
@@ -79,3 +81,5 @@
   ansible.builtin.shell: |
     kubectl apply -f {{ kubernetes_home }}/etc/nfs-server.yaml
   when: nfs_server_address is not defined or nfs_server_address is none
+  retries: 3
+  delay: 10
