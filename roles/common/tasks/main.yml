@@ -99,7 +99,7 @@
 
 - name: Check Cfssl {{ cfssl_version }} Tools Exist
   ansible.builtin.stat:
-    path: "{{ component_path }}/{{ item }}_{{ cfssl_version }}_linux_{{ arch_alias }}"
+    path: "{{ component_path }}/{{ item }}_{{ cfssl_version|replace('v','') }}_linux_{{ arch_alias }}"
   loop:
     - cfssl
     - cfssljson
@@ -109,14 +109,14 @@
 
 - name: Cfssl {{ cfssl_version }} Offline File Not Exist
   ansible.builtin.fail:
-    msg: "{{ component_path }}/{{ item.item }}_{{ cfssl_version }}_linux_{{ arch_alias }} not exists"
+    msg: "{{ component_path }}/{{ item.item }}_{{ cfssl_version|replace('v','') }}_linux_{{ arch_alias }} not exists"
   when: not item.stat.exists and method == 'offline'
   loop: "{{ cfssl_stat.results }}"
   
-- name: Downloading Cfssl v{{ cfssl_version }}
+- name: Downloading Cfssl {{ cfssl_version }}
   ansible.builtin.get_url:
-    url: "{{ cfssl_download_url_prefix }}/v{{ cfssl_version }}/{{ item.item }}_{{ cfssl_version }}_linux_{{ arch_alias }}"
-    dest: "{{ component_path }}/{{ item.item }}_{{ cfssl_version }}_linux_{{ arch_alias }}"
+    url: "{{ cfssl_download_url_prefix }}/{{ cfssl_version|replace('v','') }}/{{ item.item }}_{{ cfssl_version|replace('v','') }}_linux_{{ arch_alias }}"
+    dest: "{{ component_path }}/{{ item.item }}_{{ cfssl_version|replace('v','') }}_linux_{{ arch_alias }}"
     mode: '0755'
     timeout: 60
   # amazon.aws.s3_object:
@@ -137,7 +137,7 @@
 
 - name: Copy Cfssl Tool To Remote Host
   ansible.builtin.copy:
-    src: "{{ component_path }}/{{ item }}_{{ cfssl_version }}_linux_{{ arch_alias }}"
+    src: "{{ component_path }}/{{ item }}_{{ cfssl_version|replace('v','') }}_linux_{{ arch_alias }}"
     dest: "/usr/local/bin/{{ item }}"
     mode: '0755'
   loop:
