@@ -47,3 +47,5 @@
   ansible.builtin.shell: |
     kubectl apply -f /tmp/ingress-nginx-{{ ingress_nginx_version }}.yaml
     kubectl patch ingressclass nginx -p '{"metadata":{"annotations":{"ingressclass.kubernetes.io/is-default-class":"true"}}}'
+  retries: 5
+  delay: 10
