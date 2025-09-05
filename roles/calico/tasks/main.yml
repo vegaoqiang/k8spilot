@@ -1,78 +1,73 @@
 
-- name: Check k8spilot image Exist
-  ansible.builtin.stat:
-    path: "{{ image_path }}/k8spilot/pilot-job-v1.1-{{ arch_alias }}.tar"
-  delegate_to: localhost
-  run_once: true
-  register: k8spilot_image_stat
+- name: Process Offline Images
+  include_tasks: offline.yml
+  when: method == 'offline'
 
-- name: k8spilot Offline File Not Exist
-  ansible.builtin.fail:
-    msg: "{{ image_path }}/k8spilot/pilot-job-v1.1-{{ arch_alias }}.tar not exists"
-  when: not k8spilot_image_stat.stat.exists and method == 'offline'
+# - name: Check k8spilot image Exist
+#   ansible.builtin.stat:
+#     path: "{{ image_path }}/k8spilot/pilot-job-v1.1-{{ arch_alias }}.tar"
+#   delegate_to: localhost
+#   run_once: true
+#   register: k8spilot_image_stat
 
-- name: Create k8spilot Image Directory
-  ansible.builtin.file:
-    path: "{{ image_path }}/k8spilot"
-    state: directory
-    mode: '0755'
-    recurse: true
-  delegate_to: localhost
-  run_once: true
-  when: not k8spilot_image_stat.stat.exists and method == 'online'
+# - name: k8spilot Offline File Not Exist
+#   ansible.builtin.fail:
+#     msg: "{{ image_path }}/k8spilot/pilot-job-v1.1-{{ arch_alias }}.tar not exists"
+#   when: not k8spilot_image_stat.stat.exists and method == 'offline'
+
+# - name: Create k8spilot Image Directory
+#   ansible.builtin.file:
+#     path: "{{ image_path }}/k8spilot"
+#     state: directory
+#     mode: '0755'
+#     recurse: true
+#   delegate_to: localhost
+#   run_once: true
+#   when: not k8spilot_image_stat.stat.exists and method == 'online'
 
 
-- name: Downloading k8spilot Job Image
-  ansible.builtin.get_url:
-    url: "{{ pilot_download_url_prefix }}/pilot/pilot-job-v1.1-{{ arch_alias }}.tar"
-    dest: "{{ image_path }}/k8spilot/pilot-job-v1.1-{{ arch_alias }}.tar"
-    mode: '0755'
-    timeout: 60
-  # amazon.aws.s3_object:
-  #   endpoint_url: "{{ s3_endpoint_url }}"
-  #   access_key: "{{ s3_access_key }}"
-  #   secret_key: "{{ s3_secret_key }}"
-  #   bucket: "{{ s3_bucket_name }}"
-  #   object: "pilot/pilot-job-v1.1-{{ arch_alias }}.tar"
-  #   dest: "{{ image_path }}/k8spilot/pilot-job-v1.1-{{ arch_alias }}.tar"
-  #   mode: get
-  #   overwrite: different
-  delegate_to: localhost
-  run_once: true
-  retries: 5
-  delay: 10
-  when: not k8spilot_image_stat.stat.exists and method == 'online'
+# - name: Downloading k8spilot Job Image
+#   ansible.builtin.get_url:
+#     url: "{{ pilot_download_url_prefix }}/pilot/pilot-job-v1.1-{{ arch_alias }}.tar"
+#     dest: "{{ image_path }}/k8spilot/pilot-job-v1.1-{{ arch_alias }}.tar"
+#     mode: '0755'
+#     timeout: 60
+#   delegate_to: localhost
+#   run_once: true
+#   retries: 5
+#   delay: 10
+#   when: not k8spilot_image_stat.stat.exists and method == 'online'
 
 - name: Copy k8spilot Artifact To Remote Host
   ansible.builtin.copy:
     src: "{{ item.src }}"
     dest: "{{ item.dest }}"
   loop:
-    - { src: "{{ image_path }}/k8spilot/pilot-job-v1.1-{{ arch_alias }}.tar", dest:  "/tmp/pilot-job-v1.1-{{ arch_alias }}.tar" }
+    # - { src: "{{ image_path }}/k8spilot/pilot-job-v1.1-{{ arch_alias }}.tar", dest:  "/tmp/pilot-job-v1.1-{{ arch_alias }}.tar" }
     - { src: "pilot-job.yaml", dest: "{{ kubernetes_home}}/etc/pilot-job.yaml" }
 
-- name: Import k8spilot Job Image To Containerd
-  ansible.builtin.shell: ctr -n k8s.io i import /tmp/pilot-job-v1.1-{{ arch_alias }}.tar
+# - name: Import k8spilot Job Image To Containerd
+#   ansible.builtin.shell: ctr -n k8s.io i import /tmp/pilot-job-v1.1-{{ arch_alias }}.tar
 
 - name: Deploy k8spilot Job
   ansible.builtin.shell: kubectl apply -f "{{ kubernetes_home}}/etc/pilot-job.yaml"
 
 - name: Check tigera-operator {{ calico_version }} Helm Chart Exist
   ansible.builtin.stat:
-    path: "{{ component_path }}/tigera-operator-{{ calico_version }}.tgz"
+    path: "{{ chart_path }}/tigera-operator-{{ calico_version }}.tgz"
   delegate_to: localhost
   run_once: true
   register: tigera_stat
 
 - name: tigera-operator {{ calico_version }} Offline File Not Exist
   ansible.builtin.fail:
-    msg: "{{ component_path }}/tigera-operator-{{ calico_version }}.tgz not exists"
+    msg: "{{ chart_path }}/tigera-operator-{{ calico_version }}.tgz not exists"
   when: not tigera_stat.stat.exists and method == 'offline'
 
 - name: Downloading tigera-operator {{ calico_version }} Helm Chart
   ansible.builtin.get_url:
     url: "{{ tigera_download_url_prefix }}/{{ calico_version }}/tigera-operator-{{ calico_version }}.tgz"
-    dest: "{{ component_path }}/tigera-operator-{{ calico_version }}.tgz"
+    dest: "{{ chart_path }}/tigera-operator-{{ calico_version }}.tgz"
     mode: '0755'
     timeout: 60
   # amazon.aws.s3_object:
@@ -90,7 +85,7 @@
 
 - name: Copy tigera-operator {{ calico_version }}  Helm Chart To Remote Host
   ansible.builtin.copy:
-    src: "{{ component_path }}/tigera-operator-{{ calico_version }}.tgz"
+    src: "{{ chart_path }}/tigera-operator-{{ calico_version }}.tgz"
     dest: "/tmp/tigera-operator-{{ calico_version }}.tgz"
 
 - name: Copy tigera-operator Values Override File
@@ -98,10 +93,6 @@
     src: "tigera-operator-values-override.yaml.j2"
     dest: "/tmp/tigera-operator-values-override.yaml"
     mode: '0644'
-
-- name: Process Offline Images
-  include_tasks: offline.yml
-  when: method == 'offline'
 
 - name: Install tigera-operator {{ calico_version }} 
   ansible.builtin.shell: |
