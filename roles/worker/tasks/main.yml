@@ -258,6 +258,20 @@
   - 'containerd'
   - 'kubelet'
 
+- name: Copy PAUSE Image To Remote Host
+  ansible.builtin.copy:
+    src: "{{ image_path }}/pause/{{ pause_version }}/{{ arch_alias }}/pause.tar"
+    dest: "/tmp/pause-{{ arch_alias }}.tar"
+    mode: '0644'
+  when: method == 'offline'
+
+- name: Load PAUSE Image
+  ansible.builtin.shell: |
+    ctr -n k8s.io i import /tmp/pause-{{ arch_alias }}.tar
+  async: 3600
+  poll: 0
+  when: method == 'offline'
+
 - name: Kubernetes Worker Install Complete
   ansible.builtin.debug:
     msg: "Kubernetes Worker Install Complete"
