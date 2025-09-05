@@ -2,19 +2,19 @@
 
 - name: Check Kubernetes {{ kube_version }} Directory Exists
   ansible.builtin.stat:
-    path: "{{ kube_path }}/{{ kube_version }}/linux/{{ arch_alias }}"
+    path: "{{ kube_path }}/{{ kube_version }}/{{ arch_alias }}"
   delegate_to: localhost
   run_once: true
   register: kube_dir_stat
 
 - name: Kubernetes {{ kube_version }} Control Components Offline File Not Exist
   ansible.builtin.fail:
-    msg: "{{ kube_path }}/{{ kube_version }}/linux/{{ arch_alias }} not exists"
+    msg: "{{ kube_path }}/{{ kube_version }}/{{ arch_alias }} not exists"
   when: not kube_dir_stat.stat.exists and method == 'offline'
 
 - name: Create Kubernetes {{ kube_version }} Directory
   ansible.builtin.file:
-    path: "{{ kube_path }}/{{ kube_version }}/linux/{{ arch_alias }}"
+    path: "{{ kube_path }}/{{ kube_version }}/{{ arch_alias }}"
     state: directory
     mode: '0755'
     recurse: true
@@ -24,7 +24,7 @@
 
 - name: Check Kubernetes {{ kube_version }} Control Components Exist
   ansible.builtin.stat:
-    path: "{{ kube_path }}/{{ kube_version }}/linux/{{ arch_alias }}/{{ item }}"
+    path: "{{ kube_path }}/{{ kube_version }}/{{ arch_alias }}/{{ item }}"
   register: kube_stat
   delegate_to: localhost
   run_once: true
@@ -36,15 +36,15 @@
 
 - name: Kubernetes {{ kube_version }} Control Components Offline File Not Exist
   ansible.builtin.fail:
-    msg: "{{ kube_path }}/{{ kube_version }}/linux/{{ arch_alias }}/{{ item.item }} not exists"
+    msg: "{{ kube_path }}/{{ kube_version }}/{{ arch_alias }}/{{ item.item }} not exists"
   loop: "{{ kube_stat.results }}"
   when: not item.stat.exists and method == 'offline'
 
 
 - name:  Downloading Kubernetes {{ kube_version }} Control Components
   ansible.builtin.get_url:
-    url: "{{ kube_download_url_prefix }}/{{ kube_version }}/bin/linux/{{ arch_alias }}/{{ item.item }}"
-    dest: "{{ kube_path }}/{{ kube_version }}/linux/{{ arch_alias }}/{{ item.item }}"
+    url: "{{ kube_download_url_prefix }}/{{ kube_version }}/bin/{{ arch_alias }}/{{ item.item }}"
+    dest: "{{ kube_path }}/{{ kube_version }}/{{ arch_alias }}/{{ item.item }}"
     mode: '0755'
     timeout: 60
   # amazon.aws.s3_object:
@@ -66,7 +66,7 @@
 
 - name: Copy Kubernetes {{ kube_version }} Control Components To Remote Host
   ansible.builtin.copy:
-    src: "{{ kube_path }}/{{ kube_version }}/linux/{{ arch_alias }}/{{ item }}"
+    src: "{{ kube_path }}/{{ kube_version }}/{{ arch_alias }}/{{ item }}"
     dest: "{{ kubernetes_home }}/bin/{{ item }}"
     mode: '0755'
   loop:
