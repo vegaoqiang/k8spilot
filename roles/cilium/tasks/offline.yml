@@ -2,8 +2,8 @@
 
 - name: Copy Cilium Offline Images To Remote Host
   ansible.builtin.copy:
-    src: "{{ image_path }}/cilium"
-    dest: "/tmp/"
+    src: "{{ image_path }}/cilium/{{ cilium_version }}/{{ cilium_version }}"
+    dest: "/tmp/cilium"
     mode: '0644'
   delegate_to: "{{ item }}"
   loop: "{{ groups['worker'] }}"

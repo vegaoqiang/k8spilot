@@ -1,7 +1,7 @@
 - name: Copy CSI Driver NFS Offline Images To Remote Host
   ansible.builtin.copy:
-    src: "{{ image_path }}/csi-nfs"
-    dest: "/tmp/"
+    src: "{{ image_path }}/csi-nfs/{{ csi_nfs_version }}/{{ arch_alias}}"
+    dest: "/tmp/csi-nfs"
     mode: '0644'
   delegate_to: "{{ item }}"
   loop: "{{ groups['worker'] }}"

@@ -2,8 +2,8 @@
 
 - name: Copy Calico Offline Images To Remote Host
   ansible.builtin.copy:
-    src: "{{ image_path }}/calico"
-    dest: "/tmp/"
+    src: "{{ image_path }}/calico/{{ calico_version }}/{{ arch_alias }}"
+    dest: "/tmp/calico"
     mode: '0644'
   delegate_to: "{{ item }}"
   loop: "{{ groups['worker'] }}"

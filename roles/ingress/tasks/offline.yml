@@ -1,7 +1,7 @@
 - name: Copy Ingress-Nginx Images To Remote Host
   ansible.builtin.copy:
-    src: "{{ playbook_dir }}/artifacts/images/ingress-nginx"
-    dest: "/tmp/"
+    src: "{{ image_path }}/ingress-nginx/{{ ingress_nginx_version }}/{{ arch_alias }}"
+    dest: "/tmp/ingress-nginx"
   delegate_to: "{{ item }}"
   loop: "{{ groups['worker'] }}"
 
