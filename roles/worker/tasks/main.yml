@@ -258,7 +258,7 @@
   - 'containerd'
   - 'kubelet'
 
-- name: Copy PAUSE Image To Remote Host
+- name: Copy PAUSE {{ pause_version }} Image To Remote Host
   ansible.builtin.copy:
     src: "{{ image_path }}/pause/{{ pause_version }}/{{ arch_alias }}/pause.tar"
     dest: "/tmp/pause-{{ arch_alias }}.tar"
