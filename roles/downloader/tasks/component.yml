@@ -9,7 +9,7 @@
 
 - name: Downloading cfssl {{ cfssl_version }}
   ansible.builtin.get_url:
-    url: "{{ download_location_prefix['cfssl'] }}/{{ cfssl_version|replace('v','') }}/{{ item }}_{{ cfssl_version|replace('v','') }}_linux_{{ arch_alias }}"
+    url: "{{ download_location_prefix['cfssl'] }}/{{ cfssl_version }}/{{ item }}_{{ cfssl_version|replace('v','') }}_linux_{{ arch_alias }}"
     dest: "{{ component_path }}/{{ item }}_{{ cfssl_version|replace('v','') }}_linux_{{ arch_alias }}"
     mode: '0755'
     timeout: 60
@@ -64,39 +64,4 @@
   retries: 5
   delay: 10
 
-- name: Downloading csi-driver-nfs {{ csi_nfs_version }} Chart
-  ansible.builtin.get_url:
-    url: "{{ download_location_prefix['csi-driver-nfs'] }}/{{ csi_nfs_version }}/csi-driver-nfs-{{ csi_nfs_version | replace('v', '') }}.tgz"
-    dest: "{{ component_path }}/csi-driver-nfs-{{ csi_nfs_version | replace('v', '') }}.tgz"
-    mode: '0755'
-    timeout: 60
-  retries: 5
-  delay: 10
-
-- name: Downloading Cilium {{ cilium_version }} Chart
-  ansible.builtin.get_url:
-    url: "{{ download_location_prefix['cilium'] }}/cilium-{{ cilium_version| replace('v', '') }}.tgz"
-    dest: "{{ component_path }}/cilium-{{ cilium_version| replace('v', '') }}.tgz"
-    mode: '0755'
-    timeout: 60
-  retries: 5
-  delay: 10
-
-- name: Downloading tigera-operator {{ calico_version }} Chart 
-  ansible.builtin.get_url:
-    url: "{{ download_location_prefix['tigera-operator'] }}/{{ calico_version }}/tigera-operator-{{ calico_version }}.tgz"
-    dest: "{{ component_path }}/tigera-operator-{{ calico_version }}.tgz"
-    mode: '0755'
-    timeout: 60
-  retries: 5
-  delay: 10
-
-- name: Downloading ingress-nginx {{ ingress_nginx_version }}
-  ansible.builtin.get_url:
-    url: "{{ download_location_prefix['ingress-nginx'] }}"
-    dest: "{{ component_path }}/ingress-nginx-{{ ingress_nginx_version }}.yaml"
-    mode: '0755'
-    timeout: 60
-  retries: 5
-  delay: 10
 

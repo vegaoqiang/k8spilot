@@ -89,6 +89,7 @@ worker_hostname_prefix: worker
 
 # 离线文件存放位置，包含在线安装集群时下载的文件
 image_path: "{{ playbook_dir }}/resources/images"
+chart_path: "{{ playbook_dir }}/resources/charts"
 component_path: "{{ playbook_dir }}/resources/components"
 kube_path: "{{ playbook_dir }}/resources/kubernetes"
 

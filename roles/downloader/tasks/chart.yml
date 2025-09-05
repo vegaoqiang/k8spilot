@@ -1,0 +1,44 @@
+---
+
+- name: Create Chart Dirctory
+  ansible.builtin.file:
+    path: "{{ chart_path }}"
+    state: directory
+    mode: '0755'
+    recurse: true
+
+- name: Downloading csi-driver-nfs {{ csi_nfs_version }} Chart
+  ansible.builtin.get_url:
+    url: "{{ download_location_prefix['csi-driver-nfs'] }}/{{ csi_nfs_version }}/csi-driver-nfs-{{ csi_nfs_version | replace('v', '') }}.tgz"
+    dest: "{{ chart_path }}/csi-driver-nfs-{{ csi_nfs_version | replace('v', '') }}.tgz"
+    mode: '0755'
+    timeout: 60
+  retries: 5
+  delay: 10
+
+- name: Downloading Cilium {{ cilium_version }} Chart
+  ansible.builtin.get_url:
+    url: "{{ download_location_prefix['cilium'] }}/cilium-{{ cilium_version| replace('v', '') }}.tgz"
+    dest: "{{ chart_path }}/cilium-{{ cilium_version| replace('v', '') }}.tgz"
+    mode: '0755'
+    timeout: 60
+  retries: 5
+  delay: 10
+
+- name: Downloading tigera-operator {{ calico_version }} Chart 
+  ansible.builtin.get_url:
+    url: "{{ download_location_prefix['tigera-operator'] }}/{{ calico_version }}/tigera-operator-{{ calico_version }}.tgz"
+    dest: "{{ chart_path }}/tigera-operator-{{ calico_version }}.tgz"
+    mode: '0755'
+    timeout: 60
+  retries: 5
+  delay: 10
+
+- name: Downloading ingress-nginx {{ ingress_nginx_version }} Manifest
+  ansible.builtin.get_url:
+    url: "{{ download_location_prefix['ingress-nginx'] }}"
+    dest: "{{ chart_path }}/ingress-nginx-{{ ingress_nginx_version }}.yaml"
+    mode: '0755'
+    timeout: 60
+  retries: 5
+  delay: 10

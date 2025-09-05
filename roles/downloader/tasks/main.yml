@@ -1,0 +1,17 @@
+- name: Downloading Image
+  import_tasks: image.yml
+  tags: image
+
+- name: Downloading Chart
+  import_tasks: chart.yml
+  tags: 
+    - chart
+    - image
+
+- name: Downloading Component
+  import_tasks: component.yml
+  tags: component
+
+- name: Downloading Kubernetes Binaries
+  import_tasks: kube.yml
+  tags: kube

@@ -42,7 +42,7 @@ download_location_prefix:
   kubernetes: 'https://dl.k8s.io'
   etcd: 'https://github.com/etcd-io/etcd/releases/download'
   cfssl: 'https://github.com/cloudflare/cfssl/releases/download'
-  tigera: 'https://github.com/projectcalico/calico/releases/download'
+  tigera-operator: 'https://github.com/projectcalico/calico/releases/download'
   cilium: 'https://raw.githubusercontent.com/cilium/charts/refs/heads/master'
   cni-plugins: 'https://github.com/containernetworking/plugins/releases/download'
   runc: 'https://github.com/opencontainers/runc/releases/download'
