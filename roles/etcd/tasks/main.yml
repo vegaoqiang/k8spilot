@@ -1,5 +1,17 @@
 ---
 
+- name: Check Etcd Service Exists
+  ansible.builtin.service_facts:
+
+- name: Etcd is Already Installed
+  ansible.builtin.debug:
+    msg: "Etcd is already installed on {{ inventory_hostname }}: {{ ansible_default_ipv4.address }}, skip this role on host {{ inventory_hostname }}: {{ ansible_default_ipv4.address }}"
+  when: "'etcd.service' in ansible_facts.services"
+
+- name: Skip This Role
+  meta: end_host
+  when: "'etcd.service' in ansible_facts.services"
+
 - name: Check Etcd {{ etcd_version }} File Exists
   ansible.builtin.stat:
     path: "{{ component_path }}/etcd-{{ etcd_version }}-linux-{{ arch_alias }}.tar.gz"
