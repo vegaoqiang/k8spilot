@@ -290,10 +290,26 @@
 
 - name: Wait Kubelet Service Started
   ansible.builtin.wait_for:
+    host: "{{ ansible_default_ipv4.address }}"
     port: 10250
     state: started
     timeout: 60
   any_errors_fatal: true
+
+- name: Wait Worker Sign Request
+  ansible.builtin.shell: |
+    kubectl get csr|grep "Pending"|awk '{print $4}'|awk -F: '{print $NF}'
+  register: result
+  delegate_to: "{{ groups['control'][0] }}"
+  until: "inventory_hostname in result.stdout_lines"
+  retries: 10
+
+- name: Approve Worker Sign Request
+  ansible.builtin.shell: |
+    for csr in $(kubectl get csr|grep 'Pending'|awk '{print $1}'); do
+      kubectl certificate approve $csr
+    done
+  delegate_to: "{{ groups['control'][0] }}"
 
 - name: Kubernetes Worker Install Complete
   ansible.builtin.debug:
