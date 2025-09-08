@@ -1,5 +1,23 @@
 ---
 
+- name: Check Kubernetes {{ kube_version }} Control Service exists
+  ansible.builtin.service_facts:
+
+- name: Kubernetes Control is Already Installed
+  ansible.builtin.debug:
+    msg: "Kubernetes Control is already installed on {{ inventory_hostname }}: {{ ansible_default_ipv4.address }}, skip this role on host {{ inventory_hostname }}: {{ ansible_default_ipv4.address }}"
+  when: 
+    - "'kube-apiserver.service' in ansible_facts.services"
+    - "'kube-controller-manager.service' in ansible_facts.services"
+    - "'kube-scheduler.service' in ansible_facts.services"
+
+- name: Skip This Role
+  meta: end_host
+  when: 
+    - "'kube-apiserver.service' in ansible_facts.services"
+    - "'kube-controller-manager.service' in ansible_facts.services"
+    - "'kube-scheduler.service' in ansible_facts.services"
+
 - name: Check Kubernetes {{ kube_version }} Directory Exists
   ansible.builtin.stat:
     path: "{{ kube_path }}/{{ kube_version }}/{{ arch_alias }}"
