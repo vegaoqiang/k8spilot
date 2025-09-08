@@ -123,6 +123,7 @@
 - name: Generate CA Files
   ansible.builtin.import_tasks: ca.yml
   when: ca_check.rc != 0
+  when: inventory_hostname in groups['control']
 
 - name: Fetch CA File
   ansible.builtin.fetch:
