@@ -97,66 +97,32 @@
     - "{{ image_path }}"
     - "{{ component_path }}"
 
-- name: Check Cfssl {{ cfssl_version }} Tools Exist
-  ansible.builtin.stat:
-    path: "{{ component_path }}/{{ item }}_{{ cfssl_version|replace('v','') }}_linux_{{ arch_alias }}"
-  loop:
-    - cfssl
-    - cfssljson
-  delegate_to: localhost
-  run_once: true
-  register: cfssl_stat
+- name: Check Cfssl is already installed
+  ansible.builtin.command: cfssl version && cfssljson -version
+  register: cfssl_check
+  ignore_errors: true
+  changed_when: false
+  failed_when: false
 
-- name: Cfssl {{ cfssl_version }} Offline File Not Exist
-  ansible.builtin.fail:
-    msg: "{{ component_path }}/{{ item.item }}_{{ cfssl_version|replace('v','') }}_linux_{{ arch_alias }} not exists"
-  when: not item.stat.exists and method == 'offline'
-  loop: "{{ cfssl_stat.results }}"
-  
-- name: Downloading Cfssl {{ cfssl_version }}
-  ansible.builtin.get_url:
-    url: "{{ cfssl_download_url_prefix }}/{{ cfssl_version|replace('v','') }}/{{ item.item }}_{{ cfssl_version|replace('v','') }}_linux_{{ arch_alias }}"
-    dest: "{{ component_path }}/{{ item.item }}_{{ cfssl_version|replace('v','') }}_linux_{{ arch_alias }}"
-    mode: '0755'
-    timeout: 60
-  # amazon.aws.s3_object:
-  #   endpoint_url: "{{ s3_endpoint_url }}"
-  #   access_key: "{{ s3_access_key }}"
-  #   secret_key: "{{ s3_secret_key }}"
-  #   bucket: "{{ s3_bucket_name }}"
-  #   object: "cfssl/v{{ cfssl_version }}/linux/{{ arch_alias }}/{{ item.item }}_{{ cfssl_version }}_linux_{{ arch_alias }}"
-  #   dest: "{{ component_path }}/{{ item.item }}_{{ cfssl_version }}_linux_{{ arch_alias }}"
-  #   mode: get
-  #   overwrite: different
-  loop: "{{ cfssl_stat.results }}"
-  when: not item.stat.exists and method == 'online'
-  delegate_to: localhost
-  run_once: true
-  retries: 5
-  delay: 10
+- name: Install Cfssl Tools
+  ansible.builtin.import_tasks: cfssl.yml
+  when: cfssl_check.rc != 0
 
-- name: Copy Cfssl Tool To Remote Host
-  ansible.builtin.copy:
-    src: "{{ component_path }}/{{ item }}_{{ cfssl_version|replace('v','') }}_linux_{{ arch_alias }}"
-    dest: "/usr/local/bin/{{ item }}"
-    mode: '0755'
-  loop:
-    - cfssl
-    - cfssljson
-
-
-- name: Create CA CSR File
-  ansible.builtin.copy:
-    src: root-csr.json
-    dest: /tmp/ca/
-  when: inventory_hostname in groups['control']
-
-- name: Generate Root CA
+- name: Check CA Files
   ansible.builtin.shell: |
-    cfssl gencert -initca root-csr.json |cfssljson -bare ca
-  args:
-    chdir: /tmp/ca
+    if [ -f /tmp/ca/ca.pem ] && [ -f /tmp/ca/ca-key.pem ]; then
+      exit 0
+    else
+      exit 1
+    fi
+  register: ca_check
+  changed_when: false
+  failed_when: false
   when: inventory_hostname in groups['control']
+
+- name: Generate CA Files
+  ansible.builtin.import_tasks: ca.yml
+  when: ca_check.rc != 0
 
 - name: Fetch CA File
   ansible.builtin.fetch:
