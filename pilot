@@ -160,8 +160,10 @@ get_kube_version_offline(){
   elif [ $(echo "${version_list}"|wc -l) -eq 1 ]; then
     VERSION="${version_list}"
   else
-    printf "\e[31m未找到离线版本\e[0m\n"
-    exit 1
+    local sample_version=$(grep 'kube_version' $(dirname ${BASH_SOURCE[0]})/cluster_sample/group_vars/all.yml|awk '{print $NF}')
+    printf "\e[33m本地未找到离线资源，${cluster_name}环境的Kubernetes版本默认设置为: ${sample_version}，稍后可以手动编辑./inventories/${cluster_name}/group_vars/all.yml文件修改其中的kube_version值来指定版本。\e[0m\n"
+    printf "\e[33m开始离线部署${cluster_name}环境的Kubernetes前，请先下载离线资源，可执行：./pilot dl ${cluster_name} 下载离线资源\e[0m\n"
+    VERSION=${sample_version}
   fi
   printf "\e[32m已选择安装 kubernetes ${VERSION}\e[0m\n"
 }
