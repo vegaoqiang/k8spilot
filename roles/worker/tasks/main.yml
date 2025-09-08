@@ -1,5 +1,21 @@
 ---
 
+- name: Check Kubernetes {{ kube_version }} Worker Service exists
+  ansible.builtin.service_facts:
+
+- name: Kubernetes Worker is Already Installed
+  ansible.builtin.debug:
+    msg: "Kubernetes Worker is already installed on {{ inventory_hostname }}: {{ ansible_default_ipv4.address }}, skip this role on host {{ inventory_hostname }}: {{ ansible_default_ipv4.address }}"
+  when: 
+    - "'kubelet.service' in ansible_facts.services"
+    - "'containerd.service' in ansible_facts.services"
+
+- name: Skip This Role
+  meta: end_host
+  when: 
+    - "'kubelet.service' in ansible_facts.services"
+    - "'containerd.service' in ansible_facts.services"
+
 - name: Install Kernel Module Conf 
   copy:
     src: "cri.conf"
@@ -271,6 +287,13 @@
   async: 3600
   poll: 0
   when: method == 'offline'
+
+- name: Wait Kubelet Service Started
+  ansible.builtin.wait_for:
+    port: 10250
+    state: started
+    timeout: 60
+  any_errors_fatal: true
 
 - name: Kubernetes Worker Install Complete
   ansible.builtin.debug:
