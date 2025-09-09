@@ -263,6 +263,78 @@ create_cluster(){
   printf "\e[32m使用 ./pilot deploy ${cluster_name} 命令开始部署 ${cluster_name} kubernetes集群。\e[0m\n"
 }
 
+download_res(){
+  while [[ "$#" -gt 0 ]]; do
+    case $1 in 
+    --env)
+      if [ -z "$2" ] || [ ! -d "$(dirname ${BASH_SOURCE[0]})/inventories/$2" ]; then
+        printf "\e[31m请使用 --env mycluster 参数指定集群环境名称\e[0m\n"
+        exit 1
+      fi
+      local cluster_name="$2"
+      shift 2
+      ;;
+    --kube)
+      if [ -z "$2" ]; then
+        printf "\e[31m请使用 --kube v1.33.3 参数指定Kubernetes版本\e[0m\n"
+        exit 1
+      fi
+      local kube_minor_version=$(echo $2|awk -F. '{print $2}')
+      if [ "${kube_minor_version}" -lt 30 ]; then
+        printf "\e[31m当前只支持下载Kubernetes v1.30.x版本的离线资源\e[0m\n"
+        exit 1
+      fi
+      local kube_version="$2"
+      shift 2
+      ;;
+    --arch)
+      if [ -z "$2" ]; then
+        printf "\e[31m请使用 --arch amd64 参数指定指定离线资源平台架构\e[0m\n"
+        exit 1
+      fi
+      if [ "$2" != "amd64" ] && [ "$2" != "arm64" ]; then
+        printf "\e[31m当前只支持 amd64 和 arm64 两种架构\e[0m\n"
+        exit 1
+      fi
+      local arch="$2"
+      shift 2
+      ;;
+    --only)
+      local only=true
+      shift
+      ;;
+    *)
+      printf "\e[31m未知参数: $1\e[0m\n"
+      exit 1
+      ;;
+    esac
+  done
+  if [ -z "${arch}" ]; then
+    arch=$(arch)
+  fi
+  if [ -z "${cluster_name}" ]; then
+    local var_file=$(dirname ${BASH_SOURCE[0]})/cluster_sample/group_vars/all.yml
+  else
+    local var_file=$(dirname ${BASH_SOURCE[0]})/inventories/${cluster_name}/group_vars/all.yml
+  fi
+  if [ "${only}" == "true" ] && [ ! -z "${kube_version}" ]; then
+    printf "\e[36m开始下载Kubernetes ${kube_version} 版本 ${arch} 平台的离线资源\e[0m\n"
+    ansible-playbook -e @"${var_file}" \
+     -e kube_version=${kube_version} \
+     -e arch_alias=${arch} \
+     --tags kube $(dirname ${BASH_SOURCE[0]})/debug.yml
+  elif [ "${only}" != "true" ] && [ ! -z "${kube_version}" ]; then
+    printf "\e[36m开始下载Kubernetes ${kube_version} 版本 ${arch} 平台的离线资源及组件和镜像\e[0m\n"
+    ansible-playbook -e @"${var_file}" \
+    -e kube_version=${kube_version} \
+    -e arch_alias=${arch} $(dirname ${BASH_SOURCE[0]})/debug.yml
+  else
+    printf "\e[36m开始下载 ${arch} 平台的离线资源及组件和镜像\e[0m\n"
+    ansible-playbook -e @"${var_file}" \
+    -e arch_alias=${arch} $(dirname ${BASH_SOURCE[0]})/debug.yml
+  fi
+}
+
 help(){
   echo "Usage: $0 <create|deploy> [mycluster]"
   echo "  create: Create a new cluster environment"
@@ -280,6 +352,10 @@ case $1 in
   ;;
   create)
   create_cluster $2
+  ;;
+  dl)
+  shift
+  download_res "$@"
   ;;
   *)
   help
