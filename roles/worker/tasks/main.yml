@@ -312,7 +312,7 @@
   delegate_to: "{{ groups['control'][0] }}"
 
 - name: Taint Control To NoSchedule
-  nsible.builtin.shell: |
+  ansible.builtin.shell: |
     if kubectl get nodes "{{ inventory_hostname }}" >/dev/null 2>&1; then
       kubectl taint nodes "{{ inventory_hostname }}" --overwrite=true node-role.kubernetes.io/master=:NoSchedule
     fi
