@@ -194,6 +194,8 @@
   shell: |
     ln -sfT {{ kubernetes_home }}/bin/kubectl /usr/local/bin/kubectl
     kubectl apply -f {{ kubernetes_home }}/etc/bootstrap.yaml
+  retries: 5
+  delay: 10
 
 - name: Kubernetes Control-Plane install complete
   ansible.builtin.debug:
