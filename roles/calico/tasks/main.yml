@@ -1,3 +1,11 @@
+---
+
+- name: Taint All Nodes To NoSchedule
+  ansible.builtin.shell: |
+    if kubectl get nodes "{{ item }}" >/dev/null 2>&1; then
+      kubectl taint nodes "{{ item }}" --overwrite=true node.k8spilot.io/network-not-ready=:NoSchedule
+    fi
+  loop: "{{ groups['worker'] }}"
 
 - name: Process Offline Images
   include_tasks: offline.yml
