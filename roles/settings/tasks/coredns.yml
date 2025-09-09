@@ -1,0 +1,25 @@
+---
+
+- name: Copy CoreDNS Images To Remote Host
+  ansible.builtin.copy:
+    src: "{{ image_path }}/coredns/{{ coredns_version }}/{{ arch_alias }}"
+    dest: "/tmp/coredns"
+  delegate_to: "{{ item }}"
+  loop: "{{ groups['worker'] }}"
+  when: method == 'offline'
+
+- name: Load CoreDNS Images
+  ansible.builtin.shell: |
+    find /tmp/coredns -name "*.tar"|xargs -n 1 ctr -n k8s.io i import
+  delegate_to: "{{ item }}"
+  loop: "{{ groups['worker'] }}"
+  when: method == 'offline'
+
+- name: Copy CoreDNS YML To Control
+  ansible.builtin.template:
+    src: coredns.yaml
+    dest: "{{ kubernetes_home }}/etc/coredns.yml"
+
+- name: Install CoreDNS {{ coredns_version }}
+  ansible.builtin.shell: |
+    kubectl apply -f {{ kubernetes_home }}/etc/coredns.yml

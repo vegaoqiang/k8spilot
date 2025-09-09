@@ -23,14 +23,8 @@
   ansible.builtin.include_role:
     name: "{{ cni_provider }}"
 
-- name: Copy CoreDNS YML To Control
-  ansible.builtin.template:
-    src: coredns.yaml
-    dest: "{{ kubernetes_home }}/etc/coredns.yml"
-
-- name: Install CoreDNS {{ coredns_version }}
-  ansible.builtin.shell: |
-    kubectl apply -f {{ kubernetes_home }}/etc/coredns.yml
+- name: Install CoreDNS
+  ansible.builtin.import_tasks: coredns.yml
 
 - name: Install CSI Driver
   ansible.builtin.include_role:
