@@ -1,5 +1,12 @@
 ---
 
+- name: Check Helm {{ helm_version }} Binary Exist
+  ansible.builtin.stat:
+    path: "{{ component_path }}/helm-{{ helm_version }}-linux-{{ arch_alias }}.tar.gz"
+  register: helm_stat
+  delegate_to: localhost
+  run_once: true
+
 - name: Downloading Helm {{ helm_version }}
   ansible.builtin.get_url:
     url: "{{ helm_download_url_prefix }}/helm-{{ helm_version }}-linux-{{ arch_alias }}.tar.gz"
