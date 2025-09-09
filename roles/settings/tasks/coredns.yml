@@ -11,6 +11,8 @@
 - name: Load CoreDNS Images
   ansible.builtin.shell: |
     find /tmp/coredns -name "*.tar"|xargs -n 1 ctr -n k8s.io i import
+  async: 3600
+  poll: 0
   delegate_to: "{{ item }}"
   loop: "{{ groups['worker'] }}"
   when: method == 'offline'
@@ -23,3 +25,5 @@
 - name: Install CoreDNS {{ coredns_version }}
   ansible.builtin.shell: |
     kubectl apply -f {{ kubernetes_home }}/etc/coredns.yml
+  retries: 5
+  delay: 10
