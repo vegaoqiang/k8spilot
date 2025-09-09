@@ -310,6 +310,7 @@
       kubectl certificate approve $csr
     done
   delegate_to: "{{ groups['control'][0] }}"
+  run_once: true
 
 - name: Taint Control To NoSchedule
   ansible.builtin.shell: |
@@ -317,6 +318,7 @@
       kubectl taint nodes "{{ inventory_hostname }}" --overwrite=true node-role.kubernetes.io/master=:NoSchedule
     fi
   delegate_to: "{{ groups['control'][0] }}"
+  run_once: true
   when: allow_master_schedule != true
 
 - name: Label Control Plane
