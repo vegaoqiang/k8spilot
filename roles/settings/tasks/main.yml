@@ -1,25 +1,15 @@
 ---
 
-- name: Wait 10s For Node Join The Cluster
-  ansible.builtin.wait_for:
-    timeout: 10
+- name: Check Helm is already installed
+  ansible.builtin.command: helm version
+  register: helm_check
+  ignore_errors: true
+  changed_when: false
+  failed_when: false
 
-- name: Approve Worker Sign Request
-  shell: |
-    for csr in $(kubectl get csr|grep 'Pending'|awk '{print $1}'); do
-      kubectl certificate approve $csr
-    done
-
-- name: Wait 10s For Node Ready
-  ansible.builtin.wait_for:
-    timeout: 10
-
-- name: Taint Control To NoSchedule
-  shell: |
-    if kubectl get nodes "{{ inventory_hostname }}" >/dev/null 2>&1; then
-      kubectl taint nodes "{{ inventory_hostname }}" --overwrite=true node-role.kubernetes.io/master=:NoSchedule
-    fi
-  when: allow_master_schedule != true
+- name: Install Helm Tools
+  ansible.builtin.import_tasks: helm.yml
+  when: helm_check.rc != 0
 
 - name: Taint All Nodes To NoSchedule
   ansible.builtin.shell: |
@@ -37,12 +27,6 @@
   loop: "{{ groups['worker'] }}"
   when: cni_provider == 'calico'
 
-- name: Label Control Plane
-  shell: |
-    if kubectl get nodes "{{ inventory_hostname }}" >/dev/null 2>&1; then
-      kubectl label nodes "{{ inventory_hostname }}" node-role.kubernetes.io/control-plane=
-    fi
-
 - name: Check Helm {{ helm_version }} Binary Exist
   ansible.builtin.stat:
     path: "{{ component_path }}/helm-{{ helm_version }}-linux-{{ arch_alias }}.tar.gz"
@@ -57,41 +41,6 @@
     mode: '0755'
   delegate_to: localhost
   run_once: true
-
-- name: Downloading Helm {{ helm_version }}
-  ansible.builtin.get_url:
-    url: "{{ helm_download_url_prefix }}/helm-{{ helm_version }}-linux-{{ arch_alias }}.tar.gz"
-    dest: "{{ component_path }}/helm-{{ helm_version }}-linux-{{ arch_alias }}.tar.gz"
-    mode: '0755'
-    timeout: 60
-  # amazon.aws.s3_object:
-  #   endpoint_url: "{{ s3_endpoint_url }}"
-  #   access_key: "{{ s3_access_key }}"
-  #   secret_key: "{{ s3_secret_key }}"
-  #   bucket: "{{ s3_bucket_name }}"
-  #   object: "helm/{{ helm_version }}/linux/{{ arch_alias }}/helm-{{ helm_version }}-linux-{{ arch_alias }}.tar.gz"
-  #   dest: "{{ component_path }}/helm-{{ helm_version }}-linux-{{ arch_alias }}.tar.gz"
-  #   mode: get
-  #   overwrite: different
-  delegate_to: localhost
-  run_once: true
-  retries: 5
-  delay: 10
-  when: helm_stat.stat.exists == false and method == 'online'
-
-- name: Copy Helm {{ helm_version }} Binary To Remote Host
-  ansible.builtin.copy:
-    src:  "{{ component_path }}/helm-{{ helm_version }}-linux-{{ arch_alias }}.tar.gz"
-    dest: "/tmp/helm-{{ helm_version }}-linux-{{ arch_alias }}.tar.gz"
-
-- name: Install Helm Binary On Remote Host
-  uncompress:
-    src:  "/tmp/helm-{{ helm_version }}-linux-{{ arch_alias }}.tar.gz"
-    dest: /usr/local/bin/
-    mode: '0755'
-    strip_components: 1
-    include:
-      - helm
 
 - name: Install CNI Plugin
   ansible.builtin.include_role:
