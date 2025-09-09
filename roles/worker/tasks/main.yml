@@ -311,6 +311,21 @@
     done
   delegate_to: "{{ groups['control'][0] }}"
 
+- name: Taint Control To NoSchedule
+  nsible.builtin.shell: |
+    if kubectl get nodes "{{ inventory_hostname }}" >/dev/null 2>&1; then
+      kubectl taint nodes "{{ inventory_hostname }}" --overwrite=true node-role.kubernetes.io/master=:NoSchedule
+    fi
+  delegate_to: "{{ groups['control'][0] }}"
+  when: allow_master_schedule != true
+
+- name: Label Control Plane
+  ansible.builtin.shell: |
+    if kubectl get nodes "{{ inventory_hostname }}" >/dev/null 2>&1; then
+      kubectl label nodes "{{ inventory_hostname }}" node-role.kubernetes.io/control-plane=
+    fi
+  delegate_to: "{{ groups['control'][0] }}"
+
 - name: Kubernetes Worker Install Complete
   ansible.builtin.debug:
     msg: "Kubernetes Worker Install Complete"
