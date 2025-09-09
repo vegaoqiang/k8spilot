@@ -325,6 +325,7 @@
       kubectl label nodes "{{ inventory_hostname }}" node-role.kubernetes.io/control-plane=
     fi
   delegate_to: "{{ groups['control'][0] }}"
+  run_once: true
 
 - name: Kubernetes Worker Install Complete
   ansible.builtin.debug:
