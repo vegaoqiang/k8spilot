@@ -4,7 +4,7 @@
 ## Requirements
 继续阅读该文档前，请查看您的环境是否已经满足离线安装Kubernetes的要求。
 
-+ 控制端不支持Windows，Windows用户可使用docker或者wsl方案替代：[Install WSL](https://learn.microsoft.com/en-us/windows/wsl/install), [k8spilot docker](getting-started-docker.md)
++ 控制端不支持Windows，Windows用户可使用docker或者wsl方案替代：[Install WSL](https://learn.microsoft.com/en-us/windows/wsl/install), [k8spilot docker](getting-started-docker-offline.md)
 + 被控端（用于安装`Kubernetes`的服务器）数量应该>=3
 + 所有被控端之间网络互通（通过内网）
 + 控制端能使用`root`账号登录所有被控端
