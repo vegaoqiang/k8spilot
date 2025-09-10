@@ -56,7 +56,9 @@ CoreDNS官方镜像地址是`docker.io/coredns/coredns:1.12.2`,在国内大部�
 
 :frog: **注意事项**   
 如果修改了镜像的地址，需要告诉k8spilot修改后的地址，否则k8spilot还是会使用原来的地址部署CoreDNS Deployment，从而导致Kubernetes无法拉取CoreDNS镜像。修改`k8spilot`安装配置文件中`registry_mirror`参数让k8spilot知道对应仓库被替换.  
-示例：  
+
+示例： 
+ 
 修改mycluster环境的安装配置文件 `./inventories/mycluster/group_vars/all.yml` 如下
 ```yml
 registry_mirror:
