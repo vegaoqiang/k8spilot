@@ -76,7 +76,7 @@ mycluster 集群环境已经创建成功，可编辑 ./inventories/mycluster/gro
 自定义 kubernetes 集群安装参数。
 使用 ./pilot deploy mycluster 命令开始部署 mycluster kubernetes 集群。
 ```
-至此`mycluster`集群环境已经创建好了，集群环境创建成功后，可以根据需求修改 `$(pwd)/inventories/mycluster/group_vars/all.yml` 文件自定义Kubernetes集群安装的配置，如组件、网络插件版本等。
+至此`mycluster`集群环境已经创建好了，集群环境创建成功后，可以根据需求修改 `$(pwd)/inventories/mycluster/group_vars/all.yml` 文件来自定义Kubernetes集群安装的配置，如组件、网络插件版本等。
 
 完整的交互信息如下图
 
