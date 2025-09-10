@@ -13,7 +13,18 @@
 + 所有被控端均为`Linux`，且内核版本`>=5.4`
 
 ## 下载离线资源
-请访问[]()，根据自己需要安装的Kubernetes版本，下载对应的离线资源，离线资源包下载完成后解压备用，开始安装集群时需要将离线资源目录映射到容器中。
+在开始使用离线方式安装Kubernetes前，先确保已经下载好了离线资源，如还没有离线资源，请查看离线资源下载文档：[下载离线资源](download-resource.md)
+
+特别的，使用k8spilot docker方式下载离线资源时，需要将容器中的离线资源目录挂载到宿主机上  
+执行以下命令开始下载离线资源：
+```shell
+sudo docker run --rm -it \
+ -v $(pwd):/k8spilot/inventories \
+ -v /tmp/resources:/k8spilot/resources \
+ quay.io/k8spilot/k8spilot:v1.0.4 bash ./pilot dl
+```
+>`$(pwd)`为当前目录，映射到容器中，用于存放k8spilot多环境配置文件，可以制定其他目录，如/tmp/
+>`/tmp/resources`为宿主机目录，可指定任意目录，将其映射到容器中的`/k8spilot/resources`目录
 
 ## 创建集群环境
 k8spilot支持安装和管理多套k8s集群，在开始安装Kubernetes集群之前，首先需要创建集群环境，以下是创建集群环境的几个步骤
