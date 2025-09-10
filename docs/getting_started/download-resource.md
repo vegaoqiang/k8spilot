@@ -3,6 +3,8 @@
 
 
 ## 使用pilot下载离线资源
+pilot会将所有离线资源下载k8spilot项目中的`resources`目录下，pilot从资源的官方github仓库和官方镜像仓库中获取对应资源文件，确保你的网络可以访问这些地址，否则可考虑使用[终端http代理](#设置终端代理) 或 [替换资源下载地址](#自定义资源下载地址)
+
 
 **下载所有离线文件**
 ```shell
@@ -35,9 +37,52 @@
 ```
 执行以上命令将下载`mycluster`环境对应的离线资源，可搭配`--kube v1.33.3`,`--arch arm64`等参数指定自定义版本
 
->当pilot部署多个环境的Kubernetes集群时，不同环境对应组件版本可能不一样，使用`--env`指定环境可下载对应版本的离线资源
+>当pilot部署多个环境的Kubernetes集群时，不同环境对应组件版本可能不一样，使用`--env`指定环境可下载该环境对应版本的离线资源
+
+## 设置终端代理
+pilot支持终端代理，在开始执行下载命令前，在终端执行以下设置代理的命令，pilot将自动应用代理
+```shell
+# 在终端执行
+export http_proxy="http://xxxx:port"
+export https_proxy="http://xxxx:port"
+```
+
+## 自定义资源下载地址
+当你无法访问资源下载地址或需要修改资源下载地址，如：修改指定镜像仓库为私有仓库，让离线镜像从私有仓库下载  
+可通过修改`k8spilot/download-config.yml`文件修改指定资源的下载地址，`k8spilot/download-config.yml`文件记录了所有离线资源的下载地址。
+
+:chestnut: **举个例子**  
+CoreDNS官方镜像地址是`docker.io/coredns/coredns:1.12.2`,在国内大部分情况下无法访问该镜像，可通过在`k8spilot/download-config.yml`中修改CoreDNS镜像地址为`m.daocloud.io/docker.io/coredns/coredns:1.12.2`,让pilot从这个镜像地址去下载CoreDNS镜像
+
+:frog: **注意事项**   
+如果修改了镜像的地址，需要告诉k8spilot修改后的地址，否则k8spilot还是会使用原来的地址部署CoreDNS Deployment，从而导致Kubernetes无法拉取CoreDNS镜像。修改`k8spilot`安装配置文件中`registry_mirror`参数让k8spilot知道对应仓库被替换.  
+示例：  
+修改mycluster环境的安装配置文件 `./inventories/mycluster/group_vars/all.yml` 如下
+```yml
+registry_mirror:
+  registry.k8s.io: "m.daocloud.io/registry.k8s.io"
+  docker.io: "m.daocloud.io/docker.io"
+```
+以上配置告诉k8spilot:  
+`registry.k8s.io`镜像仓库替换成了 `m.daocloud.io/registry.k8s.io`  
+`docker.io`镜像仓库替换成了 `m.daocloud.io/docker.io`  
+k8spilot在部署相关资源时即会修改其image地址为替换后的地址
+
+## 自定义资源版本
+如你修改了`mycluster`环境集群组件版本，如CoreDNS版本改为v1.12.4，现需要下载CoreDNS v1.12.4的离线镜像，可修改`k8spilot/download-config.yml`文件，在其中增加对应版本和镜像地址
+```yml
+coredns:
+  v1.12.2:
+    coredns: m.daocloud.io/docker.io/coredns/coredns:1.12.2
+  v1.12.4:
+    coredns: m.daocloud.io/docker.io/coredns/coredns:1.12.4
+```
+然后再执行: `./pilot dl --env mycluster` 可下载`coredns:1.12.4`离线镜像. 
+>当然你也可以手动下载`coredns:1.12.4`离线镜像，将下载好的镜像放在`./resources/images/coredns/v1.12.4/amd64/`目录下即可
+
 
 ## 离线资源目录结构
+`resources`为k8spilot离线资源目录，该目录需要放在k8spilot项目下，同时`resources`目录下分为四个子目录，分别存放不同类型的离线文件
 
 + **kubernetes** 目录用于存放各版本kubenetes二进制文件
 + **components** 目录用于存放所有集群组件二进制包和文件
@@ -139,3 +184,9 @@ resources
 
 30 directories, 61 files
 ```
+
+
+
+
+## 指定组件版本
+k8spilot默认的组件版本经过部署验证，一般情况下不推荐修改组件版本，可能会给集群造成
