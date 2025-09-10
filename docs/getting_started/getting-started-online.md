@@ -5,7 +5,7 @@
 继续阅读该文档前，请查看您的环境是否已经满足在线安装Kubernetes的要求。
 
 + 控制端（运行`k8spilot`的电脑/服务器）能访问互联网，不能访问互联网请使用离线方案
-+ 控制端不支持Windows，Windows用户可使用docker或者wsl方案替代：[Install WSL](https://learn.microsoft.com/en-us/windows/wsl/install), [k8spilot docker](getting-started-docker.md)
++ 控制端不支持Windows，Windows用户可使用docker或者wsl方案替代：[Install WSL](https://learn.microsoft.com/en-us/windows/wsl/install), [k8spilot docker](getting-started-docker-online.md)
 + 被控端（用于安装`Kubernetes`的服务器）数量应该>=3
 + 所有被控端能访问互联网，被控端之间网络互通（通过内网或者互联网连接）
 + 控制端能使用`root`账号登录所有被控端
