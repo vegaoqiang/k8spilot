@@ -1,4 +1,6 @@
-![k8spilot_log](docs/images/k8spilot_logo.png)
+<p align="center">
+  <img src="docs/images/k8spilot_logo.png"  width="300" align="center"/>
+</p>
 
 # k8spilot
 k8spilot可以简单、快速的搭建一个生产级别，纯净的Kuebrnetes集群；支持在线部署和在没有互联网的环境中离线部署Kubernetes集群，能帮你完成搭建Kubernetes集群时所有复杂的操作，你只需要提供运行Kubernetes的主机或服务器。
