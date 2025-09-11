@@ -322,16 +322,16 @@ download_res(){
     ansible-playbook -e @"${var_file}" \
      -e kube_version=${kube_version} \
      -e arch_alias=${arch} \
-     --tags kube $(dirname ${BASH_SOURCE[0]})/debug.yml
+     --tags kube $(dirname ${BASH_SOURCE[0]})/downloader.yml
   elif [ "${only}" != "true" ] && [ ! -z "${kube_version}" ]; then
     printf "\e[36m开始下载Kubernetes ${kube_version} 版本 ${arch} 平台的离线资源及组件和镜像\e[0m\n"
     ansible-playbook -e @"${var_file}" \
     -e kube_version=${kube_version} \
-    -e arch_alias=${arch} $(dirname ${BASH_SOURCE[0]})/debug.yml
+    -e arch_alias=${arch} $(dirname ${BASH_SOURCE[0]})/downloader.yml
   else
     printf "\e[36m开始下载 ${arch} 平台的离线资源及组件和镜像\e[0m\n"
     ansible-playbook -e @"${var_file}" \
-    -e arch_alias=${arch} $(dirname ${BASH_SOURCE[0]})/debug.yml
+    -e arch_alias=${arch} $(dirname ${BASH_SOURCE[0]})/downloader.yml
   fi
 }
 

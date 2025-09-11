@@ -1,0 +1,6 @@
+
+- name: Download Resource
+  hosts: localhost
+  roles:
+    - role: downloader
+      tags: [ downloader ] 
