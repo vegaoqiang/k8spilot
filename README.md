@@ -93,8 +93,6 @@ k8spilot可以简单、快速的搭建一个生产级别，纯净的Kuebrnetes�
 | **calico** | v3.30.2 |
 | **ingress-nginx** | v1.13.0 |
 
-> 网络插件安装时默认开启BPF模式，kube-proxy将被忽略安装
-
 ## 高级选项
 [Ingress](docs/config/ingress.md)  
 [cni provider](docs/config/cni-provider.md)  

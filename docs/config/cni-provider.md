@@ -19,3 +19,5 @@ cilium_version: v1.17.6
 # 网络插件类型，推荐使用cilium, 可选calico
 cni_provider: cilium
 ```
+
+> cilium和calico网络插件在安装时默认开启eBPF模式，kube-proxy将被忽略安装
