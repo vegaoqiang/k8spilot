@@ -13,6 +13,18 @@
 ## 下载离线资源
 在开始使用离线方式安装Kubernetes前，先确保已经下载好了离线资源，如还没有离线资源，请查看离线资源下载文档：[下载离线资源](download-resource.md)
 
+## 准备服务器
+
+**主控端**  
+主控端可是你的办公电脑(linux)，也可以是虚拟机或从被控端中选择一台作为主控端
+
+**被控端**  
+|主机名|作用|规格|IP地址|操作系统|
+|-|-|-|-|-|
+|control01|安装Kubernetes Control-Plane|4C8G|1.1.1.1|Rocky Linux 9|
+|worker01|安装Kubernetes Node|4C8G|2.2.2.2|Rocky Linux 9|
+|worker02|安装Kubernetes Node|4C8G|3.3.3.3|Rocky Linux 9|
+
 ## 创建集群环境
 k8spilot支持安装和管理多套k8s集群，在开始安装Kubernetes集群之前，首先需要创建集群环境，以下是创建集群环境的几个步骤
 
