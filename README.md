@@ -15,7 +15,7 @@ k8spilot可以简单、快速的搭建一个生产级别，纯净的Kuebrnetes�
 + 安装CoreDNS为集群内部DNS
 + 安装helm工具，helm安装在master节点上
 + 可选安装csi-driver-nfs作为集群默认StorageClass,见:[csi-driver-nfs](#csi-driver-nfs)
-+ 可选安装ingress-nginx作为集群默认IngressClass,见:[ingress-nginx](#ingress-nginx)
++ 可选安装ingress-nginx作为集群默认IngressClass,见:[ingress](#ingress-plugins)
 
 
 ## Requirements
@@ -96,8 +96,7 @@ k8spilot可以简单、快速的搭建一个生产级别，纯净的Kuebrnetes�
 > 网络插件安装时默认开启BPF模式，kube-proxy将被忽略安装
 
 ## Ingress Plugins
-+ **cilium ingress** 安装cilium网络时，默认开启cilium ingress功能作为默认ingress
-+ **ingress-nginx** 可选安装ingress-nginx作为默认ingress
+[Ingress](docs/config/ingress.md)
 
 ## 高级选项
 k8spilot支持自定义安装配置，选择/关闭部分插件和调整插件版本，请查看配置文件说明，文档待补充
