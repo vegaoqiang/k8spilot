@@ -18,6 +18,8 @@
     dest: "{{ component_path }}/go-containerregistry_{{ ansible_system }}_{{ ansible_architecture}}.tar.gz"
     mode: '0755'
     timeout: 60
+  retries: 5
+  delay: 10
 
 - name: Install Crane tool
   uncompress:
