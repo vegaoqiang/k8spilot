@@ -1,11 +1,11 @@
 # 安装k8spilot
 
-以下步骤演示将k8spilot下载安装到系统中, 如果使用k8spilot docker镜像请跳到[Docker方式使用k8spilot](#docker方式使用k8spilot)
+以下步骤演示将k8spilot下载安装到系统中, 如果使用k8spilot docker镜像请跳到[Docker方式使用k8spilot](getting-started-docker-online.md)
 
 ## 下载k8spilot
 
 ```shell
-tag=v1.0.4
+tag=v1.1.0
 wget https://github.com/vegaoqiang/k8spilot/archive/refs/tags/${tag}.tar.gz
 tar -xf ${tag}.tar.gz
 cd k8spilot-${tag##*v}
