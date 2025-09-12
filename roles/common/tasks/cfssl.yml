@@ -18,7 +18,7 @@
   
 - name: Downloading Cfssl {{ cfssl_version }}
   ansible.builtin.get_url:
-    url: "{{ cfssl_download_url_prefix }}/{{ cfssl_version|replace('v','') }}/{{ item.item }}_{{ cfssl_version|replace('v','') }}_linux_{{ arch_alias }}"
+    url: "{{ cfssl_download_url_prefix }}/{{ cfssl_version }}/{{ item.item }}_{{ cfssl_version|replace('v','') }}_linux_{{ arch_alias }}"
     dest: "{{ component_path }}/{{ item.item }}_{{ cfssl_version|replace('v','') }}_linux_{{ arch_alias }}"
     mode: '0755'
     timeout: 60
