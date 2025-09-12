@@ -87,39 +87,24 @@ select_install_method(){
 get_kube_version_online(){
   local cluster_name=$1
   VERSION=""
-  printf "\e[36m正在获取kubernetes版本信息\e[0m\n"
-  local version_list=$(curl -s --max-time 10 https://dl.k8spilot.icu/kubernetes/kube-versions)
-  if [ "$?" -ne 0 ] || [ -z "${version_list}" ]; then
-    local kube_version=$(grep 'kube_version' $(dirname ${BASH_SOURCE[0]})/cluster_sample/group_vars/all.yml|awk '{print $NF}')
-    printf "\e[36m在线读取kubernetes版本列表失败,将安装默认 ${kube_version} 是否安装？[Y/n]:\e[0m"
-    read confirm
-
-    local confirm="${confirm:-y}"
-    if [ "$(uname)" == "Darwin" ]; then
-      local confirm_lower=$(echo "$confirm" | awk '{print tolower($0)}')
-    else
-      local confirm_lower=${confirm,,}
-    fi
-    if [ "${confirm_lower}" == "n" ]; then
-      printf "\e[32m已取消安装\e[0m\n"
-      exit 0
-    fi
-  else
-    printf "\e[36m${version_list}\e[0m\n"
-    local default_version=$(echo "${version_list}"|sed -n '$p')
-    
-    printf "\e[36m请从以上版本列表选择并输入${cluster_name}环境安装的kubernetes版本 [默认:${default_version}]:\e[0m"
+  local default_version=$(grep 'kube_version' $(dirname ${BASH_SOURCE[0]})/cluster_sample/group_vars/all.yml|awk '{print $NF}')
+  while true; do
+    printf "\e[36m请输入${cluster_name}环境安装的kubernetes版本 [默认:${default_version}]:\e[0m"
     read VERSION
+    
     if [ ! -z "${VERSION}" ]; then
-      if ! echo "${version_list}"|grep ${VERSION} > /dev/null; then
-        printf "\e[31m你输入kubernetes版本${VERSION}不在支持列表中\e[0m\n"
-        exit 1
+      local kube_minor_version=$(echo "${VERSION}"|awk -F. '{print $2}')
+      if [ "${kube_minor_version}" -lt 30 ]; then
+        printf "\e[31m当前只支持安装Kubernetes v1.3x.x版本\e[0m\n"
+        continue
       fi
       printf "\e[32m已选择安装kubernetes $VERSION\e[0m\n"
+      break
     else
       VERSION=${default_version}
+      break
     fi
-  fi
+  done
 }
 
 get_kube_version_offline(){
@@ -157,7 +142,7 @@ get_kube_version_offline(){
 
 select_kube_version(){
   local cluster_name=$1
-  printf "\e[36m请选择${cluster_name}环境安装的Kubernetes版本\e[0m\n"
+  printf "\e[36m请选择${cluster_name}环境安装的Kubernetes版本,版本列表请浏览: https://www.downloadkubernetes.com\e[0m\n"
   if [ "${METHOD}" == "offline" ]; then
     get_kube_version_offline "${cluster_name}"
   elif [ "${METHOD}" == "online" ]; then
@@ -262,7 +247,7 @@ download_res(){
       fi
       local kube_minor_version=$(echo $2|awk -F. '{print $2}')
       if [ "${kube_minor_version}" -lt 30 ]; then
-        printf "\e[31m当前只支持下载Kubernetes v1.30.x版本的离线资源\e[0m\n"
+        printf "\e[31m当前只支持下载Kubernetes v1.3x.x版本的离线资源\e[0m\n"
         exit 1
       fi
       local kube_version="$2"
