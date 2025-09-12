@@ -291,8 +291,10 @@ download_res(){
   if [ -z "${arch}" ]; then
     arch='amd64'
   fi
+  local all_flag=false
   if [ -z "${cluster_name}" ]; then
     local var_file=$(dirname ${BASH_SOURCE[0]})/cluster_sample/group_vars/all.yml
+    all_flag=true
   else
     local var_file=$(dirname ${BASH_SOURCE[0]})/inventories/${cluster_name}/group_vars/all.yml
   fi
@@ -301,16 +303,19 @@ download_res(){
     ansible-playbook -e @"${var_file}" \
      -e kube_version=${kube_version} \
      -e arch_alias=${arch} \
+     -e all_flag="${all_flag}" \
      --tags kube $(dirname ${BASH_SOURCE[0]})/downloader.yml
   elif [ "${only}" != "true" ] && [ ! -z "${kube_version}" ]; then
     printf "\e[36m开始下载Kubernetes ${kube_version} 版本 ${arch} 平台的离线资源及组件和镜像\e[0m\n"
     ansible-playbook -e @"${var_file}" \
     -e kube_version=${kube_version} \
+    -e all_flag="${all_flag}" \
     -e arch_alias=${arch} $(dirname ${BASH_SOURCE[0]})/downloader.yml
   else
     printf "\e[36m开始下载 ${arch} 平台的离线资源及组件和镜像\e[0m\n"
     ansible-playbook -e @"${var_file}" \
-    -e arch_alias=${arch} $(dirname ${BASH_SOURCE[0]})/downloader.yml
+    -e arch_alias=${arch} \
+    -e all_flag="${all_flag}" $(dirname ${BASH_SOURCE[0]})/downloader.yml
   fi
 }
 

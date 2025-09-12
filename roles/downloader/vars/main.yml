@@ -6,7 +6,6 @@ calico:
     node: m.daocloud.io/docker.io/calico/node:v3.30.2
     cni: m.daocloud.io/docker.io/calico/cni:v3.30.2
     typha: m.daocloud.io/docker.io/calico/typha:v3.30.2
-    pilot-job: quay.io/k8spilot/pilot-job:v1.1
 
 cilium:
   v1.17.6:

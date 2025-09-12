@@ -36,6 +36,7 @@
       ./crane pull --platform linux/{{ arch_alias }} {{ item.value  }} {{ image_path }}/calico/{{ calico_version }}/{{ arch_alias }}/{{ item.key }}.tar
     fi
   loop: "{{ calico[calico_version] | dict2items }}"
+  when: cni_provider == "calico" or all_flag == 'true'
 
 - name: Downloading cilium {{ cilium_version }} component images
   ansible.builtin.shell: |
@@ -44,6 +45,7 @@
       ./crane pull --platform linux/{{ arch_alias }} {{ item.value  }} {{ image_path }}/cilium/{{ cilium_version }}/{{ arch_alias }}/{{ item.key }}.tar
     fi
   loop: "{{ cilium[cilium_version] | dict2items }}"
+  when: cni_provider == "cilium" or all_flag == 'true'
 
 - name: Downloading coredns {{ coredns_version }} image
   ansible.builtin.shell: |
@@ -60,6 +62,7 @@
       ./crane pull --platform linux/{{ arch_alias }} {{ item.value  }} {{ image_path }}/csi-nfs/{{ csi_nfs_version }}/{{ arch_alias }}/{{ item.key }}.tar
     fi
   loop: "{{ csi_driver_nfs[csi_nfs_version] | dict2items }}"
+  when: enable_csi_nfs or all_flag == 'true'
 
 - name: Downloading ingress-nginx {{ ingress_nginx_version }} component images
   ansible.builtin.shell: |
@@ -68,6 +71,7 @@
       ./crane pull --platform linux/{{ arch_alias }} {{ item.value  }} {{ image_path }}/ingress-nginx/{{ ingress_nginx_version }}/{{ arch_alias }}/{{ item.key }}.tar
     fi
   loop: "{{ ingress_nginx[ingress_nginx_version] | dict2items }}"
+  when: ingress_controller == 'ingress-nginx' or all_flag == 'true'
 
 # pause固定版本
 - name: Downloading pause {{ pause_version }} image
