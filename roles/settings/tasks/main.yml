@@ -11,13 +11,16 @@
   ansible.builtin.import_tasks: helm.yml
   when: helm_check.rc != 0
 
-- name: Create Components Directory
+- name: Create Components And Charts Directory
   ansible.builtin.file:
-    path: "{{ component_path }}"
+    path: "{{ item }}"
     state: directory
     mode: '0755'
   delegate_to: localhost
   run_once: true
+  loop:
+    - "{{ component_path }}"
+    - "{{ chart_path }}"
 
 - name: Install CNI Plugin
   ansible.builtin.include_role:
