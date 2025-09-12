@@ -112,11 +112,11 @@ get_kube_version_offline(){
   # 如果resources/kubernetes目录下只存在一个离线版本，直接修改配置文件为该版本，如果存在多个离线版本，让用户选择
   local version_list=$(find resources/kubernetes -maxdepth 1 -mindepth 1 -type d|awk -F/ '{print $NF}')
   VERSION=""
-  if [ $(echo "${version_list}"|wc -l) -gt 1 ]; then
+  if [ $(echo "${version_list}"|wc -l) -ge 1 ]; then
     local default_version=$(echo "${version_list}" | awk 'END{print}')
     printf "\e[36m${version_list}\e[0m\n"
     while true; do
-      printf "\e[36m发现多个离线版本，请手动输入 [默认 $default_version]:\e[0m"
+      printf "\e[36m发现以上离线版本，请手动输入 [默认 $default_version]:\e[0m"
       read VERSION
 
       if [ -z "${VERSION}" ]; then
@@ -129,8 +129,6 @@ get_kube_version_offline(){
         printf "\e[31m输入了无效版本，请核对后重新输入。\e[0m\n"
       fi
     done
-  elif [ $(echo "${version_list}"|wc -l) -eq 1 ]; then
-    VERSION="${version_list}"
   else
     local sample_version=$(grep 'kube_version' $(dirname ${BASH_SOURCE[0]})/cluster_sample/group_vars/all.yml|awk '{print $NF}')
     printf "\e[33m本地未找到离线资源，${cluster_name}环境的Kubernetes版本默认设置为: ${sample_version}，稍后可以手动编辑./inventories/${cluster_name}/group_vars/all.yml文件修改其中的kube_version值来指定版本。\e[0m\n"
@@ -153,18 +151,24 @@ select_kube_version(){
   fi
 }
 
+check_resource(){
+  local terget_resource=$1
+  if [ ! -d "${terget_resource}" ] || [ -z "$(ls ${terget_resource})" ]; then
+    return 1
+  fi
+  return 0
+}
+
 deploy_kube(){
   local cluster_name=$1
   local method=$(grep 'method' $(dirname ${BASH_SOURCE[0]})/inventories/${cluster_name}/group_vars/all.yml|awk '{print $NF}')
-  if [ "${method}" == "offline" ]; then
-    if [ ! -d "$(dirname ${BASH_SOURCE[0]})/resources" ] || [ ! -d "$(dirname ${BASH_SOURCE[0]})/resources/components" ] || \
-    [ ! -d "$(dirname ${BASH_SOURCE[0]})/resources/images" ] || [ ! -d "$(dirname ${BASH_SOURCE[0]})/resources/kubernetes" ] || \
-    [ -z "$(ls $(dirname ${BASH_SOURCE[0]})/resources/images)" ] || [ -z "$(ls $(dirname ${BASH_SOURCE[0]})/resources/kubernetes)" ]; then
-      printf "\e[33m当前为离线部署方式，但是缺少离线文件，请使用 ./pilot dl --env ${cluster_name} 下载离线文件\e[0m\n"
-      exit 1
-    fi
-  fi
   local kube_version=$(grep 'kube_version' $(dirname ${BASH_SOURCE[0]})/inventories/${cluster_name}/group_vars/all.yml|awk '{print $NF}')
+  if [ "${method}" == "offline" ]; then
+    $(check_resource "$(dirname ${BASH_SOURCE[0]})/resources/components") || { printf "\e[31m缺少components离线资源\e[0m\n"; exit 1; }
+    $(check_resource "$(dirname ${BASH_SOURCE[0]})/resources/images") || { printf "\e[31m缺少images离线资源\e[0m\n"; exit 1; }
+    $(check_resource "$(dirname ${BASH_SOURCE[0]})/resources/kubernetes/${kube_version}") || { printf "\e[31m缺少kubernetes ${kube_version} 离线资源\e[0m\n"; exit 1; }
+    $(check_resource "$(dirname ${BASH_SOURCE[0]})/resources/charts") || { printf "\e[31m缺少charts离线资源\e[0m\n"; exit 1; }
+  fi
   printf "\e[36m开始为${cluster_name}环境安装Kubernetes ${kube_version} 集群, 是否确认安装[Y/n]:\e[0m"
   read confirm
 
@@ -285,7 +289,7 @@ download_res(){
     esac
   done
   if [ -z "${arch}" ]; then
-    arch=$(arch)
+    arch='amd64'
   fi
   if [ -z "${cluster_name}" ]; then
     local var_file=$(dirname ${BASH_SOURCE[0]})/cluster_sample/group_vars/all.yml
