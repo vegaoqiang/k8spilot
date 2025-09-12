@@ -14,14 +14,14 @@
 
 - name: Downloading Crane tool
   ansible.builtin.get_url:
-    url: "https://github.com/google/go-containerregistry/releases/download/v0.20.6/go-containerregistry_{{ ansible_system }}_{{ arch_alias}}.tar.gz"
-    dest: "{{ component_path }}/go-containerregistry_{{ ansible_system }}_{{ arch_alias}}.tar.gz"
+    url: "https://github.com/google/go-containerregistry/releases/download/v0.20.6/go-containerregistry_{{ ansible_system }}_{{ ansible_architecture}}.tar.gz"
+    dest: "{{ component_path }}/go-containerregistry_{{ ansible_system }}_{{ ansible_architecture}}.tar.gz"
     mode: '0755'
     timeout: 60
 
 - name: Install Crane tool
   uncompress:
-    src: "{{ component_path }}/go-containerregistry_{{ ansible_system }}_{{ arch_alias}}.tar.gz"
+    src: "{{ component_path }}/go-containerregistry_{{ ansible_system }}_{{ ansible_architecture}}.tar.gz"
     dest: "{{ playbook_dir }}"
     include:
       - crane
