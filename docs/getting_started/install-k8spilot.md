@@ -35,4 +35,4 @@ pip3 install -r requirments -i https://mirrors.tuna.tsinghua.edu.cn/pypi/web/sim
 >dnf install -y sshpass
 >```
 
-至此，k8spilot已经安装到本地，如何使用k8spilot安装和管理Kubernetes，参见：[使用k8spilot](getting-started.md)
+至此，k8spilot已经安装到本地，如何使用k8spilot安装和管理Kubernetes，参见：[使用k8spilot](getting-started-online.md)
