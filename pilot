@@ -88,6 +88,7 @@ get_kube_version_online(){
   local cluster_name=$1
   VERSION=""
   local default_version=$(grep 'kube_version' $(dirname ${BASH_SOURCE[0]})/cluster_sample/group_vars/all.yml|awk '{print $NF}')
+  printf "\e[36m更多版本请浏览Kubernetes官方地址: https://www.downloadkubernetes.com\e[0m\n"
   while true; do
     printf "\e[36m请输入${cluster_name}环境安装的kubernetes版本 [默认:${default_version}]:\e[0m"
     read VERSION
@@ -142,7 +143,7 @@ get_kube_version_offline(){
 
 select_kube_version(){
   local cluster_name=$1
-  printf "\e[36m请选择${cluster_name}环境安装的Kubernetes版本,版本列表请浏览: https://www.downloadkubernetes.com\e[0m\n"
+  printf "\e[36m请选择${cluster_name}环境安装的Kubernetes版本\e[0m\n"
   if [ "${METHOD}" == "offline" ]; then
     get_kube_version_offline "${cluster_name}"
   elif [ "${METHOD}" == "online" ]; then
