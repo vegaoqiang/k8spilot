@@ -155,6 +155,15 @@ select_kube_version(){
 
 deploy_kube(){
   local cluster_name=$1
+  local method=$(grep 'method' $(dirname ${BASH_SOURCE[0]})/inventories/${cluster_name}/group_vars/all.yml|awk '{print $NF}')
+  if [ "${method}" == "offline" ]; then
+    if [ ! -d "$(dirname ${BASH_SOURCE[0]})/resources" ] || [ ! -d "$(dirname ${BASH_SOURCE[0]})/resources/components" ] || \
+    [ ! -d "$(dirname ${BASH_SOURCE[0]})/resources/images" ] || [ ! -d "$(dirname ${BASH_SOURCE[0]})/resources/kubernetes" ] || \
+    [ -z "$(ls $(dirname ${BASH_SOURCE[0]})/resources/images)" ] || [ -z "$(ls $(dirname ${BASH_SOURCE[0]})/resources/kubernetes)" ]; then
+      printf "\e[33m当前为离线部署方式，但是缺少离线文件，请使用 ./pilot dl --env ${cluster_name} 下载离线文件\e[0m\n"
+      exit 1
+    fi
+  fi
   local kube_version=$(grep 'kube_version' $(dirname ${BASH_SOURCE[0]})/inventories/${cluster_name}/group_vars/all.yml|awk '{print $NF}')
   printf "\e[36m开始为${cluster_name}环境安装Kubernetes ${kube_version} 集群, 是否确认安装[Y/n]:\e[0m"
   read confirm
