@@ -6,7 +6,7 @@
 k8spilot可以简单、快速的搭建一个生产级别，纯净的Kuebrnetes集群；支持在线部署和在没有互联网的环境中离线部署Kubernetes集群，能帮你完成搭建Kubernetes集群时所有复杂的操作，你只需要提供运行Kubernetes的主机或服务器。
 
 ## 功能概述
-+ Kubernetes安装版本可选择，可选的版本见: [版本列表](https://dl.k8spilot.icu/kubernetes/kube-versions)
++ Kubernetes安装版本可自定义，可选的版本见: [Kubernetes版本](https://www.downloadkubernetes.com/)
 + Kubernetes所有组件裸运行在系统中，而不是容器化部署，更稳定和易维护
 + 支持在线和离线两种方式部署Kubernetes集群，见: [安装方式介绍](#安装方式介绍)
 + 支持ARM架构服务器，自适应部署对应架构Kubernetes
