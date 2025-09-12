@@ -5,10 +5,12 @@
 ## 下载k8spilot
 
 ```shell
+cat <<EOF|bash
 tag=v1.1.0
-wget https://github.com/vegaoqiang/k8spilot/archive/refs/tags/${tag}.tar.gz
+curl -O https://github.com/vegaoqiang/k8spilot/archive/refs/tags/${tag}.tar.gz
 tar -xf ${tag}.tar.gz
 cd k8spilot-${tag##*v}
+EOF
 ```
 
 ## 安装依赖
@@ -18,9 +20,9 @@ cd k8spilot-${tag##*v}
 # 创建虚拟环境
 python3 -m venv .venv
 # 激活虚拟环境
-source .venv/bin/active
+source .venv/bin/activate
 # 安装依赖
-pip3 -r requirments -i https://mirrors.tuna.tsinghua.edu.cn/pypi/web/simple
+pip3 install -r requirments -i https://mirrors.tuna.tsinghua.edu.cn/pypi/web/simple
 ```
 
 > :warning: 在你的环境中，如果主控端是通过SSH密码登录被控端，主控端需要额外安装`sshpass`  
