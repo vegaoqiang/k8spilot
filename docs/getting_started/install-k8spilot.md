@@ -21,7 +21,7 @@ python3 -m venv .venv
 # 激活虚拟环境
 source .venv/bin/activate
 # 安装依赖
-pip3 install -r requirments -i https://mirrors.tuna.tsinghua.edu.cn/pypi/web/simple
+pip3 install -r requirements -i https://mirrors.tuna.tsinghua.edu.cn/pypi/web/simple
 ```
 
 > :warning: 在你的环境中，如果主控端是通过SSH密码登录被控端，主控端需要额外安装`sshpass`  
