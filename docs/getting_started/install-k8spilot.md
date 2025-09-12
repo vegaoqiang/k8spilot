@@ -5,12 +5,11 @@
 ## 下载k8spilot
 
 ```shell
-cat <<EOF|bash
 tag=v1.1.0
-curl -O https://github.com/vegaoqiang/k8spilot/archive/refs/tags/${tag}.tar.gz
+curl -OL https://github.com/vegaoqiang/k8spilot/archive/refs/tags/${tag}.tar.gz
 tar -xf ${tag}.tar.gz
 cd k8spilot-${tag##*v}
-EOF
+ls
 ```
 
 ## 安装依赖
